@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SelectableItemListFragment">
+        <attr name="selectableListContent" format="enum">
+            <enum name="EXAM" value="0"/>
+            <enum name="EXAMDOCUMENT" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>

@@ -1,0 +1,29 @@
+<resources>
+    <string name="host_app_name">EEM-Host</string>
+    <string name="client_app_name">EEM_Client</string>
+    <string name="library_name">eem_library</string>
+    <string name="wifi_password">Wifi password</string>
+    <string name="password">Password</string>
+    <string name="password2">Retype password</string>
+    <string name="password3">Old password</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="exam_name">Name of Exam:</string>
+    <string name="add">Add</string>
+    <string name="name">Name</string>
+    <string name="all">All</string>
+    <string name="del">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+    <string name="adoc">Allowed documents</string>
+    <string name="stext">Show text</string>
+    <string name="wifi_net_name">Name of network</string>
+    <string name="label_condev">Connected Devices</string>
+    <string name="lockpattern">Please enter a lock pattern for student devices to be connected!</string>
+    <string name="toast_read_files_warning">This App needs internal storage access for you to choose the allowed documents in the exam.</string>
+    <string name="toast_passwords_do_not_match">Passwords do not match!</string>
+    <string name="toast_old_password_incorrect">Old Password is incorrect!</string>
+    <string name="toast_exam_already_exists">The specified exam does already exist!</string>
+    <string name="toast_gps_neeeded_for_hotspot">This app needs gps to create the hotspot!</string>
+    <string name="alert_gps_for_hotspot">GPS needs to be enabled prior to creating the local hotspot, do you want to enable it?</string>
+</resources>

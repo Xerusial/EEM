@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainActivity">
+
+    <activity
+        android:id="@+id/lockActivity"
+        android:name="edu.hm.eem_host.view.LockActivity"
+        android:label="activity_lock"
+        tools:layout="@layout/activity_lock" />
+    <activity
+        android:id="@+id/examEditorActivity"
+        android:name="edu.hm.eem_host.view.ExamEditorActivity"
+        android:label="activity_exam_editor"
+        tools:layout="@layout/activity_exam_editor" />
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="edu.hm.eem_host.view.MainActivity"
+        android:label="activity_exam"
+        tools:layout="@layout/activity_main" >
+        <action
+            android:id="@+id/action_press_list"
+            app:destination="@id/lockActivity" />
+        <action
+            android:id="@+id/action_add_button"
+            app:destination="@id/examEditorActivity" />
+        <action
+            android:id="@+id/action_edit_button"
+            app:destination="@id/examEditorActivity" />
+    </activity>
+</navigation>
