@@ -14,11 +14,12 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/bt_req_wifi_info"
+        <Switch
+            android:id="@+id/sw_start_hotspot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Request Wifi Direct Info" />
+            android:text="@string/start_hotspot"
+            android:textAlignment="textStart" />
 
         <TextView
             android:id="@+id/header_net_name"
@@ -30,19 +31,19 @@
             android:id="@+id/net_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="@string/blank" />
 
         <TextView
             android:id="@+id/header_net_pw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Passphrase" />
+            android:text="@string/password" />
 
         <TextView
             android:id="@+id/net_pw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="@string/blank" />
 
         <TextView
             android:id="@+id/header_con_devices"

@@ -18,7 +18,6 @@ public class ExamListHost extends SelectableItemHost {
         private final FileObserver fileObserver;
 
         ExamListLiveData() {
-            super();
             fileObserver = new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
                 @Override
                 public void onEvent(int event, String path) {
