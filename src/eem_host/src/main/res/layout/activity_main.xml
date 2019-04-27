@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context="edu.hm.eem_host.view.MainActivity">
 
+    <!-- TODO Fix inflater exception on start -->
     <fragment
         android:id="@+id/fragment"
         android:name="edu.hm.eem_host.view.SelectableItemListFragment"

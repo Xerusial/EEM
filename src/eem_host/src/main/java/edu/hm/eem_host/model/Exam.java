@@ -2,24 +2,19 @@ package edu.hm.eem_host.model;
 
 import android.support.annotation.Nullable;
 
-import org.yaml.snakeyaml.constructor.AbstractConstruct;
-import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeId;
 import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
 public class Exam extends Nameable{
     private byte[] salt;
@@ -68,16 +63,16 @@ public class Exam extends Nameable{
                     for(NodeTuple nt : list){
                         Node knode = nt.getKeyNode();
                         Node vnode = nt.getValueNode();
-                        String tag = (String) yamlConstructors.get(Tag.STR).construct(knode);
+                        String tag = (String) Objects.requireNonNull(yamlConstructors.get(Tag.STR)).construct(knode);
                         switch(tag){
                             case "name":
-                                name = (String) yamlConstructors.get(Tag.STR).construct(vnode);
+                                name = (String) Objects.requireNonNull(yamlConstructors.get(Tag.STR)).construct(vnode);
                                 break;
                             case "allDocumentsAllowed":
-                                allDocumentsAllowed = (boolean) yamlConstructors.get(Tag.BOOL).construct(vnode);
+                                allDocumentsAllowed = (boolean) Objects.requireNonNull(yamlConstructors.get(Tag.BOOL)).construct(vnode);
                                 break;
                             case "salt":
-                                salt = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
+                                salt = (byte[]) Objects.requireNonNull(yamlConstructors.get(Tag.BINARY)).construct(vnode);
                                 break;
                             case "passwordHash":
                                 passwordHash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);

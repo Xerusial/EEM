@@ -1,92 +1,70 @@
 package edu.hm.eem_library.net;
 
-import android.arch.lifecycle.Observer;
-import android.support.annotation.Nullable;
+import android.app.Application;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
+import android.support.annotation.StringRes;
+import android.widget.Toast;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.nio.ByteBuffer;
-import java.util.Stack;
+import java.io.InputStream;
+import java.net.Socket;
 
-import static java.lang.System.exit;
+import edu.hm.eem_library.R;
 
 public abstract class ProtocolManager {
-    public enum PacketId{
-        // only 256 values available!!!
-        REQUEST_PORT, SEND_PORT;
+    protected final String SERVICE_NAME = "ExamMode";
+    protected final String SERVICE_TYPE = "_exammode._tcp";
+    protected NsdServiceInfo serviceInfo;
+    protected NsdManager nsdm;
+    protected ReceiverThread receiverThread;
+    private final Application apl;
+    private final Toast toast;
 
-        private static PacketId[] values = null;
-
-        public byte toByte(){
-            return (byte) ordinal();
-        }
-
-        public static PacketId fromByte(byte b){
-            return fromInt(b);
-        }
-
-        public static PacketId fromInt(int i) {
-            if(PacketId.values == null) {
-                PacketId.values = PacketId.values();
-            }
-            return PacketId.values[i];
-        }
+    public ProtocolManager(NsdManager nsdm, Application apl) {
+        this.nsdm = nsdm;
+        this.apl = apl;
+        toast = new Toast(apl);
+        toast.setDuration(Toast.LENGTH_SHORT);
     }
 
-    public static final int SETUP_PORT = 31041;
+    /* Protocol Receiver Thread
+     * The server opens one thread for each socket, the client has only got one thread.
+     */
+    public class ReceiverThread extends Thread {
+        private Socket inputSocket;
 
-    protected final Stack<byte[]> udpStack = new Stack<>();
-    private DatagramSocket datagramSocket;
-    private UdpReceiverThread udpReceiverThread;
-    private Observer stackObserver;
-
-    public ProtocolManager(){
-        try {
-            datagramSocket = new DatagramSocket();
-            udpReceiverThread = new UdpReceiverThread();
-            stackObserver = new Observer() {
-                @Override
-                public void onChanged(@Nullable Object o) {
-                    onUdpReceive();
-                }
-            };
-            udpReceiverThread.run();
-        } catch (SocketException e) {
-            e.printStackTrace();
-            exit(1);
+        public ReceiverThread(Socket inputSocket) {
+            this.inputSocket = inputSocket;
         }
-    }
 
-    protected abstract void onUdpReceive();
-
-    public boolean sendMessage(PacketId id, ByteBuffer message, InetAddress address){
-        boolean ret = true;
-        message.flip(); // from here, limit represents the actual data size of the buffer
-        int msgLength = message.limit() + 1;
-        ByteBuffer messageBuffer = ByteBuffer.allocate(msgLength).put(id.toByte()).put(message);
-        DatagramPacket p = new DatagramPacket(messageBuffer.array(), msgLength, address, SETUP_PORT);
-        try {
-            datagramSocket.send(p);
-        } catch (IOException e){
-            e.printStackTrace();
-            ret = false;
-        }
-        return ret;
-    }
-
-    private class UdpReceiverThread implements Runnable {
-        private DatagramPacket p;
         @Override
         public void run() {
-            try {
-                datagramSocket.receive(p);
-                udpStack.push(p.getData());
-            } catch (IOException e){
-                e.printStackTrace();
+            InputStream is = inputSocket.getInputStream();
+            while (true) {
+                Object[] header = DataPacket.readHeader(is);
+                if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
+                    putToast(R.string.toast_protocol_too_new);
+                }
+                switch ((DataPacket.Type) header[1]) {
+                    case NAME:
+                        login(LoginPacket.readData(is));
+                        break;
+                    case EXAMFILE:
+                        break;
+                }
             }
+        }
+    }
+
+    protected abstract void login(String name);
+
+    /* This method prevents the receiverThreads from flooding the application with toasts.
+     * Only one toast is shown at a time.
+     */
+    private void putToast(@StringRes int resId){
+        if(toast.getView() == null) {
+            toast.setText(apl.getString(resId));
+            toast.show();
         }
     }
 }
