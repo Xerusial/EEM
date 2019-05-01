@@ -7,7 +7,7 @@
 
     <activity
         android:id="@+id/mainActivity"
-        android:name="edu.hm.eem_client.MainActivity"
+        android:name="edu.hm.eem_client.view.MainActivity"
         android:label="activity_main"
         tools:layout="@layout/activity_main" >
         <action
@@ -16,7 +16,7 @@
     </activity>
     <activity
         android:id="@+id/settingsActivity"
-        android:name="edu.hm.eem_client.SettingsActivity"
+        android:name="edu.hm.eem_client.view.SettingsActivity"
         android:label="activity_settings"
         tools:layout="@layout/activity_settings" />
 </navigation>

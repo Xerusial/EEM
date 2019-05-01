@@ -26,8 +26,13 @@ public class ClientProtocolManager extends ProtocolManager {
         this.stringMapLiveData = stringMapLiveData;
         initializeDiscoveryListener();
         initializeResolveListener();
-        nsdm.discoverServices(
-                SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+    }
+
+    public void discover(boolean on){
+        if(on)
+            nsdm.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+        else
+            nsdm.stopServiceDiscovery(discoveryListener);
     }
 
     public void initializeResolveListener() {

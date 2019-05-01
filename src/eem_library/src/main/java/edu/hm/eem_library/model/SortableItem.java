@@ -1,7 +1,7 @@
 package edu.hm.eem_library.model;
 
 public class SortableItem<S extends Comparable<? super S>, T> implements Comparable<SortableItem<S,T>>{
-    final S sortableKey;
+    public final S sortableKey;
     final T item;
 
     SortableItem(S sortableKey, T item) {

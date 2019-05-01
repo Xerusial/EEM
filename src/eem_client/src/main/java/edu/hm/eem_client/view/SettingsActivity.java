@@ -1,4 +1,4 @@
-package edu.hm.eem_client;
+package edu.hm.eem_client.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+
+import edu.hm.eem_client.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

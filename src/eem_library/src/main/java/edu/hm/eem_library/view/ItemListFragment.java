@@ -18,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.SelectableSortableMapLiveData;
+import edu.hm.eem_library.model.SortableMapLiveData;
 import edu.hm.eem_library.model.StringMapViewModel;
 import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.ExamListViewModel;
@@ -88,9 +90,10 @@ public class ItemListFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             if(content.ordinal()>ItemListContent.EXAMDOCUMENT.ordinal()){
-                adapter = new ItemRecyclerViewAdapter(model.getLivedata());
+                adapter = new ItemRecyclerViewAdapter((SortableMapLiveData<String, ?>) model.getLivedata());
             } else {
-                adapter = new SelectableItemRecyclerViewAdapter(model.getLivedata(), (OnListFragmentPressListener) context,
+                adapter = new SelectableItemRecyclerViewAdapter((SelectableSortableMapLiveData<String, ?>) model.getLivedata(),
+                        (OnListFragmentPressListener) context,
                         ContextCompat.getColor(getActivity(), R.color.colorPrimary),
                         ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
             }
@@ -142,6 +145,6 @@ public class ItemListFragment extends Fragment {
 
     public interface OnListFragmentPressListener {
         void onListFragmentPress(int index);
-        void onListFragmentLongPress(int selectionCounter);
+        void onListFragmentLongPress();
     }
 }

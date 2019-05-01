@@ -33,6 +33,10 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
         return ret;
     }
 
+    public boolean isSelected(int index){
+        return selection[index];
+    }
+
     public int getSelectionCount(){
         return selectionCounter;
     }
