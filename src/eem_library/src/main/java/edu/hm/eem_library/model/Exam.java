@@ -1,4 +1,4 @@
-package edu.hm.eem_host.model;
+package edu.hm.eem_library.model;
 
 import android.support.annotation.Nullable;
 
@@ -14,20 +14,24 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-public class Exam extends Nameable{
+public class Exam{
     private byte[] salt;
     private byte[] passwordHash;
-    public boolean allDocumentsAllowed;
+    private boolean allDocumentsAllowed;
     LinkedList<ExamDocument> allowedDocuments;
 
-    Exam(String name, boolean allDocumentsAllowed, @Nullable byte[] salt) {
-        super(name);
+    Exam(boolean allDocumentsAllowed, @Nullable byte[] salt) {
         this.allDocumentsAllowed = allDocumentsAllowed;
         if(salt==null) this.salt = SHA256TOOLBOX.genSalt();
         else this.salt=salt;
         allowedDocuments = new LinkedList<>();
+    }
+
+    private Exam(boolean allDocumentsAllowed, byte[] salt, byte[] passwordHash, LinkedList<ExamDocument> allowedDocuments){
+        this(allDocumentsAllowed, salt);
+        this.passwordHash = passwordHash;
+        this.allowedDocuments = allowedDocuments;
     }
 
     public void setPassword(String pw) {
@@ -38,10 +42,6 @@ public class Exam extends Nameable{
         return Arrays.equals(passwordHash, SHA256TOOLBOX.genSha256(pw,salt));
     }
 
-    private void setPasswordHash(byte[] passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
     static class ExamConstructor extends Constructor {
         ExamConstructor() {
             yamlClassConstructors.put(NodeId.mapping, new ExamConstruct());
@@ -50,11 +50,10 @@ public class Exam extends Nameable{
         class ExamConstruct extends Constructor.ConstructMapping {
             @Override
             public Object construct(Node nnode) {
-                if (nnode.getTag().equals(new Tag(Tag.PREFIX + "edu.hm.eem_host.model.Exam"))) {
+                if (nnode.getTag().equals(new Tag(Tag.PREFIX + "edu.hm.eem_library.model.Exam"))) {
                     MappingNode mnode = (MappingNode) nnode;
                     List<NodeTuple> list = mnode.getValue();
 
-                    String name = null;
                     LinkedList<ExamDocument> allowedDocuments= new LinkedList<>();
                     boolean allDocumentsAllowed = false;
                     byte[] salt = null;
@@ -63,16 +62,13 @@ public class Exam extends Nameable{
                     for(NodeTuple nt : list){
                         Node knode = nt.getKeyNode();
                         Node vnode = nt.getValueNode();
-                        String tag = (String) Objects.requireNonNull(yamlConstructors.get(Tag.STR)).construct(knode);
+                        String tag = (String) yamlConstructors.get(Tag.STR).construct(knode);
                         switch(tag){
-                            case "name":
-                                name = (String) Objects.requireNonNull(yamlConstructors.get(Tag.STR)).construct(vnode);
-                                break;
                             case "allDocumentsAllowed":
-                                allDocumentsAllowed = (boolean) Objects.requireNonNull(yamlConstructors.get(Tag.BOOL)).construct(vnode);
+                                allDocumentsAllowed = (boolean) yamlConstructors.get(Tag.BOOL).construct(vnode);
                                 break;
                             case "salt":
-                                salt = (byte[]) Objects.requireNonNull(yamlConstructors.get(Tag.BINARY)).construct(vnode);
+                                salt = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
                                 break;
                             case "passwordHash":
                                 passwordHash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
@@ -81,17 +77,14 @@ public class Exam extends Nameable{
                                 SequenceNode snode = (SequenceNode) vnode;
                                 for(Node child : snode.getValue()) {
                                     Map<String, String> map = (Map<String, String>) yamlConstructors.get(Tag.MAP).construct(child);
-                                    allowedDocuments.add(new ExamDocument(map.get("name"),map.get("path")));
+                                    allowedDocuments.add(new ExamDocument(map.get("name"), map.get("path")));
                                 }
                                 break;
                             default:
                                 break;
                         }
                     }
-                    Exam ret = new Exam(name, allDocumentsAllowed, salt);
-                    ret.setPasswordHash(passwordHash);
-                    ret.allowedDocuments = allowedDocuments;
-                    return ret;
+                    return new Exam(allDocumentsAllowed, salt, passwordHash, allowedDocuments);
                 }
                 return null;
             }

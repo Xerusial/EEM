@@ -1,15 +1,14 @@
-package edu.hm.eem_host.model;
+package edu.hm.eem_library.model;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 
 import java.io.File;
 
-public abstract class SelectableItemHost extends AndroidViewModel {
+abstract class FilebackedItemViewModel<T extends MutableLiveData> extends ItemViewModel<T> {
     File examDir;
 
-    SelectableItemHost(Application application){
+    FilebackedItemViewModel(Application application){
         super(application);
         String internalStoragePath = application.getFilesDir().getPath() + File.separator + "exams";
         examDir = new File(internalStoragePath);
@@ -17,6 +16,4 @@ public abstract class SelectableItemHost extends AndroidViewModel {
             //noinspection ResultOfMethodCallIgnored
             examDir.mkdir();
     }
-
-    public abstract <T extends Nameable> MutableLiveData<SelectableItemList<T>> getLivedata();
 }

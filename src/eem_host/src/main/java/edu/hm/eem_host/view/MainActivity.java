@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -15,21 +16,20 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_host.model.ExamListHost;
-import edu.hm.eem_host.model.Nameable;
-import edu.hm.eem_host.model.SelectableItem;
+import edu.hm.eem_library.model.ExamListViewModel;
+import edu.hm.eem_library.model.Nameable;
+import edu.hm.eem_library.view.ItemListFragment;
 
-public class MainActivity extends AppCompatActivity implements SelectableItemListFragment.OnListFragmentPressListener {
+public class MainActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener {
 
-    private enum ActivityType {EDITOR,LOCK}
-    private ExamListHost model;
+    private ExamListViewModel model;
     private ImageButton del_button;
     private ImageButton edit_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        model = ViewModelProviders.of(this).get(ExamListHost.class);
+        model = ViewModelProviders.of(this).get(ExamListViewModel.class);
         setContentView(R.layout.activity_main);
         del_button = findViewById(R.id.bt_del_exam);
         del_button.setOnClickListener(new View.OnClickListener() {
@@ -42,15 +42,8 @@ public class MainActivity extends AppCompatActivity implements SelectableItemLis
         edit_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = null;
-                for(SelectableItem<Nameable> exam : model.getLivedata().getValue()){
-                    if(exam.selected) {
-                        name = exam.dataItem.getName();
-                        break;
-                    }
-                }
-                if(name!=null)
-                    startSubApplication(name, ActivityType.EDITOR);
+                String name = model.getLivedata().getValue().getSelected().getName();
+                startSubApplication(name, ExamEditorActivity.class);
             }
         });
         findViewById(R.id.bt_add_exam).setOnClickListener(new View.OnClickListener() {
@@ -60,6 +53,12 @@ public class MainActivity extends AppCompatActivity implements SelectableItemLis
                 InputMethodManager imm = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
+        findViewById(R.id.bt_settings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSubApplication(null, SettingsActivity.class);
             }
         });
         buttonSetEnabled(del_button, false);
@@ -73,14 +72,12 @@ public class MainActivity extends AppCompatActivity implements SelectableItemLis
 
     @Override
     public void onListFragmentPress(int index){
-        startSubApplication(model.getLivedata().getValue().get(index).dataItem.getName(), ActivityType.LOCK);
+        startSubApplication(model.getLivedata().getValue().get(index).getName(), LockActivity.class);
     }
 
     @Override
     public void onListFragmentLongPress(){
-        int sel_cnt = 0;
-        for(SelectableItem<Nameable> item : model.getLivedata().getValue())
-            if(item.selected) sel_cnt++;
+        int sel_cnt = model.getLivedata().getValue().getSelectionCount();
         buttonSetEnabled(del_button,sel_cnt>0);
         buttonSetEnabled(edit_button,sel_cnt==1);
     }
@@ -95,22 +92,18 @@ public class MainActivity extends AppCompatActivity implements SelectableItemLis
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String text = input.getText().toString();
                 boolean namesChecked = true;
-                for(SelectableItem item : model.getLivedata().getValue())
-                    if(item.dataItem.getName().equals(text)) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.toast_exam_already_exists), Toast.LENGTH_SHORT).show();
-                        namesChecked= false;
-                        break;
-                    }
-                if(namesChecked) startSubApplication(text, ActivityType.EDITOR);
+                if(model.getLivedata().getValue().contains(new Nameable(text)))
+                    Toast.makeText(getApplicationContext(), getString(R.string.toast_exam_already_exists), Toast.LENGTH_SHORT).show();
+                else startSubApplication(text, ExamEditorActivity.class);
 
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -119,13 +112,9 @@ public class MainActivity extends AppCompatActivity implements SelectableItemLis
         builder.show();
     }
 
-    private void startSubApplication(String examName, ActivityType type){
-        Intent intent;
-        if(type==ActivityType.EDITOR)
-            intent = new Intent(MainActivity.this, ExamEditorActivity.class);
-        else
-            intent = new Intent(MainActivity.this, LockActivity.class);
-        intent.putExtra("Name",examName);
+    private void startSubApplication(@Nullable String examName, Class<?> cls){
+        Intent intent = new Intent(MainActivity.this, cls)
+        if(examName!=null) intent.putExtra("Name",examName);
         startActivity(intent);
     }
 }

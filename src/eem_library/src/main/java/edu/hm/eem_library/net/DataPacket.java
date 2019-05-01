@@ -14,7 +14,7 @@ public abstract class DataPacket {
        Data specification can be found in the respective child-classes.
      */
     public enum Type {
-        NAME, EXAMFILE;
+        LOGIN, EXAMFILE, INVALID_LOGIN;
 
         private static Type[] values = null;
 
@@ -57,10 +57,11 @@ public abstract class DataPacket {
         }
     }
 
-    static final Object[] readHeader(InputStream is){
+    static Object[] readHeader(InputStream is){
         Object[] ret = new Object[HEADER_FIELDS];
         byte[] bytes = new byte[HEADER_SIZE];
         try {
+            //noinspection ResultOfMethodCallIgnored
             is.read(bytes);
         } catch (IOException e) {
             e.printStackTrace();

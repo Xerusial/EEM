@@ -1,11 +1,11 @@
-package edu.hm.eem_host.view;
+package edu.hm.eem_library.view;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -17,24 +17,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import edu.hm.eem_host.R;
-import edu.hm.eem_host.model.ExamHost;
-import edu.hm.eem_host.model.ExamListHost;
-import edu.hm.eem_host.model.Nameable;
-import edu.hm.eem_host.model.SelectableItemHost;
-import edu.hm.eem_host.model.SelectableItemList;
+import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.StringMapViewModel;
+import edu.hm.eem_library.model.ExamViewModel;
+import edu.hm.eem_library.model.ExamListViewModel;
+import edu.hm.eem_library.model.ItemViewModel;
 
-enum SelectableListContent
+enum ItemListContent
 {
-    EXAM(0), EXAMDOCUMENT(1);
+    EXAM(0), EXAMDOCUMENT(1), DEVICE(2);
     int id;
 
-    SelectableListContent(int id) {
+    ItemListContent(int id) {
         this.id = id;
     }
 
-    static SelectableListContent fromId(int id) {
-        for (SelectableListContent c : values()) {
+    static ItemListContent[] values = null;
+
+    static ItemListContent fromId(int id) {
+        if(values==null) values=values();
+        for (ItemListContent c : values) {
             if (c.id == id) return c;
         }
         throw new IllegalArgumentException();
@@ -47,20 +49,19 @@ enum SelectableListContent
  * Activities containing this fragment MUST implement the {@link OnListFragmentPressListener}
  * interface.
  */
-public class SelectableItemListFragment extends Fragment {
+public class ItemListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private SelectableItemRecyclerViewAdapter adapter;
-    private OnListFragmentPressListener mListener;
-    private SelectableListContent content;
-    private SelectableItemHost model;
+    private ItemRecyclerViewAdapter adapter;
+    private ItemListContent content;
+    private ItemViewModel model;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public SelectableItemListFragment() {
+    public ItemListFragment() {
     }
 
     @Override
@@ -73,9 +74,9 @@ public class SelectableItemListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_selectableitemlist, container, false);
+        View view = inflater.inflate(R.layout.fragment_itemlist, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -86,9 +87,13 @@ public class SelectableItemListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            adapter = new SelectableItemRecyclerViewAdapter(mListener, model,
-                    ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-                    ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+            if(content.ordinal()>ItemListContent.EXAMDOCUMENT.ordinal()){
+                adapter = new ItemRecyclerViewAdapter(model.getLivedata());
+            } else {
+                adapter = new SelectableItemRecyclerViewAdapter(model.getLivedata(), (OnListFragmentPressListener) context,
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimary),
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+            }
             recyclerView.setAdapter(adapter);
         }
         return view;
@@ -97,27 +102,26 @@ public class SelectableItemListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mListener = (OnListFragmentPressListener) context;
-        if(content==SelectableListContent.EXAM)
-            model = ViewModelProviders.of(getActivity()).get(ExamListHost.class);
-        else
-            model = ViewModelProviders.of(getActivity()).get(ExamHost.class);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-        model.getLivedata().getValue().clearSelection();
+        switch (content){
+            case EXAM:
+                model = ViewModelProviders.of(getActivity()).get(ExamListViewModel.class);
+                break;
+            case EXAMDOCUMENT:
+                model = ViewModelProviders.of(getActivity()).get(ExamViewModel.class);
+                break;
+            case DEVICE:
+                model = ViewModelProviders.of(getActivity()).get(StringMapViewModel.class);
+                break;
+        }
     }
 
     @Override
     public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
 
-        TypedArray a = context.obtainStyledAttributes(attrs,R.styleable.SelectableItemListFragment);
-        if (a.hasValue(R.styleable.SelectableItemListFragment_selectableListContent)) {
-            content = SelectableListContent.fromId(a.getInt(R.styleable.SelectableItemListFragment_selectableListContent, 0));
+        TypedArray a = context.obtainStyledAttributes(attrs,R.styleable.ItemListFragment);
+        if (a.hasValue(R.styleable.ItemListFragment_ListContent)) {
+            content = ItemListContent.fromId(a.getInt(R.styleable.ItemListFragment_ListContent, 0));
         }
 
         a.recycle();
@@ -128,9 +132,9 @@ public class SelectableItemListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //pass lifecycle from view because if the fragment gets reattached, the old observer would
         // not be destroyed, if we would pass the lifecycle of the fragment
-        model.getLivedata().observe(getViewLifecycleOwner(), new Observer<SelectableItemList<Nameable>>() {
+        model.getLivedata().observe(getViewLifecycleOwner(), new Observer<String[]>() {
             @Override
-            public void onChanged(@Nullable SelectableItemList<Nameable> selectableItemList) {
+            public void onChanged(@Nullable String[] selectableItemList) {
                 adapter.notifyDataSetChanged();
             }
         });
@@ -138,6 +142,6 @@ public class SelectableItemListFragment extends Fragment {
 
     public interface OnListFragmentPressListener {
         void onListFragmentPress(int index);
-        void onListFragmentLongPress();
+        void onListFragmentLongPress(int selectionCounter);
     }
 }

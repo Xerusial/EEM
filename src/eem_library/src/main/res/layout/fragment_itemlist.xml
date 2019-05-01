@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="edu.hm.eem_host.view.SelectableItemListFragment"
-    tools:listitem="@layout/fragment_selectableitem" />
+    tools:context="edu.hm.eem_host.edu.hm.eem_library.view.ItemListFragment"
+    tools:listitem="@layout/fragment_item" />

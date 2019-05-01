@@ -108,11 +108,11 @@
 
         <fragment
             android:id="@+id/docList"
-            android:name="edu.hm.eem_host.view.SelectableItemListFragment"
+            android:name="edu.hm.eem_library.view.ItemListFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:selectableListContent="EXAMDOCUMENT"
-            tools:layout="@layout/fragment_selectableitemlist" />
+            tools:layout="@layout/fragment_itemlist" />
 
     </LinearLayout>
 

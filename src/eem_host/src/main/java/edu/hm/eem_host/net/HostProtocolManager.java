@@ -1,5 +1,6 @@
 package edu.hm.eem_host.net;
 
+import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 
@@ -9,6 +10,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.hm.eem_library.model.StringMapViewModel;
 import edu.hm.eem_library.net.ProtocolManager;
 
 public class HostProtocolManager extends ProtocolManager {
@@ -17,14 +19,16 @@ public class HostProtocolManager extends ProtocolManager {
     private Map<Socket, String> socketMap = new HashMap<>();
     private String serviceName = SERVICE_NAME;
     private String profName;
+    private StringMapViewModel.StringMapLiveData peerList;
 
     Thread serverThread = null;
 
-    public HostProtocolManager(NsdManager nsdm, String profName) {
-        super(nsdm);
+    public HostProtocolManager(NsdManager nsdm, Context context, String profName, StringMapViewModel.StringMapLiveData peerList) {
+        super(nsdm, context);
         this.profName = profName;
         this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();
+        this.peerList = peerList;
     }
 
     void finalize() {
@@ -105,4 +109,8 @@ public class HostProtocolManager extends ProtocolManager {
         };
     }
 
+    @Override
+    protected boolean login(String name) {
+        return peerList.add(name);
+    }
 }

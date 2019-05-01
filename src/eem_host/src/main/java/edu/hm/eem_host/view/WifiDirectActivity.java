@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import java.lang.reflect.Method;
 
-import edu.hm.eem_library.WIFIANDLOCATIONCHECKER;
+import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 
 public class WifiDirectActivity extends AppCompatActivity implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener {
     private final String name = "Exammode";

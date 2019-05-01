@@ -1,4 +1,4 @@
-package edu.hm.eem_library;
+package edu.hm.eem_library.net;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -12,6 +12,8 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+
+import edu.hm.eem_library.R;
 
 public final class WIFIANDLOCATIONCHECKER {
     public static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1;

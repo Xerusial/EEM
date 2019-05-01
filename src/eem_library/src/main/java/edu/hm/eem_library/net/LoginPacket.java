@@ -16,7 +16,7 @@ public class LoginPacket extends DataPacket {
      */
     private String name;
     public LoginPacket(String name){
-        super(Type.NAME);
+        super(Type.LOGIN);
         this.name = name;
     }
 

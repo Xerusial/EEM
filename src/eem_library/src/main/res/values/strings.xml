@@ -20,6 +20,8 @@
     <string name="wifi_net_name">Name of network</string>
     <string name="label_condev">Connected Devices</string>
     <string name="lockpattern">Please enter a lock pattern for student devices to be connected!</string>
+    <string name="scan_for_services">Scan network</string>
+    <string name="preferences_username">Username</string>
     <string name="toast_read_files_warning">This App needs internal storage access for you to choose the allowed documents in the exam.</string>
     <string name="toast_passwords_do_not_match">Passwords do not match!</string>
     <string name="toast_old_password_incorrect">Old Password is incorrect!</string>
@@ -30,4 +32,6 @@
     <string name="alert_wifi_for_app">Wifi needs to be enabled for this app to work. Do you want to enable it?</string>
     <string name="toast_ap_not_found">Access point not found yet!</string>
     <string name="toast_protocol_too_new">Host uses a newer protocol. Please update your app!</string>
+    <string name="toast_please_change_your_username">A student with your name does already participate in this exam. Please change yours. (Add a number or similar)</string>
+    <string name="toast_please_use_a_shorter_username">Username is too long. Please insert a shorter username.</string>
 </resources>

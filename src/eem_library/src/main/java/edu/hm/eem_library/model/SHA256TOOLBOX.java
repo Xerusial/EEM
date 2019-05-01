@@ -1,4 +1,4 @@
-package edu.hm.eem_host.model;
+package edu.hm.eem_library.model;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

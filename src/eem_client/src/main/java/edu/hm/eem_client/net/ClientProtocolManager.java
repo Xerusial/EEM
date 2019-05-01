@@ -9,17 +9,21 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import edu.hm.eem_library.model.StringMapViewModel;
 import edu.hm.eem_library.net.ProtocolManager;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ClientProtocolManager extends ProtocolManager {
     private NsdManager.ResolveListener resolveListener;
     private NsdManager.DiscoveryListener discoveryListener;
     private ProgressBar pb;
     private Socket socket;
+    private final StringMapViewModel.StringMapLiveData stringMapLiveData;
 
-    public ClientProtocolManager(NsdManager nsdm) {
+    public ClientProtocolManager(NsdManager nsdm, StringMapViewModel.StringMapLiveData stringMapLiveData) {
         super(nsdm);
-
+        this.stringMapLiveData = stringMapLiveData;
         initializeDiscoveryListener();
         initializeResolveListener();
         nsdm.discoverServices(
@@ -68,14 +72,19 @@ public class ClientProtocolManager extends ProtocolManager {
             public void onServiceFound(NsdServiceInfo service) {
                 // A service was found! Do something with it.
                 if (service.getServiceName().contains(SERVICE_NAME)){
-                    nsdm.resolveService(service, resolveListener);
+                    byte[] value = service.getAttributes().get(PROF_ATTRIBUTE_NAME);
+                    String name = new String(value, UTF_8);
+                    stringMapLiveData.add(name);
                 }
             }
 
             @Override
             public void onServiceLost(NsdServiceInfo service) {
-                // When the network service is no longer available.
-                // Internal bookkeeping code goes here.
+                if (service.getServiceName().contains(SERVICE_NAME)){
+                    byte[] value = service.getAttributes().get(PROF_ATTRIBUTE_NAME);
+                    String name = new String(value, UTF_8);
+                    stringMapLiveData.remove(name);
+                }
             }
 
             @Override

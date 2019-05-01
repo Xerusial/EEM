@@ -22,13 +22,14 @@ import android.widget.Toast;
 import java.io.File;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_host.model.ExamDocument;
-import edu.hm.eem_host.model.ExamHost;
-import edu.hm.eem_host.model.SelectableItem;
+import edu.hm.eem_library.model.ExamDocument;
+import edu.hm.eem_library.model.ExamViewModel;
+import edu.hm.eem_library.model.SelectableItemMap;
+import edu.hm.eem_library.view.ItemListFragment;
 
-public class ExamEditorActivity extends AppCompatActivity implements View.OnClickListener, SelectableItemListFragment.OnListFragmentPressListener{
+public class ExamEditorActivity extends AppCompatActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener{
 
-    private ExamHost model;
+    private ExamViewModel model;
 
     private EditText pwFields[] = new EditText[3];
     private CheckBox allDocAllowedField;
@@ -41,8 +42,8 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        model = ViewModelProviders.of(this).get(ExamHost.class);
-        examIsNew = model.setCurrent(getIntent().getStringExtra("Name"));
+        model = ViewModelProviders.of(this).get(ExamViewModel.class);
+        examIsNew = model.openExam(getIntent().getStringExtra("Name"));
         setContentView(R.layout.activity_exam_editor);
         pwFields[0] = findViewById(R.id.oldPass);
         pwFields[1] = findViewById(R.id.pass);
@@ -104,9 +105,7 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onListFragmentLongPress() {
-        int sel_cnt = 0;
-        for(SelectableItem<ExamDocument> item : model.getLivedata().getValue())
-            if(item.selected) sel_cnt++;
+        int sel_cnt = ((SelectableItemMap<ExamDocument>) model.getLivedata().getValue()).getSelectionCount();
         del_button.setEnabled(sel_cnt>0);
     }
 
