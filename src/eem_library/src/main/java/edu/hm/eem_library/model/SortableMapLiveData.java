@@ -11,7 +11,7 @@ import java.util.TreeMap;
 public class SortableMapLiveData<S extends Comparable<? super S>, T> extends MutableLiveData<SortableItem<S,T>[]> {
     final SortedMap<S, SortableItem<S,T>> backingMap;
 
-    SortableMapLiveData(@Nullable Set<SortableItem<S,T>> set) {
+    public SortableMapLiveData(@Nullable Set<SortableItem<S, T>> set) {
         backingMap = new TreeMap<>();
         if(set != null) {
             refreshData(set);
@@ -42,6 +42,10 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         SortableItem<S,T> removed = backingMap.remove(sortableKey);
         notifyObservers();
         return removed;
+    }
+
+    public boolean contains(S sortableKey){
+        return backingMap.containsKey(sortableKey);
     }
 
     void notifyObservers(){

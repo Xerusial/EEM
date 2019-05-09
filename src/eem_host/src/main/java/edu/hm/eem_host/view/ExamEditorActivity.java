@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -24,14 +25,13 @@ import java.io.File;
 import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.ExamViewModel;
-import edu.hm.eem_library.model.SelectableItemMap;
 import edu.hm.eem_library.view.ItemListFragment;
 
 public class ExamEditorActivity extends AppCompatActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener{
 
     private ExamViewModel model;
 
-    private EditText pwFields[] = new EditText[3];
+    private EditText[] pwFields = new EditText[3];
     private CheckBox allDocAllowedField;
     private ImageButton del_button;
     private boolean examIsNew;
@@ -43,7 +43,8 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         model = ViewModelProviders.of(this).get(ExamViewModel.class);
-        examIsNew = model.openExam(getIntent().getStringExtra("Name"));
+        String examName = getIntent().getStringExtra("Name");
+        examIsNew = model.openExam(examName);
         setContentView(R.layout.activity_exam_editor);
         pwFields[0] = findViewById(R.id.oldPass);
         pwFields[1] = findViewById(R.id.pass);
@@ -71,12 +72,12 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
                         else t.setTransformationMethod(new PasswordTransformationMethod());
             }
         });
-        ((TextView)findViewById(R.id.examName)).setText(model.getLivedata().getCurrent().getName());
-        allDocAllowedField.setChecked(model.getLivedata().getCurrent().allDocumentsAllowed);
+        ((TextView)findViewById(R.id.examName)).setText(examName);
+        allDocAllowedField.setChecked(model.getCurrent().allDocumentsAllowed);
     }
 
     private void setFields(){
-        model.getLivedata().getCurrent().allDocumentsAllowed = allDocAllowedField.isChecked();
+        model.getCurrent().allDocumentsAllowed = allDocAllowedField.isChecked();
     }
 
     @Override
@@ -87,12 +88,12 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
             return;
         }
         if(!examIsNew){
-            if (!model.getLivedata().getCurrent().checkPW(pwFields[0].getText().toString())) {
+            if (!model.getCurrent().checkPW(pwFields[0].getText().toString())) {
                 Toast.makeText(getApplicationContext(),getString(R.string.toast_old_password_incorrect), Toast.LENGTH_SHORT).show();
                 return;
             }
         }
-        model.getLivedata().getCurrent().setPassword(pw);
+        model.getCurrent().setPassword(pw);
         setFields();
         model.writeExamToFile();
         finish();
@@ -105,7 +106,7 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onListFragmentLongPress() {
-        int sel_cnt = ((SelectableItemMap<ExamDocument>) model.getLivedata().getValue()).getSelectionCount();
+        int sel_cnt = model.getLivedata().getSelectionCount();
         del_button.setEnabled(sel_cnt>0);
     }
 
@@ -128,7 +129,7 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0
@@ -151,7 +152,8 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
             if (resultData != null) {
                 uri = resultData.getData();
                 String fileName = (new File(uri.getPath())).getName();
-                model.getLivedata().add(new ExamDocument(fileName,uri.getPath()));
+                ExamDocument examDocument = new ExamDocument(fileName,uri.getPath());
+                model.getLivedata().add(fileName,examDocument);
             }
         }
     }

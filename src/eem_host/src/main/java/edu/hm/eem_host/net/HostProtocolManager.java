@@ -1,61 +1,44 @@
 package edu.hm.eem_host.net;
 
-import android.content.Context;
-import android.net.nsd.NsdManager;
-import android.net.nsd.NsdServiceInfo;
+import android.app.Activity;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
-import edu.hm.eem_library.model.StringMapViewModel;
+import edu.hm.eem_library.model.SortableMapLiveData;
+import edu.hm.eem_library.net.ClientDevice;
+import edu.hm.eem_library.net.DataPacket;
+import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
+import edu.hm.eem_library.net.SignalPacket;
 
 public class HostProtocolManager extends ProtocolManager {
-    private ServerSocket serverSocket;
-    private NsdManager.RegistrationListener registrationListener;
-    private Map<Socket, String> socketMap = new HashMap<>();
-    private String serviceName = SERVICE_NAME;
-    private String profName;
-    private StringMapViewModel.StringMapLiveData peerList;
+    private final ServerSocket serverSocket;
+    private SortableMapLiveData<String, ClientDevice> liveData;
 
-    Thread serverThread = null;
+    private Thread serverThread;
 
-    public HostProtocolManager(NsdManager nsdm, Context context, String profName, StringMapViewModel.StringMapLiveData peerList) {
-        super(nsdm, context);
-        this.profName = profName;
+    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<String, ClientDevice> liveData) {
+        super(context);
+        this.serverSocket = serverSocket;
         this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();
-        this.peerList = peerList;
-    }
-
-    void finalize() {
-        nsdm.unregisterService(registrationListener);
-        try {
-            if(serverSocket!=null)
-                serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.liveData = liveData;
     }
 
     class ServerThread implements Runnable {
 
         public void run() {
-            Socket socket = null;
-            try {
-                serverSocket = new ServerSocket(0);
-                createService(serverSocket.getLocalPort());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Socket socket;
+            ReceiverThread receiverThread;
             while (!Thread.currentThread().isInterrupted()) {
-
                 try {
                     socket = serverSocket.accept();
-                    socketMap.put(socket, null);
+                    receiverThread = new ReceiverThread(socket);
+                    receiverThread.start();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -63,54 +46,24 @@ public class HostProtocolManager extends ProtocolManager {
         }
     }
 
-    void createService(int port) {
-        // Create the NsdServiceInfo object, and populate it.
-        serviceInfo = new NsdServiceInfo();
-
-        // The name is subject to change based on conflicts
-        // with other services advertised on the same network.
-        serviceInfo.setServiceName(SERVICE_NAME);
-        serviceInfo.setServiceType(SERVICE_TYPE);
-        serviceInfo.setAttribute("prof", profName);
-        serviceInfo.setPort(port);
-
-        initializeRegistrationListener();
-        nsdm.registerService(
-                serviceInfo, NsdManager.PROTOCOL_DNS_SD, registrationListener);
-
-    }
-
-    public void initializeRegistrationListener() {
-        registrationListener = new NsdManager.RegistrationListener() {
-
-            @Override
-            public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
-                // Save the service name. Android may have changed it in order to
-                // resolve a conflict, so update the name you initially requested
-                // with the name Android actually used.
-                serviceName = NsdServiceInfo.getServiceName();
-            }
-
-            @Override
-            public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
-                // Registration failed! Put debugging code here to determine why.
-            }
-
-            @Override
-            public void onServiceUnregistered(NsdServiceInfo arg0) {
-                // Service has been unregistered. This only happens when you call
-                // NsdManager.unregisterService() and pass in this listener.
-            }
-
-            @Override
-            public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
-                // Unregistration failed. Put debugging code here to determine why.
-            }
-        };
-    }
 
     @Override
-    protected boolean login(String name) {
-        return peerList.add(name);
+    protected boolean handleMessage(DataPacket.Type type, InputStream is, OutputStream os) {
+        boolean ret = false;
+        switch (type) {
+            case LOGIN:
+                String name = LoginPacket.readData(is);
+                SignalPacket signalPacket;
+                if (liveData.contains(name)) {
+                    signalPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
+                } else {
+                    liveData.add(name, new ClientDevice(name, os));
+                    signalPacket = new SignalPacket(SignalPacket.Signal.VALID_LOGIN);
+                }
+                signalPacket.sendData(os);
+                ret = true;
+                break;
+        }
+        return ret;
     }
 }

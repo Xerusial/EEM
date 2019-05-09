@@ -7,10 +7,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-
 public class HotspotManager {
     private final WifiManager wifiManager;
     private final OnHotspotEnabledListener onHotspotEnabledListener;
@@ -55,25 +51,5 @@ public class HotspotManager {
             mReservation.close();
             onHotspotEnabledListener.OnHotspotEnabled(false, null);
         }
-    }
-
-    public ArrayList<String> getConnectedDevices() {
-        ArrayList<String> arrayList = new ArrayList();
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader("/proc/net/arp"));
-            while (true) {
-                String readLine = bufferedReader.readLine();
-                if (readLine == null) {
-                    break;
-                }
-                String[] split = readLine.split(" +");
-                if (split != null && split.length >= 4) {
-                    arrayList.add(split[0]);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return arrayList;
     }
 }

@@ -60,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/hotspot"
-        app:selectableListContent="EXAM"
+        app:ListContent="DEVICE"
         tools:layout="@layout/fragment_itemlist"
         tools:layout_editor_absoluteX="146dp" />
 

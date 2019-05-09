@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_library.net.ProtocolManager;
+import edu.hm.eem_library.net.ServiceManager;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -27,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String username = nameEditText.getText().toString();
-                int full_size = ProtocolManager.PROF_ATTRIBUTE_NAME.getBytes(US_ASCII).length + username.getBytes(UTF_8).length;
+                int full_size = ServiceManager.PROF_ATTRIBUTE_NAME.getBytes(US_ASCII).length + username.getBytes(UTF_8).length;
                 // According to NsdServiceInfo.setAttribute(String, String), full attribute length should not exceed 255 bytes.
                 if(full_size>=255){
                     Toast.makeText(SettingsActivity.this, R.string.toast_please_use_a_shorter_username, Toast.LENGTH_SHORT).show();

@@ -6,9 +6,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 public class ItemViewModel<T extends MutableLiveData> extends AndroidViewModel {
-    T livedata;
+    protected T livedata;
 
-    ItemViewModel(@NonNull Application application) {
+    protected ItemViewModel(@NonNull Application application) {
         super(application);
     }
 

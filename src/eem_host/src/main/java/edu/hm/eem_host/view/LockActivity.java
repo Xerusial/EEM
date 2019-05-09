@@ -1,5 +1,6 @@
 package edu.hm.eem_host.view;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,8 +20,13 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import edu.hm.eem_host.R;
+import edu.hm.eem_library.model.DeviceViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
+import edu.hm.eem_host.net.HostServiceManager;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
 
@@ -30,7 +36,6 @@ public class LockActivity extends AppCompatActivity
     private final IntentFilter intentFilter = new IntentFilter();
     private HotspotManager hotspotManager;
     private WifiManager wm;
-    private LocationManager lm;
     private ConnectivityManager cm;
     private NsdManager nsdm;
     private boolean netRequirementsGathered;
@@ -39,6 +44,8 @@ public class LockActivity extends AppCompatActivity
     private Switch swStartHotspot;
     private BroadcastReceiver broadcastReceiver;
     private HostProtocolManager hostProtocolManager;
+    private HostServiceManager hostServiceManager;
+    private DeviceViewModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +71,10 @@ public class LockActivity extends AppCompatActivity
             }
         });
         wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         nsdm = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
+        model = ViewModelProviders.of(this).get(DeviceViewModel.class);
         WIFIANDLOCATIONCHECKER.check(this, wm, lm);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -78,7 +86,13 @@ public class LockActivity extends AppCompatActivity
                         if (networkInfo.isConnected()) {
                             SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                             String profName = sharedPref.getString(getString(R.string.preferences_username), "Examprof");
-                            hostProtocolManager = new HostProtocolManager(nsdm, LockActivity.this, profName);
+                            try {
+                                ServerSocket serverSocket = new ServerSocket(0);
+                                hostServiceManager = new HostServiceManager(serverSocket, profName, nsdm);
+                                hostProtocolManager = new HostProtocolManager(LockActivity.this, serverSocket, model.getLivedata());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             // Wifi is connected
                             Log.d("EEM_Host", "Wifi is connected: " + networkInfo);
                         }

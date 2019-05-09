@@ -32,7 +32,7 @@ public class LoginPacket extends DataPacket {
         return 0;
     }
 
-    static String readData(InputStream is) {
+    public static String readData(InputStream is) {
         String ret = null;
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         try {

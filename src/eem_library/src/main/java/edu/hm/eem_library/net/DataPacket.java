@@ -14,7 +14,7 @@ public abstract class DataPacket {
        Data specification can be found in the respective child-classes.
      */
     public enum Type {
-        LOGIN, EXAMFILE, INVALID_LOGIN;
+        LOGIN, EXAMFILE, SIGNAL;
 
         private static Type[] values = null;
 
@@ -36,7 +36,7 @@ public abstract class DataPacket {
     // incremental protocol version
     static final int PROTOCOL_VERSION = 0;
     private static final int HEADER_FIELDS = 3;
-    private static final int INT_BYTES = 4;
+    static final int INT_BYTES = 4;
     private static final int LONG_BYTES = 8;
     private static final int HEADER_SIZE = 2*INT_BYTES + LONG_BYTES;
 
@@ -76,7 +76,7 @@ public abstract class DataPacket {
     protected abstract void writeData(OutputStream os);
     protected abstract long getSize();
 
-    final void sendData(OutputStream os) {
+    public final void sendData(OutputStream os) {
         writeHeader(os);
         writeData(os);
     }

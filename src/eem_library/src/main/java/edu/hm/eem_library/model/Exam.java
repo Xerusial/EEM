@@ -15,10 +15,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/** Class, which represents a school exam and includes a list of the allowed books to be used.
+ *
+ */
 public class Exam{
     private byte[] salt;
     private byte[] passwordHash;
-    private boolean allDocumentsAllowed;
+    public boolean allDocumentsAllowed;
     LinkedList<ExamDocument> allowedDocuments;
 
     Exam(boolean allDocumentsAllowed, @Nullable byte[] salt) {
@@ -42,6 +45,9 @@ public class Exam{
         return Arrays.equals(passwordHash, SHA256TOOLBOX.genSha256(pw,salt));
     }
 
+    /** Custom YAML constructor to be used with SnakeYAML. Turns an {@link Exam} YAML node into
+     * an actual Exam object.
+     */
     static class ExamConstructor extends Constructor {
         ExamConstructor() {
             yamlClassConstructors.put(NodeId.mapping, new ExamConstruct());

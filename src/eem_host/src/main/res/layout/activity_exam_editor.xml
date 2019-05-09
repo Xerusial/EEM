@@ -111,7 +111,7 @@
             android:name="edu.hm.eem_library.view.ItemListFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:selectableListContent="EXAMDOCUMENT"
+            app:ListContent="EXAMDOCUMENT"
             tools:layout="@layout/fragment_itemlist" />
 
     </LinearLayout>

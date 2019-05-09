@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:selectableListContent="EXAM"
+        app:ListContent="EXAM"
         tools:layout="@layout/fragment_itemlist" />
 
     <android.support.v7.widget.Toolbar

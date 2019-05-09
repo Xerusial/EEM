@@ -18,16 +18,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.DeviceViewModel;
+import edu.hm.eem_library.model.HostViewModel;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableMapLiveData;
-import edu.hm.eem_library.model.StringMapViewModel;
 import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.ExamListViewModel;
 import edu.hm.eem_library.model.ItemViewModel;
+import edu.hm.eem_library.net.ClientDevice;
 
 enum ItemListContent
 {
-    EXAM(0), EXAMDOCUMENT(1), DEVICE(2);
+    EXAM(0), EXAMDOCUMENT(1), HOST(2), DEVICE(3);
     int id;
 
     ItemListContent(int id) {
@@ -89,8 +91,8 @@ public class ItemListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            if(content.ordinal()>ItemListContent.EXAMDOCUMENT.ordinal()){
-                adapter = new ItemRecyclerViewAdapter((SortableMapLiveData<String, ?>) model.getLivedata());
+            if(content.ordinal()==ItemListContent.DEVICE.ordinal()){
+                adapter = new ItemRecyclerViewAdapter((SortableMapLiveData<String, ClientDevice>) model.getLivedata());
             } else {
                 adapter = new SelectableItemRecyclerViewAdapter((SelectableSortableMapLiveData<String, ?>) model.getLivedata(),
                         (OnListFragmentPressListener) context,
@@ -112,8 +114,10 @@ public class ItemListFragment extends Fragment {
             case EXAMDOCUMENT:
                 model = ViewModelProviders.of(getActivity()).get(ExamViewModel.class);
                 break;
+            case HOST:
+                model = ViewModelProviders.of(getActivity()).get(HostViewModel.class);
             case DEVICE:
-                model = ViewModelProviders.of(getActivity()).get(StringMapViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(DeviceViewModel.class);
                 break;
         }
     }

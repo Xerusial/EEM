@@ -13,10 +13,18 @@
         <action
             android:id="@+id/action_settings_button"
             app:destination="@id/settingsActivity" />
+        <action
+            android:id="@+id/action_touch_list"
+            app:destination="@id/lockedActivity" />
     </activity>
     <activity
         android:id="@+id/settingsActivity"
         android:name="edu.hm.eem_client.view.SettingsActivity"
         android:label="activity_settings"
         tools:layout="@layout/activity_settings" />
+    <activity
+        android:id="@+id/lockedActivity"
+        android:name="edu.hm.eem_client.view.LockedActivity"
+        android:label="activity_locked"
+        tools:layout="@layout/activity_locked" />
 </navigation>

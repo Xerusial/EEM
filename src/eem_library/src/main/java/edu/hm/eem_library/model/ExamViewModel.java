@@ -54,4 +54,8 @@ public class ExamViewModel extends FilebackedItemViewModel<SelectableSortableMap
             e.printStackTrace();
         }
     }
+
+    public Exam getCurrent() {
+        return current;
+    }
 }

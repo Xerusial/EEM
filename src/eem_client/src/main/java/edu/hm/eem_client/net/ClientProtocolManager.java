@@ -1,111 +1,61 @@
 package edu.hm.eem_client.net;
 
-import android.net.nsd.NsdManager;
-import android.net.nsd.NsdServiceInfo;
-import android.view.View;
-import android.widget.ProgressBar;
+import android.app.Activity;
+import android.widget.TextView;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import edu.hm.eem_library.model.StringMapViewModel;
+import edu.hm.eem_library.net.DataPacket;
+import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import edu.hm.eem_library.net.SignalPacket;
 
 public class ClientProtocolManager extends ProtocolManager {
-    private NsdManager.ResolveListener resolveListener;
-    private NsdManager.DiscoveryListener discoveryListener;
-    private ProgressBar pb;
     private Socket socket;
-    private final StringMapViewModel.StringMapLiveData stringMapLiveData;
+    private OutputStream os;
+    private final TextView nameView;
 
-    public ClientProtocolManager(NsdManager nsdm, StringMapViewModel.StringMapLiveData stringMapLiveData) {
-        super(nsdm);
-        this.stringMapLiveData = stringMapLiveData;
-        initializeDiscoveryListener();
-        initializeResolveListener();
+    public ClientProtocolManager(Activity context, InetAddress host, int port, String name, TextView nameView) {
+        super(context);
+        this.nameView = nameView;
+        try {
+            socket = new Socket(host, port);
+            os = socket.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ReceiverThread receiverThread = new ReceiverThread(socket);
+        receiverThread.start();
+        LoginPacket login = new LoginPacket(name);
+        login.sendData(os);
     }
 
-    public void discover(boolean on){
-        if(on)
-            nsdm.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-        else
-            nsdm.stopServiceDiscovery(discoveryListener);
-    }
-
-    public void initializeResolveListener() {
-        resolveListener = new NsdManager.ResolveListener() {
-
-            @Override
-            public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
-                // Called when the resolve fails. Use the error code to debug.
-            }
-
-            @Override
-            public void onServiceResolved(NsdServiceInfo serviceInfo) {
-                ClientProtocolManager.this.serviceInfo = serviceInfo;
-                int port = serviceInfo.getPort();
-                InetAddress host = serviceInfo.getHost();
-                try {
-                    socket = new Socket(host, port);
-                } catch (IOException e) {
-                    e.printStackTrace();
+    @Override
+    protected boolean handleMessage(DataPacket.Type type, InputStream is, OutputStream os) {
+        boolean ret = false;
+        switch (type) {
+            case EXAMFILE:
+                ret = true;
+                break;
+            case SIGNAL:
+                SignalPacket.Signal signal = SignalPacket.readData(is);
+                switch (signal){
+                    case VALID_LOGIN:
+                        nameView.setText("Connected!");
+                        ret = true;
+                        break;
+                    case INVALID_LOGIN:
+                        putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
+                        context.finish();
+                        ret = true;
+                        break;
                 }
-                receiverThread = new ReceiverThread(socket);
-                receiverThread.start();
-                pb.setVisibility(View.GONE);
-                nsdm.stopServiceDiscovery(discoveryListener);
-            }
-        };
+                break;
+        }
+        return ret;
     }
-
-
-    public void initializeDiscoveryListener() {
-
-        // Instantiate a new DiscoveryListener
-        discoveryListener = new NsdManager.DiscoveryListener() {
-
-            // Called as soon as service discovery begins.
-            @Override
-            public void onDiscoveryStarted(String regType) {
-                pb.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onServiceFound(NsdServiceInfo service) {
-                // A service was found! Do something with it.
-                if (service.getServiceName().contains(SERVICE_NAME)){
-                    byte[] value = service.getAttributes().get(PROF_ATTRIBUTE_NAME);
-                    String name = new String(value, UTF_8);
-                    stringMapLiveData.add(name);
-                }
-            }
-
-            @Override
-            public void onServiceLost(NsdServiceInfo service) {
-                if (service.getServiceName().contains(SERVICE_NAME)){
-                    byte[] value = service.getAttributes().get(PROF_ATTRIBUTE_NAME);
-                    String name = new String(value, UTF_8);
-                    stringMapLiveData.remove(name);
-                }
-            }
-
-            @Override
-            public void onDiscoveryStopped(String serviceType) {
-            }
-
-            @Override
-            public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-                nsdm.stopServiceDiscovery(this);
-            }
-
-            @Override
-            public void onStopDiscoveryFailed(String serviceType, int errorCode) {
-                nsdm.stopServiceDiscovery(this);
-            }
-        };
-    }
-
 }
