@@ -1,7 +1,7 @@
 package edu.hm.eem_library.net;
 
 import android.app.Activity;
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 import android.widget.Toast;
 
 import java.io.IOException;

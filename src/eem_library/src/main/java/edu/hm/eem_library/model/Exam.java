@@ -1,6 +1,6 @@
 package edu.hm.eem_library.model;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.MappingNode;

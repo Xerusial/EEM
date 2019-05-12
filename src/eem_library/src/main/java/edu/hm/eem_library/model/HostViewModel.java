@@ -2,7 +2,7 @@ package edu.hm.eem_library.model;
 
 import android.app.Application;
 import android.net.nsd.NsdServiceInfo;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class HostViewModel extends ItemViewModel<SelectableSortableMapLiveData<String, NsdServiceInfo>> {
     public HostViewModel(@NonNull Application application) {

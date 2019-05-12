@@ -1,8 +1,6 @@
 package edu.hm.eem_host.net;
 
 import android.app.Activity;
-import android.net.nsd.NsdManager;
-import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
 import com.github.druk.dnssd.DNSSD;
@@ -13,12 +11,10 @@ import com.github.druk.dnssd.DNSSDService;
 import com.github.druk.dnssd.RegisterListener;
 
 import java.net.ServerSocket;
-import java.util.Map;
 
 import edu.hm.eem_library.net.ServiceManager;
 
-import static android.support.constraint.Constraints.TAG;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static androidx.constraintlayout.Constraints.TAG;
 
 public class HostServiceManager extends ServiceManager implements RegisterListener {
     private final String profName;

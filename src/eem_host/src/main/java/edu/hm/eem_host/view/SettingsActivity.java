@@ -1,8 +1,7 @@
 package edu.hm.eem_host.view;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
