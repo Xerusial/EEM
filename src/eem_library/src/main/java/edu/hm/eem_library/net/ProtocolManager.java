@@ -8,17 +8,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
 
 import edu.hm.eem_library.R;
 
 public abstract class ProtocolManager {
     protected final Activity context;
     private final Toast toast;
+    private final LinkedList<ReceiverThread> threads;
 
     public ProtocolManager(Activity context) {
         this.context = context;
         toast = new Toast(context);
         toast.setDuration(Toast.LENGTH_SHORT);
+        threads = new LinkedList<>();
+    }
+
+    public void quit(){
+        for(ReceiverThread thread : threads){
+            thread.interrupt();
+        }
     }
 
     /* Protocol Receiver Thread
@@ -29,6 +38,7 @@ public abstract class ProtocolManager {
 
         public ReceiverThread(Socket inputSocket) {
             this.inputSocket = inputSocket;
+            threads.add(this);
         }
 
         @Override
@@ -41,8 +51,7 @@ public abstract class ProtocolManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //noinspection InfiniteLoopStatement
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 Object[] header = DataPacket.readHeader(is);
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
                     putToast(R.string.toast_protocol_too_new);

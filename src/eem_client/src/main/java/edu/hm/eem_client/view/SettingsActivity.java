@@ -23,6 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 editor.putString(getString(R.string.preferences_username), username.getText().toString());
                 editor.apply();
+                finish();
             }
         });
     }

@@ -7,10 +7,10 @@ import android.support.annotation.NonNull;
 public class HostViewModel extends ItemViewModel<SelectableSortableMapLiveData<String, NsdServiceInfo>> {
     public HostViewModel(@NonNull Application application) {
         super(application);
-        this.livedata = new SelectableSortableMapLiveData<>(null);
+        this.livedata = new SelectableSortableMapLiveData<>(null, true);
     }
 
     public NsdServiceInfo get(int index){
-        return livedata.getValue()[index].item;
+        return livedata.getValue().get(index).item;
     }
 }

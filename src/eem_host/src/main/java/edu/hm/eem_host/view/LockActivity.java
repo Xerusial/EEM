@@ -1,21 +1,17 @@
 package edu.hm.eem_host.view;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.nsd.NsdManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -32,99 +28,126 @@ import edu.hm.eem_library.net.HotspotManager;
 
 public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
-        HotspotManager.OnHotspotEnabledListener{
-    private final IntentFilter intentFilter = new IntentFilter();
+        HotspotManager.OnHotspotEnabledListener {
     private HotspotManager hotspotManager;
     private WifiManager wm;
-    private ConnectivityManager cm;
-    private NsdManager nsdm;
-    private boolean netRequirementsGathered;
+    private LocationManager lm;
     private TextView netName;
     private TextView netPw;
-    private Switch swStartHotspot;
-    private BroadcastReceiver broadcastReceiver;
+    private Switch swStartService;
+    private CheckBox cbUseHotspot;
     private HostProtocolManager hostProtocolManager;
     private HostServiceManager hostServiceManager;
     private DeviceViewModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock);
-        netRequirementsGathered = false;
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
-        swStartHotspot = findViewById(R.id.sw_start_hotspot);
-        swStartHotspot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        swStartService = findViewById(R.id.sw_start_service);
+        cbUseHotspot = findViewById(R.id.cb_use_hotspot);
+        swStartService.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //TODO Resolve not activatable if location services are not up yet
-                if(netRequirementsGathered){
-                    if(isChecked)
-                        hotspotManager.turnOnHotspot();
+                boolean useHotspot = cbUseHotspot.isChecked();
+                if (isChecked) {
+                    if (useHotspot)
+                        WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
                     else
-                        hotspotManager.turnOffHotspot();
-                } else
-                    swStartHotspot.setChecked(false);
+                        WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
+                } else {
+                    quitService();
+                    quitProtocol();
+                    if (useHotspot) hotspotManager.turnOffHotspot();
+                    checkboxSetEnabled(true);
+                }
             }
         });
         wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        LocationManager lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        nsdm = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
+        lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        hotspotManager = new HotspotManager(wm, this);
         model = ViewModelProviders.of(this).get(DeviceViewModel.class);
-        WIFIANDLOCATIONCHECKER.check(this, wm, lm);
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String s = intent.getAction();
-                switch(s){
-                    case WifiManager.NETWORK_STATE_CHANGED_ACTION:
-                        NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                        if (networkInfo.isConnected()) {
-                            SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                            String profName = sharedPref.getString(getString(R.string.preferences_username), "Examprof");
-                            try {
-                                ServerSocket serverSocket = new ServerSocket(0);
-                                hostServiceManager = new HostServiceManager(serverSocket, profName, nsdm);
-                                hostProtocolManager = new HostProtocolManager(LockActivity.this, serverSocket, model.getLivedata());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            // Wifi is connected
-                            Log.d("EEM_Host", "Wifi is connected: " + networkInfo);
-                        }
-                        break;
-                    case ConnectivityManager.CONNECTIVITY_ACTION:
-                        networkInfo = cm.getActiveNetworkInfo();
-                        if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI && !networkInfo.isConnected()) {
-                            // Wifi is disconnected
-                            Log.d("EEM_Host", "Wifi is disconnected: " + networkInfo);
-                        }
-                        break;
-                }
-            }
-        };
+    }
+
+    private void checkboxSetEnabled(boolean enable) {
+        cbUseHotspot.setEnabled(enable);
+        cbUseHotspot.setAlpha(enable ? 1.0f : 0.5f);
+    }
+
+    private void startService() {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
+        try {
+            ServerSocket serverSocket = new ServerSocket(0);
+            hostServiceManager = new HostServiceManager(this, serverSocket, profName);
+            hostProtocolManager = new HostProtocolManager(LockActivity.this, serverSocket, model.getLivedata());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void quitProtocol() {
+        hostProtocolManager.quit();
+    }
+
+    private void quitService() {
+        hostServiceManager.quit();
     }
 
     @Override
-    public void onWifiAndLocationEnabled() {
-        hotspotManager = new HotspotManager(wm, this);
-        netRequirementsGathered = true;
+    public void onWifiEnabled() {
+        startService();
+        checkboxSetEnabled(false);
+    }
+
+    @Override
+    public void onLocationEnabled() {
+        hotspotManager.turnOnHotspot();
+        checkboxSetEnabled(false);
+    }
+
+    @Override
+    public void onNotEnabled() {
+        swStartService.setChecked(false);
     }
 
     @Override
     public void OnHotspotEnabled(boolean enabled, @Nullable WifiConfiguration wifiConfiguration) {
-        if(enabled) {
+        if (enabled) {
             netName.setText(wifiConfiguration.SSID);
             netPw.setText(wifiConfiguration.preSharedKey);
-            registerReceiver(broadcastReceiver,intentFilter);
+            startService();
         } else {
             netName.setText(getString(R.string.blank));
             netPw.setText(getString(R.string.blank));
-            unregisterReceiver(broadcastReceiver);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case WIFIANDLOCATIONCHECKER.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    WIFIANDLOCATIONCHECKER.checkLocation(this, lm, false);
+                else finish();
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        switch (requestCode) {
+            case WIFIANDLOCATIONCHECKER.WIFI_REQUEST:
+                WIFIANDLOCATIONCHECKER.checkWifi(this, wm, false);
+                break;
+            case WIFIANDLOCATIONCHECKER.LOCATION_REQUEST:
+                WIFIANDLOCATIONCHECKER.checkLocation(this, lm, false);
+                break;
         }
     }
 }

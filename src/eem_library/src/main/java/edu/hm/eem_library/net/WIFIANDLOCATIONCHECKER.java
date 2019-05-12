@@ -16,25 +16,41 @@ import android.support.v7.app.AppCompatActivity;
 import edu.hm.eem_library.R;
 
 public final class WIFIANDLOCATIONCHECKER {
-    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1;
-    private static final int WIFI_OR_LOCATION_REQUEST = 1;
+    public static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1;
+    public static final int WIFI_REQUEST = 1;
+    public static final int LOCATION_REQUEST = 2;
 
+    /** Checks if wifi and location services are online for hotspot creation.
+     *  Please implement the onRequestPermissionResult and onActivityResult in the using class.
+     */
     public interface onWifiAndLocationEnabledListener {
-        void onWifiAndLocationEnabled();
+        void onWifiEnabled();
+        void onLocationEnabled();
+        void onNotEnabled();
     }
 
-    public static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void check(@NonNull T apl, @NonNull WifiManager wm, @NonNull LocationManager lm) {
-        if (apl.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            apl.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
-        } else if (!isLocationEnabled(apl, lm)) {
-            showWifiOrLocationDialog(apl, null, lm);
-        } else if (!wm.isWifiEnabled()) {
-            showWifiOrLocationDialog(apl, wm, null);
+    public static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void checkWifi(@NonNull T apl, @NonNull WifiManager wm, boolean firstCheck) {
+        if (!wm.isWifiEnabled()) {
+            if(firstCheck) showWifiOrLocationDialog(apl, wm, null);
+            else apl.onNotEnabled();
         } else {
-            apl.onWifiAndLocationEnabled();
+            apl.onWifiEnabled();
         }
     }
 
+    public static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void checkLocation(@NonNull T apl, @NonNull LocationManager lm, boolean firstCheck) {
+        if (apl.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if(firstCheck) apl.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
+            else apl.onNotEnabled();
+        } else if (!isLocationEnabled(apl, lm)) {
+            if(firstCheck) showWifiOrLocationDialog(apl, null, lm);
+            else apl.onNotEnabled();
+        } else {
+            apl.onLocationEnabled();
+        }
+    }
+
+    @SuppressWarnings("deprecation")
     private static <T extends AppCompatActivity> boolean isLocationEnabled(@NonNull T apl, @NonNull LocationManager lm) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             // This is new method provided in API 28
@@ -66,12 +82,16 @@ public final class WIFIANDLOCATIONCHECKER {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent;
-                if (wifi)
-                    //TODO Make it work
+                int request;
+                if (wifi) {
                     intent = new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS);
-                else
+                    request = WIFI_REQUEST;
+                }
+                else {
                     intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                apl.startActivityForResult(intent, WIFI_OR_LOCATION_REQUEST);
+                    request = LOCATION_REQUEST;
+                }
+                apl.startActivityForResult(intent, request);
             }
         });
         builder.setNegativeButton(apl.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {

@@ -1,4 +1,5 @@
 package edu.hm.eem_library.model;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -9,8 +10,8 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
     private boolean[] selection;
     private int selectionCounter;
 
-    SelectableSortableMapLiveData(@Nullable Set<SortableItem<S, T>> set) {
-        super(set);
+    SelectableSortableMapLiveData(@Nullable Set<SortableItem<S, T>> set, boolean notificationNeeded) {
+        super(set, notificationNeeded);
     }
 
     public void toggleSelected(int index) {
@@ -26,7 +27,7 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
         SortableItem<S,T> ret = null;
         for(int i = 0; i<selection.length; i++){
             if(selection[i]){
-                ret = getValue()[i];
+                ret = getValue().get(i);
                 break;
             }
         }
@@ -53,18 +54,21 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
             removed = new ArrayList<>(selectionCounter);
             for(int i = 0; i<selection.length; i++){
                 if(selection[i]){
-                    removed.add(backingMap.remove(getValue()[i].sortableKey));
+                    removed.add(backingMap.remove(getValue().get(i).sortableKey));
                 }
             }
-            notifyObservers();
+            clearSelection();
+            if(notificationNeeded) notifyObservers(false);
         }
         return removed;
     }
 
     @Override
-    void notifyObservers() {
-        super.notifyObservers();
-        this.selection = new boolean[getValue().length];
+    void notifyObservers(boolean post) {
+        this.selection = new boolean[backingMap.size()];
         this.selectionCounter = 0;
+        super.notifyObservers(post);
     }
+
+
 }

@@ -29,7 +29,7 @@ public class HostProtocolManager extends ProtocolManager {
         this.liveData = liveData;
     }
 
-    class ServerThread implements Runnable {
+    private class ServerThread implements Runnable {
 
         public void run() {
             Socket socket;
@@ -46,6 +46,11 @@ public class HostProtocolManager extends ProtocolManager {
         }
     }
 
+    @Override
+    public void quit() {
+        serverThread.interrupt();
+        super.quit();
+    }
 
     @Override
     protected boolean handleMessage(DataPacket.Type type, InputStream is, OutputStream os) {

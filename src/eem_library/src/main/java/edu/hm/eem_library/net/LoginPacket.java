@@ -10,7 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 public class LoginPacket extends DataPacket {
-    /*  Login Packet: //TODO check encoding
+    /*  Login Packet: //TODO care about encoding
         [Newline terminated String: name]
         (Size is not needed here)
      */

@@ -23,7 +23,7 @@ public class ExamViewModel extends FilebackedItemViewModel<SelectableSortableMap
         currentName = name;
         boolean createNew = !readExamFromFile(name);
         if(createNew) current = new Exam(false, null);
-        this.livedata = new SelectableSortableMapLiveData<>(ExamDocument.toSet(current.allowedDocuments));
+        this.livedata = new SelectableSortableMapLiveData<>(current.toLiveDataSet(), true);
         return createNew;
     }
 
@@ -46,6 +46,7 @@ public class ExamViewModel extends FilebackedItemViewModel<SelectableSortableMap
         File out = new File(examDir.getPath() + File.separator + currentName);
         try {
             FileWriter fw = new FileWriter(out);
+            current.documentsFromLivedata(livedata.backingMap.values());
             yaml.dump(current, fw);
             fw.close();
         } catch (FileNotFoundException e) {

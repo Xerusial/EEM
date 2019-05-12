@@ -31,12 +31,12 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull final StringViewHolder holder, int position) {
-
+        holder.initializeFromLiveData(position);
     }
 
     @Override
     public int getItemCount() {
-        return liveData.getValue().length;
+        return liveData.getValue().size();
     }
 
     public class StringViewHolder extends RecyclerView.ViewHolder{
@@ -50,7 +50,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         }
 
         void initializeFromLiveData(int position){
-            nameView.setText(liveData.getValue()[position].sortableKey);
+            nameView.setText(liveData.getValue().get(position).sortableKey);
         }
 
         @NonNull

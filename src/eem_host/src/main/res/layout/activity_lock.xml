@@ -16,11 +16,17 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Switch
-            android:id="@+id/sw_start_hotspot"
+            android:id="@+id/sw_start_service"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/start_hotspot"
+            android:text="@string/start_service"
             android:textAlignment="textStart" />
+
+        <CheckBox
+            android:id="@+id/cb_use_hotspot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/use_hotspot" />
 
         <TextView
             android:id="@+id/header_net_name"

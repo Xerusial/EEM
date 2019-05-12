@@ -116,6 +116,7 @@ public class ItemListFragment extends Fragment {
                 break;
             case HOST:
                 model = ViewModelProviders.of(getActivity()).get(HostViewModel.class);
+                break;
             case DEVICE:
                 model = ViewModelProviders.of(getActivity()).get(DeviceViewModel.class);
                 break;
@@ -139,9 +140,9 @@ public class ItemListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //pass lifecycle from view because if the fragment gets reattached, the old observer would
         // not be destroyed, if we would pass the lifecycle of the fragment
-        model.getLivedata().observe(getViewLifecycleOwner(), new Observer<String[]>() {
+        model.getLivedata().observe(getViewLifecycleOwner(), new Observer() {
             @Override
-            public void onChanged(@Nullable String[] selectableItemList) {
+            public void onChanged(@Nullable Object o) {
                 adapter.notifyDataSetChanged();
             }
         });

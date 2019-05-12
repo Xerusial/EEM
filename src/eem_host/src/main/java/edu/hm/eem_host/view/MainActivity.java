@@ -28,13 +28,14 @@ public class MainActivity extends AppCompatActivity implements ItemListFragment.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        model = ViewModelProviders.of(this).get(ExamListViewModel.class);
         setContentView(R.layout.activity_main);
+        model = ViewModelProviders.of(this).get(ExamListViewModel.class);
         del_button = findViewById(R.id.bt_del_exam);
         del_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 model.getLivedata().removeSelected();
+                updateButtonState();
             }
         });
         edit_button = findViewById(R.id.bt_edit_exam);
@@ -71,11 +72,15 @@ public class MainActivity extends AppCompatActivity implements ItemListFragment.
 
     @Override
     public void onListFragmentPress(int index){
-        startSubApplication(model.getLivedata().getValue()[index].sortableKey, LockActivity.class);
+        startSubApplication(model.getLivedata().getValue().get(index).sortableKey, LockActivity.class);
     }
 
     @Override
     public void onListFragmentLongPress(){
+        updateButtonState();
+    }
+
+    private void updateButtonState(){
         int sel_cnt = model.getLivedata().getSelectionCount();
         buttonSetEnabled(del_button,sel_cnt>0);
         buttonSetEnabled(edit_button,sel_cnt==1);

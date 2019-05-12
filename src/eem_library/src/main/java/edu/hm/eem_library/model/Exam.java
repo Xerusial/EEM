@@ -11,9 +11,11 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 /** Class, which represents a school exam and includes a list of the allowed books to be used.
  *
@@ -22,7 +24,7 @@ public class Exam{
     private byte[] salt;
     private byte[] passwordHash;
     public boolean allDocumentsAllowed;
-    LinkedList<ExamDocument> allowedDocuments;
+    private LinkedList<ExamDocument> allowedDocuments;
 
     Exam(boolean allDocumentsAllowed, @Nullable byte[] salt) {
         this.allDocumentsAllowed = allDocumentsAllowed;
@@ -43,6 +45,30 @@ public class Exam{
 
     public boolean checkPW(String pw) {
         return Arrays.equals(passwordHash, SHA256TOOLBOX.genSha256(pw,salt));
+    }
+
+    /** updates allowedDocuments from a {@link SelectableSortableMapLiveData} values instance
+     *
+     * @param docs new values for allowedDocuments
+     */
+    void documentsFromLivedata(Collection<SortableItem<String, ExamDocument>> docs){
+        allowedDocuments = new LinkedList<>();
+        for(SortableItem<String, ExamDocument> item : docs){
+            allowedDocuments.add(item.item);
+        }
+    }
+
+    /** Turns allowedDocuments into a {@link TreeSet} by using the documents
+     * name as key. This is used to construct {@link SortableMapLiveData} objects.
+     *
+     * @return output set
+     */
+    TreeSet<SortableItem<String, ExamDocument>> toLiveDataSet(){
+        TreeSet<SortableItem<String, ExamDocument>> treeSet = new TreeSet<>();
+        for(ExamDocument doc : allowedDocuments){
+            treeSet.add(doc.toSortableItem());
+        }
+        return treeSet;
     }
 
     /** Custom YAML constructor to be used with SnakeYAML. Turns an {@link Exam} YAML node into
