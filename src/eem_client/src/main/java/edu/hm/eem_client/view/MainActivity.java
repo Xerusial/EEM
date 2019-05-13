@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements ItemListFragment.
     @Override
     protected void onPause() {
         sw.setChecked(scanNetwork(false));
+        model.getLivedata().clean(false);
         super.onPause();
     }
 

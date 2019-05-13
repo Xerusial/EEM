@@ -14,8 +14,6 @@ import java.net.ServerSocket;
 
 import edu.hm.eem_library.net.ServiceManager;
 
-import static androidx.constraintlayout.Constraints.TAG;
-
 public class HostServiceManager extends ServiceManager implements RegisterListener {
     private final String profName;
     private final DNSSD dnssd;

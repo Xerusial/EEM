@@ -7,6 +7,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 
@@ -33,7 +34,7 @@ public abstract class ProtocolManager {
     /* Protocol Receiver Thread
      * The server opens one thread for each socket, the client has only got one thread.
      */
-    public class ReceiverThread extends Thread {
+    public abstract class ReceiverThread extends Thread {
         private Socket inputSocket;
 
         public ReceiverThread(Socket inputSocket) {
@@ -44,24 +45,23 @@ public abstract class ProtocolManager {
         @Override
         public void run() {
             InputStream is = null;
-            OutputStream os = null;
-            try {
-                is = inputSocket.getInputStream();
-                os = inputSocket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    is = inputSocket.getInputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Object[] header = DataPacket.readHeader(is);
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
                     putToast(R.string.toast_protocol_too_new);
                 }
-                handleMessage((DataPacket.Type) header[1], is, os);
+                if(!handleMessage((DataPacket.Type) header[1], is, inputSocket))
+                    interrupt();
             }
         }
-    }
 
-    protected abstract boolean handleMessage(DataPacket.Type type, InputStream is, OutputStream os);
+        protected abstract boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket);
+    }
 
     /* This method prevents the receiverThreads from flooding the application with toasts.
      * Only one toast is shown at a time.

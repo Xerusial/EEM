@@ -29,11 +29,11 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         }
     }
 
-    public boolean add(S sortableKey, T item){
+    public boolean add(S sortableKey, T item, boolean post){
         boolean ret = !backingMap.containsKey(sortableKey);
         if (ret) {
             put(sortableKey,item);
-            if(notificationNeeded) notifyObservers(false);
+            if(notificationNeeded) notifyObservers(post);
         }
         return ret;
     }
@@ -42,10 +42,15 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         backingMap.put(sortableKey, new SortableItem<>(sortableKey, item));
     }
 
-    public SortableItem<S,T> remove(S sortableKey){
+    public SortableItem<S,T> remove(S sortableKey, boolean post){
         SortableItem<S,T> removed = backingMap.remove(sortableKey);
-        if(notificationNeeded) notifyObservers(false);
+        if(notificationNeeded) notifyObservers(post);
         return removed;
+    }
+
+    public void clean(boolean post){
+        backingMap.clear();
+        notifyObservers(post);
     }
 
     public boolean contains(S sortableKey){

@@ -3,7 +3,10 @@ package edu.hm.eem_client.view;
 import android.content.Context;
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.widget.TextView;
 
 import java.net.InetAddress;
@@ -21,9 +24,21 @@ public class LockedActivity extends AppCompatActivity {
         Intent intent = getIntent();
         InetAddress host = (InetAddress) intent.getSerializableExtra(MainActivity.ADDRESS_FIELD);
         int port = intent.getIntExtra(MainActivity.PORT_FIELD, 0);
-        getPreferences(Context.MODE_PRIVATE);
-        String name = getResources().getString(R.string.preferences_username);
         TextView nameView = findViewById(R.id.textView);
-        pm = new ClientProtocolManager(this, host, port, name, nameView);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String name = preferences.getString(getString(R.string.preferences_username), "Username@" + android.os.Build.MODEL);
+        pm = new ClientProtocolManager(this, host, port, name);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        pm.quit();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
     }
 }

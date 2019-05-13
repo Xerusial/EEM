@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public class SignalPacket extends DataPacket {
     public enum Signal {
-        VALID_LOGIN, INVALID_LOGIN;
+        VALID_LOGIN, INVALID_LOGIN, LOGOFF;
 
         private static Signal[] values = null;
 

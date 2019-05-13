@@ -55,8 +55,8 @@ public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel
         }
 
         @Override
-        public SortableItem<String, File> remove(String sortableKey) {
-            SortableItem<String, File> ret = super.remove(sortableKey);
+        public SortableItem<String, File> remove(String sortableKey, boolean post) {
+            SortableItem<String, File> ret = super.remove(sortableKey, post);
             //noinspection ResultOfMethodCallIgnored
             ret.item.delete();
             return ret;

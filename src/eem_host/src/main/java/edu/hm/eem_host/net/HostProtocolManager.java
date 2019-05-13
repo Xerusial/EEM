@@ -1,6 +1,7 @@
 package edu.hm.eem_host.net;
 
 import android.app.Activity;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,13 +16,15 @@ import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 public class HostProtocolManager extends ProtocolManager {
     private final ServerSocket serverSocket;
-    private SortableMapLiveData<String, ClientDevice> liveData;
+    private SortableMapLiveData<String, Socket> liveData;
 
     private Thread serverThread;
 
-    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<String, ClientDevice> liveData) {
+    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<String, Socket> liveData) {
         super(context);
         this.serverSocket = serverSocket;
         this.serverThread = new Thread(new ServerThread());
@@ -37,7 +40,7 @@ public class HostProtocolManager extends ProtocolManager {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     socket = serverSocket.accept();
-                    receiverThread = new ReceiverThread(socket);
+                    receiverThread = new HostReceiverThread(socket);
                     receiverThread.start();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -52,23 +55,41 @@ public class HostProtocolManager extends ProtocolManager {
         super.quit();
     }
 
-    @Override
-    protected boolean handleMessage(DataPacket.Type type, InputStream is, OutputStream os) {
-        boolean ret = false;
-        switch (type) {
-            case LOGIN:
-                String name = LoginPacket.readData(is);
-                SignalPacket signalPacket;
-                if (liveData.contains(name)) {
-                    signalPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
-                } else {
-                    liveData.add(name, new ClientDevice(name, os));
-                    signalPacket = new SignalPacket(SignalPacket.Signal.VALID_LOGIN);
-                }
-                signalPacket.sendData(os);
-                ret = true;
-                break;
+    private class HostReceiverThread extends ProtocolManager.ReceiverThread {
+        private String name;
+        public HostReceiverThread(Socket inputSocket) {
+            super(inputSocket);
         }
-        return ret;
+
+        @Override
+        protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
+            boolean ret = false;
+            switch (type) {
+                case LOGIN:
+                    name = LoginPacket.readData(is);
+                    SignalPacket signalPacket;
+                    if (liveData.contains(name)) {
+                        signalPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
+                    } else {
+                        liveData.add(name, socket, true);
+                        signalPacket = new SignalPacket(SignalPacket.Signal.VALID_LOGIN);
+                    }
+                    DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, signalPacket);
+                    sender.start();
+                    ret = true;
+                    break;
+                case SIGNAL:
+                    SignalPacket.Signal signal = SignalPacket.readData(is);
+                    switch (signal){
+                        case LOGOFF:
+                            liveData.remove(name, true);
+                            ret = false;
+                            break;
+                    }
+                    break;
+
+            }
+            return ret;
+        }
     }
 }

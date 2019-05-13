@@ -153,7 +153,7 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
                 uri = resultData.getData();
                 String fileName = (new File(uri.getPath())).getName();
                 ExamDocument examDocument = new ExamDocument(fileName,uri.getPath());
-                model.getLivedata().add(fileName,examDocument);
+                model.getLivedata().add(fileName,examDocument, false);
             }
         }
     }

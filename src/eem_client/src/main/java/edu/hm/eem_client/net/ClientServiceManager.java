@@ -60,9 +60,11 @@ public class ClientServiceManager extends ServiceManager {
 
         @Override
         public void onServiceFound(NsdServiceInfo serviceInfo) {
-            selectableSortableMapLiveData.add(serviceInfo.getServiceName(), serviceInfo);
+            selectableSortableMapLiveData.add(serviceInfo.getServiceName(), serviceInfo, true);
         }
 
+        // Useless callback. Is called periodically, even if service is available throughout
+        // operation. Check avaliability with resolve instead.
         @Override
         public void onServiceLost(NsdServiceInfo serviceInfo) {
 

@@ -11,6 +11,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.preference.PreferenceManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -77,7 +79,7 @@ public class LockActivity extends AppCompatActivity
     }
 
     private void startService() {
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
         try {
             ServerSocket serverSocket = new ServerSocket(0);

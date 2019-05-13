@@ -3,6 +3,7 @@ package edu.hm.eem_library.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 
 public abstract class DataPacket {
@@ -76,8 +77,30 @@ public abstract class DataPacket {
     protected abstract void writeData(OutputStream os);
     protected abstract long getSize();
 
-    public final void sendData(OutputStream os) {
+    private void sendData(OutputStream os) {
         writeHeader(os);
         writeData(os);
+    }
+
+    public static final class SenderThread extends Thread{
+        private final Socket socket;
+        private final DataPacket dp;
+
+        public SenderThread(Socket socket, DataPacket dp) {
+            this.socket = socket;
+            this.dp = dp;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            try {
+                OutputStream os = socket.getOutputStream();
+                dp.sendData(os);
+                //Do not close outputstream, as this will close the socket entirely
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -21,7 +21,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            app:srcCompat="@android:drawable/ic_menu_preferences" />
+            android:contentDescription="@string/preferences_title_general"
+            app:srcCompat="@android:drawable/ic_menu_preferences"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="12dp" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -39,7 +42,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
+        android:contentDescription="@string/search_running"
+        android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sw_scan_services"
@@ -49,7 +53,8 @@
         android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:contentDescription="@string/search_running"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/progress_background"
         app:layout_constraintLeft_toLeftOf="@id/progress_background"
         app:layout_constraintRight_toRightOf="@id/progress_background"
