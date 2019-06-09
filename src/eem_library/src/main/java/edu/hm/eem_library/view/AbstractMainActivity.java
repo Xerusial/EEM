@@ -19,7 +19,6 @@ import android.widget.Toolbar;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamListViewModel;
-import edu.hm.eem_library.view.ItemListFragment;
 
 public abstract class AbstractMainActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener {
 

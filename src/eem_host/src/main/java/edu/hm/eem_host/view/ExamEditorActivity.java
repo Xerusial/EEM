@@ -2,6 +2,9 @@ package edu.hm.eem_host.view;
 
 import android.Manifest;
 import android.app.Activity;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.app.AlertDialog;
@@ -19,8 +22,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +41,9 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
 
     private EditText pwField;
     private CheckBox allDocAllowedField;
-    private ImageButton del_button;
+    private ImageButton delButton;
+    private ImageButton addButton;
+    private View docList;
 
     private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     private final int READ_REQUEST_CODE = 1;
@@ -52,20 +57,34 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
         setContentView(R.layout.activity_exam_editor);
         pwField = findViewById(R.id.pass);
         allDocAllowedField = findViewById(R.id.allDocsAllowed);
-        del_button = findViewById(R.id.bt_del_doc);
-        findViewById(R.id.bt_add_doc).setOnClickListener(v -> showNameDialog());
-        del_button.setOnClickListener(v -> model.getLivedata().removeSelected());
+        delButton = findViewById(R.id.bt_del_doc);
+        addButton = findViewById(R.id.bt_add_doc);
+        addButton.setOnClickListener(v -> showNameDialog());
+        delButton.setOnClickListener(v -> model.getLivedata().removeSelected());
         findViewById(R.id.bt_save).setOnClickListener(this);
         ((CheckBox)findViewById(R.id.showPass)).setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked) pwField.setTransformationMethod(null);
             else pwField.setTransformationMethod(new PasswordTransformationMethod());
         });
-        ((TextView)findViewById(R.id.examName)).setText(examName);
+        docList = findViewById(R.id.doc_list);
+        allDocAllowedField.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            docUISetEnabled(!isChecked);
+        });
         allDocAllowedField.setChecked(model.getCurrent().allDocumentsAllowed);
+        ((Toolbar)findViewById(R.id.toolbar2)).setTitle(examName);
     }
 
     private void setFields(){
         model.getCurrent().allDocumentsAllowed = allDocAllowedField.isChecked();
+    }
+
+    private void docUISetEnabled(boolean enable){
+        delButton.setEnabled(enable);
+        addButton.setEnabled(enable);
+        delButton.setAlpha(enable?1.0f:0.5f);
+        addButton.setAlpha(enable?1.0f:0.5f);
+        docList.setAlpha(enable?1.0f:0.5f);
+        docList.setEnabled(enable);
     }
 
     @Override
@@ -118,7 +137,7 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onListFragmentLongPress() {
         int sel_cnt = model.getLivedata().getSelectionCount();
-        del_button.setEnabled(sel_cnt>0);
+        delButton.setEnabled(sel_cnt>0);
     }
 
     private void openFileManager(){
