@@ -4,29 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.MainActivity"
+    tools:context=".view.ScanActivity"
     android:animateLayoutChanges="true">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageButton
-            android:id="@+id/bt_settings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:contentDescription="@string/preferences_title_general"
-            app:srcCompat="@android:drawable/ic_menu_preferences"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="12dp" />
-
-    </androidx.appcompat.widget.Toolbar>
+        android:text="@string/header_scan_for_exam_providers"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Switch
         android:id="@+id/sw_scan_services"
@@ -35,7 +23,8 @@
         android:text="@string/scan_for_services"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/textView2"/>
+        tools:layout_editor_absoluteY="56dp" />
 
     <ImageView
         android:id="@+id/progress_background"
@@ -69,7 +58,6 @@
         app:ListContent="HOST"
         app:layout_constraintTop_toBottomOf="@id/progress"
         app:layout_constraintLeft_toLeftOf="parent"
-        tools:layout="@layout/fragment_itemlist"
-        tools:layout_editor_absoluteY="115dp" />
+        tools:layout="@layout/fragment_itemlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,32 +1,64 @@
 package edu.hm.eem_library.model;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.TreeSet;
-
 /** A class containing information on a specific document, which can be later checked by the client.
  *
  */
 public class ExamDocument{
-    private final String name;
-    private final String path;
+    private String name;
+    private final byte[] hash;
+    private final int pages;
 
-    public ExamDocument(final String name, final String path) {
+    public ExamDocument(String name, final byte[] hash) {
         this.name = name;
-        this.path = path;
+        this.hash = hash;
+        this.pages = 0;
+    }
+
+    public ExamDocument(String name, int pages) {
+        this.name = name;
+        this.hash = null;
+        this.pages = pages;
+    }
+
+    ExamDocument(String name, final byte[] hash, int pages){
+        this.name = name;
+        this.hash = hash;
+        this.pages = pages;
     }
 
     SortableItem<String, ExamDocument> toSortableItem(){
         return new SortableItem<>(name, this);
     }
 
-    // Needed for SnakeYAML
+    // Getters needed for SnakeYAML
     public String getName() {
         return name;
     }
 
-    // Needed for SnakeYAML
-    public String getPath() {
-        return path;
+    public byte[] getHash() {
+        return hash;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public void incrName(){
+        String[] parts = name.split(" ");
+        final int preEndIndex = parts.length-1;
+        int num;
+        try {
+            num = Integer.parseInt(parts[preEndIndex]);
+            num++;
+        } catch (NumberFormatException e){
+            num = 1;
+        }
+        name = "";
+        StringBuilder builder = new StringBuilder(name);
+        for(int i = 1; i<preEndIndex; i++){
+            builder.append(parts[i]);
+            builder.append(' ');
+        }
+        builder.append(num);
     }
 }

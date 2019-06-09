@@ -1,6 +1,5 @@
 package edu.hm.eem_client.view;
 
-import android.content.Context;
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,8 +21,8 @@ public class LockedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locked);
         Intent intent = getIntent();
-        InetAddress host = (InetAddress) intent.getSerializableExtra(MainActivity.ADDRESS_FIELD);
-        int port = intent.getIntExtra(MainActivity.PORT_FIELD, 0);
+        InetAddress host = (InetAddress) intent.getSerializableExtra(ScanActivity.ADDRESS_FIELD);
+        int port = intent.getIntExtra(ScanActivity.PORT_FIELD, 0);
         TextView nameView = findViewById(R.id.textView);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString(getString(R.string.preferences_username), "Username@" + android.os.Build.MODEL);

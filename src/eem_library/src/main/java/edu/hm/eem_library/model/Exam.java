@@ -28,7 +28,7 @@ public class Exam{
 
     Exam(boolean allDocumentsAllowed, @Nullable byte[] salt) {
         this.allDocumentsAllowed = allDocumentsAllowed;
-        if(salt==null) this.salt = SHA256TOOLBOX.genSalt();
+        if(salt==null) this.salt = HASHTOOLBOX.genSalt();
         else this.salt=salt;
         allowedDocuments = new LinkedList<>();
     }
@@ -40,11 +40,11 @@ public class Exam{
     }
 
     public void setPassword(String pw) {
-        this.passwordHash = SHA256TOOLBOX.genSha256(pw,salt);
+        this.passwordHash = HASHTOOLBOX.genSha256(pw,salt);
     }
 
     public boolean checkPW(String pw) {
-        return Arrays.equals(passwordHash, SHA256TOOLBOX.genSha256(pw,salt));
+        return Arrays.equals(passwordHash, HASHTOOLBOX.genSha256(pw,salt));
     }
 
     /** updates allowedDocuments from a {@link SelectableSortableMapLiveData} values instance
@@ -108,9 +108,32 @@ public class Exam{
                             case "allowedDocuments":
                                 SequenceNode snode = (SequenceNode) vnode;
                                 for(Node child : snode.getValue()) {
-                                    Map<String, String> map = (Map<String, String>) yamlConstructors.get(Tag.MAP).construct(child);
-                                    allowedDocuments.add(new ExamDocument(map.get("name"), map.get("path")));
+                                    /*Map<String, String> map = (Map<String, String>) yamlConstructors.get(Tag.MAP).construct(child);
+                                    allowedDocuments.add(new ExamDocument(map.get("name"), map.get("hash"), map.get("pages")));*/
+                                    MappingNode submnode = (MappingNode) child;
+                                    List<NodeTuple> sublist = submnode.getValue();
+                                    String name = null;
+                                    byte[] hash = null;
+                                    int pages = 0;
+                                    for(NodeTuple subnt : sublist) {
+                                        Node subknode = subnt.getKeyNode();
+                                        Node subvnode = subnt.getValueNode();
+                                        String subtag = (String) yamlConstructors.get(Tag.STR).construct(subknode);
+                                        switch (subtag){
+                                            case "name":
+                                                name = (String) yamlConstructors.get(Tag.STR).construct(subvnode);
+                                                break;
+                                            case "hash":
+                                                hash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(subvnode);
+                                                break;
+                                            case "pages":
+                                                pages = (int) yamlConstructors.get(Tag.INT).construct(subvnode);
+                                                break;
+                                        }
+                                    }
+                                    allowedDocuments.add(new ExamDocument(name, hash, pages));
                                 }
+
                                 break;
                             default:
                                 break;

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="edu.hm.eem_host.view.ExamEditorActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <android.widget.Toolbar
         android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,6 +25,7 @@
             android:maxLines="1"
             android:paddingStart="10dp"
             android:paddingEnd="20dp"
+            android:textColor="#00FFFFFF"
             android:textSize="24sp"
             android:textStyle="bold"
             tools:layout_editor_absoluteX="16dp"
@@ -51,7 +52,7 @@
             android:paddingRight="10dp"
             app:srcCompat="@android:drawable/ic_menu_delete" />
 
-    </androidx.appcompat.widget.Toolbar>
+    </android.widget.Toolbar>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -61,30 +62,12 @@
         tools:layout_editor_absoluteX="10dp">
 
         <EditText
-            android:id="@+id/oldPass"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/password3"
-            android:inputType="textPassword"
-            tools:targetApi="o" />
-
-        <EditText
             android:id="@+id/pass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/password"
             android:importantForAutofill="no"
-            android:inputType="textPassword"
-            tools:targetApi="o" />
-
-        <EditText
-            android:id="@+id/repPass"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/password2"
             android:inputType="textPassword"
             tools:targetApi="o" />
 

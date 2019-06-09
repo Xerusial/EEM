@@ -1,11 +1,33 @@
 package edu.hm.eem_library.model;
 
+import android.net.Uri;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-final class SHA256TOOLBOX {
-    private SHA256TOOLBOX(){}
+public final class HASHTOOLBOX {
+    private HASHTOOLBOX(){}
+
+    public static byte[] genMD5(InputStream is) throws IOException {
+        try {
+            // Create MessageDigest instance for SHA256
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] bytes = new byte[4096];
+            int read = 0;
+            while ((is.read(bytes)) != -1) {
+                md.update(bytes, 0, read);
+            }
+            return md.digest();
+        } catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
 
     static byte[] genSha256(String pw, byte[] salt){
         try {

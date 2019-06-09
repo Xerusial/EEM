@@ -3,6 +3,8 @@ package edu.hm.eem_host.view;
 import android.Manifest;
 import android.app.Activity;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -14,27 +16,29 @@ import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.ExamViewModel;
+import edu.hm.eem_library.model.HASHTOOLBOX;
 import edu.hm.eem_library.view.ItemListFragment;
 
 public class ExamEditorActivity extends AppCompatActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener{
 
     private ExamViewModel model;
 
-    private EditText[] pwFields = new EditText[3];
+    private EditText pwField;
     private CheckBox allDocAllowedField;
     private ImageButton del_button;
-    private boolean examIsNew;
 
     private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     private final int READ_REQUEST_CODE = 1;
@@ -44,33 +48,17 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         model = ViewModelProviders.of(this).get(ExamViewModel.class);
         String examName = getIntent().getStringExtra("Name");
-        examIsNew = model.openExam(examName);
+        model.openExam(examName);
         setContentView(R.layout.activity_exam_editor);
-        pwFields[0] = findViewById(R.id.oldPass);
-        pwFields[1] = findViewById(R.id.pass);
-        pwFields[2] = findViewById(R.id.repPass);
+        pwField = findViewById(R.id.pass);
         allDocAllowedField = findViewById(R.id.allDocsAllowed);
         del_button = findViewById(R.id.bt_del_doc);
-        findViewById(R.id.bt_add_doc).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkFileManagerPermissions();
-            }
-        });
-        del_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                model.getLivedata().removeSelected();
-            }
-        });
+        findViewById(R.id.bt_add_doc).setOnClickListener(v -> showNameDialog());
+        del_button.setOnClickListener(v -> model.getLivedata().removeSelected());
         findViewById(R.id.bt_save).setOnClickListener(this);
-        ((CheckBox)findViewById(R.id.showPass)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    for(EditText t : pwFields)
-                        if(isChecked) t.setTransformationMethod(null);
-                        else t.setTransformationMethod(new PasswordTransformationMethod());
-            }
+        ((CheckBox)findViewById(R.id.showPass)).setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked) pwField.setTransformationMethod(null);
+            else pwField.setTransformationMethod(new PasswordTransformationMethod());
         });
         ((TextView)findViewById(R.id.examName)).setText(examName);
         allDocAllowedField.setChecked(model.getCurrent().allDocumentsAllowed);
@@ -82,21 +70,44 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        String pw = pwFields[1].getText().toString();
-        if(!pw.equals(pwFields[2].getText().toString())){
-            Toast.makeText(getApplicationContext(),getString(R.string.toast_passwords_do_not_match),Toast.LENGTH_SHORT).show();
+        String pw = pwField.getText().toString();
+        if(pw.isEmpty()){
+            Toast.makeText(getApplicationContext(),getString(R.string.toast_enter_password),Toast.LENGTH_SHORT).show();
             return;
         }
-        if(!examIsNew){
-            if (!model.getCurrent().checkPW(pwFields[0].getText().toString())) {
-                Toast.makeText(getApplicationContext(),getString(R.string.toast_old_password_incorrect), Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if(model.getLivedata().getValue().size() == 0 && !allDocAllowedField.isChecked()){
+            Toast.makeText(getApplicationContext(),getString(R.string.toast_select_documents),Toast.LENGTH_SHORT).show();
+            return;
         }
         model.getCurrent().setPassword(pw);
         setFields();
         model.writeExamToFile();
         finish();
+    }
+
+    private void showNameDialog(){
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.dialog_build_document));
+        View v = getLayoutInflater().inflate(R.layout.dialog_build_examdocument, null);
+        builder.setView(v);
+        EditText numPages = v.findViewById(R.id.number_pages);
+        RadioGroup rg = v.findViewById(R.id.rbs);
+        builder.setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {
+            switch(rg.getCheckedRadioButtonId()){
+                case R.id.rb_file:
+                    checkFileManagerPermissions();
+                    break;
+                case R.id.rb_page:
+                    int pages = Integer.parseInt(numPages.getText().toString());
+                    String fileName = getString(R.string.page_specified_document);
+                    ExamDocument examDocument = new ExamDocument(fileName,pages);
+                    model.getLivedata().add(fileName,examDocument, false);
+                    break;
+            }
+        });
+        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
+        builder.show();
     }
 
     @Override
@@ -130,13 +141,10 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    openFileManager();
-                break;
-            }
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                openFileManager();
         }
     }
 
@@ -148,13 +156,22 @@ public class ExamEditorActivity extends AppCompatActivity implements View.OnClic
             // Instead, a URI to that document will be contained in the return intent
             // provided to this method as a parameter.
             // Pull that URI using resultData.getData().
-            Uri uri;
             if (resultData != null) {
-                uri = resultData.getData();
+                Uri uri = resultData.getData();
+                byte[] hash = new byte[0];
+                try {
+                    InputStream is = getContentResolver().openInputStream(uri);
+                    hash = HASHTOOLBOX.genMD5(is);
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 String fileName = (new File(uri.getPath())).getName();
-                ExamDocument examDocument = new ExamDocument(fileName,uri.getPath());
+                ExamDocument examDocument = new ExamDocument(fileName, hash);
                 model.getLivedata().add(fileName,examDocument, false);
             }
+        } else {
+            super.onActivityResult(requestCode, resultCode, resultData);
         }
     }
 
