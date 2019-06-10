@@ -29,6 +29,7 @@
     <string name="preferences_username">Username</string>
     <string name="search_running">Search running!</string>
     <string name="dialog_build_document">Build document meta-data from:</string>
+    <string name="dialog_delete_all_documents">Delete all documents?</string>
     <string name="from_file">file</string>
     <string name="page_specified_document">Page specified document</string>
     <string name="from_page_number">number of pages</string>
@@ -40,7 +41,9 @@
     <string name="placeholder_device">List of student devices in range</string>
     <string name="toast_read_files_warning">This App needs internal storage access for you to choose the allowed documents in the exam.</string>
     <string name="toast_enter_password">Please enter a password!</string>
-    <string name="toast_select_documents">If not all documents are allowed, specify at least one!</string>
+    <string name="toast_select_documents_teacher">If not all documents are allowed, specify at least one!</string>
+    <string name="toast_select_documents_student">Specify at least one document!</string>
+    <string name="toast_specify_pages">Please specify the Number of pages for the document!</string>
     <string name="toast_exam_already_exists">The specified exam does already exist!</string>
     <string name="toast_gps_needed_for_hotspot">This app needs gps to create the hotspot!</string>
     <string name="toast_wifi_connection_failed">Wifi could not be established!</string>

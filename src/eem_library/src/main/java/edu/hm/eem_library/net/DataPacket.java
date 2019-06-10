@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 public abstract class DataPacket {
-    /* Protocol specification: EEP - E-Reader Exam Protocol
+    /* Protocol specification: EEP - E-Reader TeacherExam Protocol
        [4 Byte: Version]
        [4 Byte: Type]
        [8 Bytes: Size]

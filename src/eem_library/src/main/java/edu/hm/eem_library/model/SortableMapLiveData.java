@@ -53,6 +53,10 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         notifyObservers(post);
     }
 
+    public boolean isEmpty(){
+        return backingMap.isEmpty();
+    }
+
     public boolean contains(S sortableKey){
         return backingMap.containsKey(sortableKey);
     }

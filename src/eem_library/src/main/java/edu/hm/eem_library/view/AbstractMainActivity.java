@@ -1,16 +1,15 @@
 package edu.hm.eem_library.view;
 
 import android.app.AlertDialog;
+
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,7 +22,7 @@ import edu.hm.eem_library.model.ExamListViewModel;
 public abstract class AbstractMainActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener {
 
     public enum ActionType {
-        ACTION_EDITOR, ACTION_LOCK;
+        ACTION_EDITOR, ACTION_LOCK
     }
 
     private ExamListViewModel model;
@@ -38,10 +37,7 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
         setActionBar(toolbar);
         model = ViewModelProviders.of(this).get(ExamListViewModel.class);
         del_button = findViewById(R.id.bt_del_exam);
-        del_button.setOnClickListener(v -> {
-            model.getLivedata().removeSelected();
-            updateButtonState();
-        });
+        del_button.setOnClickListener(v -> model.getLivedata().removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);
         edit_button.setOnClickListener(v -> {
             String name = model.getLivedata().getSelected().sortableKey;
@@ -53,8 +49,11 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
                     getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_IMPLICIT);
         });
-        buttonSetEnabled(del_button, false);
-        buttonSetEnabled(edit_button, false);
+        model.getLivedata().observe(this, sortableItems -> {
+            int sel_cnt = model.getLivedata().getSelectionCount();
+            buttonSetEnabled(del_button,sel_cnt>0);
+            buttonSetEnabled(edit_button,sel_cnt==1);
+        });
     }
 
     @Override
@@ -72,17 +71,6 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
     @Override
     public void onListFragmentPress(int index){
         startSubApplication(model.getLivedata().getValue().get(index).sortableKey, ActionType.ACTION_LOCK);
-    }
-
-    @Override
-    public void onListFragmentLongPress(){
-        updateButtonState();
-    }
-
-    private void updateButtonState(){
-        int sel_cnt = model.getLivedata().getSelectionCount();
-        buttonSetEnabled(del_button,sel_cnt>0);
-        buttonSetEnabled(edit_button,sel_cnt==1);
     }
 
     private void showNameDialog(){

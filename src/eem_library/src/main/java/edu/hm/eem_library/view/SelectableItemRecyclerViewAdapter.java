@@ -51,36 +51,25 @@ public class SelectableItemRecyclerViewAdapter extends ItemRecyclerViewAdapter {
         }
 
         private void updateState(int position){
-            boolean activated = ((SelectableSortableMapLiveData<String, ?>)liveData).isSelected(position);
-            if(activated){
+            if(((SelectableSortableMapLiveData<String, ?>)liveData).isSelected(position)){
                 ((CardView)itemView).setCardBackgroundColor(colorPrimary);
             } else {
                 ((CardView)itemView).setCardBackgroundColor(colorPrimaryLight);
             }
-            itemView.setActivated(activated);
         }
 
         @Override
         void initializeFromLiveData(int position) {
             super.initializeFromLiveData(position);
             updateState(position);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != listener) {
-                        listener.onListFragmentPress(getAdapterPosition());
-                    }
+            view.setOnClickListener(v -> {
+                if (null != listener) {
+                    listener.onListFragmentPress(getAdapterPosition());
                 }
             });
-            view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int position = getAdapterPosition();
-                    ((SelectableSortableMapLiveData<String, ?>)liveData).toggleSelected(position);
-                    updateState(position);
-                    listener.onListFragmentLongPress();
-                    return true;
-                }
+            view.setOnLongClickListener(v -> {
+                ((SelectableSortableMapLiveData<String, ?>)liveData).toggleSelected(getAdapterPosition());
+                return true;
             });
         }
 

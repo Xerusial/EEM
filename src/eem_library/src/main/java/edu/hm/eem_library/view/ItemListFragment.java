@@ -1,6 +1,4 @@
 package edu.hm.eem_library.view;
-
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Context;
@@ -159,12 +157,9 @@ public class ItemListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //pass lifecycle from view because if the fragment gets reattached, the old observer would
         // not be destroyed, if we would pass the lifecycle of the fragment
-        model.getLivedata().observe(getViewLifecycleOwner(), new Observer() {
-            @Override
-            public void onChanged(@Nullable Object o) {
-                adapter.notifyDataSetChanged();
-                updateEmptyLayout();
-            }
+        model.getLivedata().observe(getViewLifecycleOwner(), o -> {
+            adapter.notifyDataSetChanged();
+            updateEmptyLayout();
         });
     }
 
@@ -175,7 +170,5 @@ public class ItemListFragment extends Fragment {
 
     public interface OnListFragmentPressListener {
         void onListFragmentPress(int index);
-
-        void onListFragmentLongPress();
     }
 }

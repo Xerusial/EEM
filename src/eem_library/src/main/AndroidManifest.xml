@@ -3,7 +3,6 @@
     package="edu.hm.eem_library">
 
     <application>
-        <activity android:name=".view.AbstractMainActivity"></activity>
         <activity android:name=".view.AboutActivity" />
     </application>
 

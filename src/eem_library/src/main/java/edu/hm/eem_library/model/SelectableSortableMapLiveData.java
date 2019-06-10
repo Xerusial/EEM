@@ -16,6 +16,7 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
 
     public void toggleSelected(int index) {
         selectionCounter += (selection[index]^=true) ? 1 : -1;
+        notifyObserversMeta();
     }
 
     /** Get a selected item in the map.
@@ -32,6 +33,13 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
             }
         }
         return ret;
+    }
+
+    /** Notfify Observers, but only the selection has changed, so the Arraylist does not need to be
+     * rebuilt.
+     */
+    protected void notifyObserversMeta(){
+        postValue(getValue());
     }
 
     public boolean isSelected(int index){

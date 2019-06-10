@@ -15,11 +15,11 @@ import java.util.Set;
 
 public class ExamViewModel extends FilebackedItemViewModel<ExamViewModel.ExamDocumentLiveData> {
     private Yaml yaml;
-    private Exam current;
+    private TeacherExam current;
     private String currentName;
     public ExamViewModel(Application application) {
         super(application);
-        yaml = new Yaml(new Exam.ExamConstructor());
+        yaml = new Yaml(new TeacherExam.ExamConstructor());
     }
 
     public class ExamDocumentLiveData extends SelectableSortableMapLiveData<String, ExamDocument>{
@@ -40,7 +40,7 @@ public class ExamViewModel extends FilebackedItemViewModel<ExamViewModel.ExamDoc
     public boolean openExam(String name) {
         currentName = name;
         boolean createNew = !readExamFromFile(name);
-        if(createNew) current = new Exam(false, null);
+        if(createNew) current = new TeacherExam();
         this.livedata = new ExamDocumentLiveData(current.toLiveDataSet(), true);
         return createNew;
     }
@@ -74,7 +74,7 @@ public class ExamViewModel extends FilebackedItemViewModel<ExamViewModel.ExamDoc
         }
     }
 
-    public Exam getCurrent() {
+    public TeacherExam getCurrent() {
         return current;
     }
 }
