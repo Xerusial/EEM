@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.model.SortableMapLiveData;
 import edu.hm.eem_library.net.ClientDevice;
 import edu.hm.eem_library.net.DataPacket;
@@ -20,11 +21,11 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class HostProtocolManager extends ProtocolManager {
     private final ServerSocket serverSocket;
-    private SortableMapLiveData<String, Socket> liveData;
+    private SortableMapLiveData<String, Socket, SortableItem<String, Socket>> liveData;
 
     private Thread serverThread;
 
-    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<String, Socket> liveData) {
+    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<String, Socket, SortableItem<String, Socket>> liveData) {
         super(context);
         this.serverSocket = serverSocket;
         this.serverThread = new Thread(new ServerThread());
@@ -71,7 +72,7 @@ public class HostProtocolManager extends ProtocolManager {
                     if (liveData.contains(name)) {
                         signalPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
                     } else {
-                        liveData.add(name, socket, true);
+                        liveData.add(name, new SortableItem<>(name, socket), true);
                         signalPacket = new SignalPacket(SignalPacket.Signal.VALID_LOGIN);
                     }
                     DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, signalPacket);

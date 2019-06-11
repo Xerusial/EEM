@@ -4,7 +4,7 @@ import android.app.Application;
 import android.net.nsd.NsdServiceInfo;
 import androidx.annotation.NonNull;
 
-public class HostViewModel extends ItemViewModel<SelectableSortableMapLiveData<String, NsdServiceInfo>> {
+public class HostViewModel extends ItemViewModel<SelectableSortableMapLiveData<String, NsdServiceInfo, SortableItem<String, NsdServiceInfo>>> {
     public HostViewModel(@NonNull Application application) {
         super(application);
         this.livedata = new SelectableSortableMapLiveData<>(null, true);

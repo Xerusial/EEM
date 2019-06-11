@@ -6,68 +6,90 @@
     android:layout_height="match_parent"
     tools:context="edu.hm.eem_host.view.LockActivity">
 
-    <LinearLayout
-        android:id="@+id/hotspot"
+    <android.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:title="ExamTitle"/>
+
+    <Switch
+        android:id="@+id/sw_start_service"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:text="@string/start_service"
+        android:textAlignment="textStart"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-        <Switch
-            android:id="@+id/sw_start_service"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/start_service"
-            android:textAlignment="textStart" />
+    <CheckBox
+        android:id="@+id/cb_use_hotspot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/use_hotspot"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sw_start_service" />
 
-        <CheckBox
-            android:id="@+id/cb_use_hotspot"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/use_hotspot" />
+    <TextView
+        android:id="@+id/header_net_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wifi_net_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cb_use_hotspot" />
 
-        <TextView
-            android:id="@+id/header_net_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/wifi_net_name" />
+    <TextView
+        android:id="@+id/net_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/blank"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_net_name" />
 
-        <TextView
-            android:id="@+id/net_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/blank" />
+    <TextView
+        android:id="@+id/header_net_pw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/password"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/net_name" />
 
-        <TextView
-            android:id="@+id/header_net_pw"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/password" />
+    <TextView
+        android:id="@+id/net_pw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/blank"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_net_pw" />
 
-        <TextView
-            android:id="@+id/net_pw"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/blank" />
-
-        <TextView
-            android:id="@+id/header_con_devices"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_condev" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/header_con_devices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_condev"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/net_pw" />
 
     <fragment
         android:id="@+id/student_list"
         android:name="edu.hm.eem_library.view.ItemListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/hotspot"
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_con_devices"
         app:ListContent="DEVICE"
-        tools:layout="@layout/fragment_itemlist"
-        tools:layout_editor_absoluteX="146dp" />
+        tools:layout="@layout/fragment_itemlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

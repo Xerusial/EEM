@@ -6,4 +6,5 @@
     <color name="colorPrimaryLight">#769491</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="half_opaque_white">#CCFFFFFF</color>
 </resources>

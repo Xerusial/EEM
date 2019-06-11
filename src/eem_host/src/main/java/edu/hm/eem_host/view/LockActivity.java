@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -41,36 +42,36 @@ public class LockActivity extends AppCompatActivity
     private HostProtocolManager hostProtocolManager;
     private HostServiceManager hostServiceManager;
     private DeviceViewModel model;
+    private String examName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock);
+        examName = getIntent().getStringExtra("Name");
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
         swStartService = findViewById(R.id.sw_start_service);
         cbUseHotspot = findViewById(R.id.cb_use_hotspot);
-        swStartService.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolean useHotspot = cbUseHotspot.isChecked();
-                if (isChecked) {
-                    if (useHotspot)
-                        WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
-                    else
-                        WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
-                } else {
-                    quitService();
-                    quitProtocol();
-                    if (useHotspot) hotspotManager.turnOffHotspot();
-                    checkboxSetEnabled(true);
-                }
+        swStartService.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            boolean useHotspot = cbUseHotspot.isChecked();
+            if (isChecked) {
+                if (useHotspot)
+                    WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
+                else
+                    WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
+            } else {
+                quitService();
+                quitProtocol();
+                if (useHotspot) hotspotManager.turnOffHotspot();
+                checkboxSetEnabled(true);
             }
         });
         wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         hotspotManager = new HotspotManager(wm, this);
         model = ViewModelProviders.of(this).get(DeviceViewModel.class);
+        ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
     }
 
     private void checkboxSetEnabled(boolean enable) {

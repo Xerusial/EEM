@@ -1,6 +1,7 @@
 package edu.hm.eem_host.view;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
@@ -11,6 +12,9 @@ import android.widget.Toast;
 
 import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.ExamDocument;
+import edu.hm.eem_library.model.SortableItem;
+import edu.hm.eem_library.model.THUMBNAILTOOLBOX;
+import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
 
 public class ExamEditorActivity extends AbstractExamEditorActivity {
@@ -44,7 +48,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
             }
         });
         allDocAllowedField.setChecked(model.getLivedata().isEmpty());
-        toolbar = findViewById(R.id.toolbar2);
+        toolbar = findViewById(R.id.toolbar);
     }
 
     private void docUISetEnabled(boolean enable){
@@ -105,7 +109,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                     }
                     String fileName = getString(R.string.page_specified_document);
                     ExamDocument examDocument = new ExamDocument(fileName,pages);
-                    model.getLivedata().add(fileName,examDocument, false);
+                    model.getLivedata().add(fileName, new ThumbnailedExamDocument(fileName, examDocument, null), false);
                     break;
             }
         });

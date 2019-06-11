@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
-        android:background="@drawable/border"
+        android:background="@drawable/empty_border"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -30,7 +30,7 @@
         app:layoutManager="LinearLayoutManager"
         tools:context="edu.hm.eem_library.view.ItemListFragment"
         tools:layout_editor_absoluteX="16dp"
-        tools:listitem="@layout/fragment_item">
+        tools:listitem="@layout/nametab_item">
 
     </androidx.recyclerview.widget.RecyclerView>
 

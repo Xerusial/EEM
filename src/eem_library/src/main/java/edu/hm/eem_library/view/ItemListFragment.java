@@ -22,12 +22,15 @@ import android.widget.TextView;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.DeviceViewModel;
+import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.HostViewModel;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
+import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.model.SortableMapLiveData;
 import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.ExamListViewModel;
 import edu.hm.eem_library.model.ItemViewModel;
+import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.net.ClientDevice;
 
 enum ItemListContent {
@@ -57,8 +60,6 @@ enum ItemListContent {
  */
 public class ItemListFragment extends Fragment {
 
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
     private ItemRecyclerViewAdapter adapter;
     private ItemListContent content;
     private ItemViewModel model;
@@ -75,10 +76,6 @@ public class ItemListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
     }
 
     @Override
@@ -87,33 +84,36 @@ public class ItemListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_itemlist, container, false);
         recyclerView = view.findViewById(R.id.list);
         Context context = recyclerView.getContext();
-        if (mColumnCount <= 1) {
+        if (content == ItemListContent.EXAMDOCUMENT) {
+            recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
+        } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        } else {
-            recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-        }
-        if (content.ordinal() == ItemListContent.DEVICE.ordinal()) {
-            adapter = new ItemRecyclerViewAdapter((SortableMapLiveData<String, ClientDevice>) model.getLivedata());
-        } else {
-            adapter = new SelectableItemRecyclerViewAdapter((SelectableSortableMapLiveData<String, ?>) model.getLivedata(),
-                    (OnListFragmentPressListener) context,
-                    ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-                    ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
         }
         recyclerView.setAdapter(adapter);
         emptyLayout = view.findViewById(R.id.empty_layout);
         TextView tw = view.findViewById(R.id.empty_list_text);
         switch (content){
             case EXAM:
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<String, ?, SortableItem<String, ?>>) model.getLivedata(),
+                        (OnListFragmentPressListener) context,
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimary),
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
                 tw.setText(R.string.placeholder_exam);
                 break;
             case EXAMDOCUMENT:
+                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<String, ExamDocument, ThumbnailedExamDocument>) model.getLivedata(),
+                        (OnListFragmentPressListener) context);
                 tw.setText(R.string.placeholder_document);
                 break;
             case HOST:
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<String, ?, SortableItem<String, ?>>) model.getLivedata(),
+                        (OnListFragmentPressListener) context,
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimary),
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
                 tw.setText(R.string.placeholder_host);
                 break;
             case DEVICE:
+                adapter = new ItemRecyclerViewAdapter((SortableMapLiveData<String, ClientDevice, SortableItem<String, ClientDevice>>) model.getLivedata());
                 tw.setText(R.string.placeholder_device);
                 break;
         }

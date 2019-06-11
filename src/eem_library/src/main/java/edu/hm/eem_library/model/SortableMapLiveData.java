@@ -9,11 +9,11 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class SortableMapLiveData<S extends Comparable<? super S>, T> extends MutableLiveData<ArrayList<SortableItem<S,T>>> {
-    final SortedMap<S, SortableItem<S,T>> backingMap;
+public class SortableMapLiveData<K extends Comparable<? super K>, V, T extends SortableItem<K,V>> extends MutableLiveData<ArrayList<T>> {
+    final SortedMap<K, T> backingMap;
     final boolean notificationNeeded;
 
-    public SortableMapLiveData(@Nullable Set<SortableItem<S, T>> set, boolean notificationNeeded) {
+    SortableMapLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
         this.notificationNeeded = notificationNeeded;
         backingMap = new TreeMap<>();
         if(set != null) {
@@ -22,14 +22,14 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         if(notificationNeeded) notifyObservers(false);
     }
 
-    void refreshData(@NonNull Set<SortableItem<S,T>> set){
+    void refreshData(@NonNull Set<T> set){
         backingMap.clear();
-        for (SortableItem<S, T> item : set) {
+        for (T item : set) {
             backingMap.put(item.sortableKey, item);
         }
     }
 
-    public boolean add(S sortableKey, T item, boolean post){
+    public boolean add(K sortableKey, T item, boolean post){
         boolean ret = !backingMap.containsKey(sortableKey);
         if (ret) {
             put(sortableKey,item);
@@ -38,12 +38,12 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         return ret;
     }
 
-    private void put(S sortableKey, T item){
-        backingMap.put(sortableKey, new SortableItem<>(sortableKey, item));
+    private void put(K sortableKey, T item){
+        backingMap.put(sortableKey, item);
     }
 
-    public SortableItem<S,T> remove(S sortableKey, boolean post){
-        SortableItem<S,T> removed = backingMap.remove(sortableKey);
+    public T remove(K sortableKey, boolean post){
+        T removed = backingMap.remove(sortableKey);
         if(notificationNeeded) notifyObservers(post);
         return removed;
     }
@@ -57,7 +57,7 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
         return backingMap.isEmpty();
     }
 
-    public boolean contains(S sortableKey){
+    public boolean contains(K sortableKey){
         return backingMap.containsKey(sortableKey);
     }
 
@@ -66,7 +66,7 @@ public class SortableMapLiveData<S extends Comparable<? super S>, T> extends Mut
      * @param post if true, notify Observers from background thread such as a listener
      */
     void notifyObservers(boolean post){
-        ArrayList<SortableItem<S,T>> list = new ArrayList<>(backingMap.values());
+        ArrayList<T> list = new ArrayList<>(backingMap.values());
         if(post)
             postValue(list);
         else

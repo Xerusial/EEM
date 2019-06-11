@@ -1,16 +1,15 @@
 package edu.hm.eem_library.model;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> extends SortableMapLiveData<S, T> {
+public class SelectableSortableMapLiveData<K extends Comparable<? super K>,V,T extends SortableItem<K , V>> extends SortableMapLiveData<K, V, T> {
     private boolean[] selection;
     private int selectionCounter;
 
-    SelectableSortableMapLiveData(@Nullable Set<SortableItem<S, T>> set, boolean notificationNeeded) {
+    SelectableSortableMapLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
         super(set, notificationNeeded);
     }
 
@@ -24,8 +23,8 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
      * @return The first item in the list, which is selected. If none is selected, returns null.
      */
     @Nullable
-    public SortableItem<S,T> getSelected(){
-        SortableItem<S,T> ret = null;
+    public T getSelected(){
+        T ret = null;
         for(int i = 0; i<selection.length; i++){
             if(selection[i]){
                 ret = getValue().get(i);
@@ -38,7 +37,7 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
     /** Notfify Observers, but only the selection has changed, so the Arraylist does not need to be
      * rebuilt.
      */
-    protected void notifyObserversMeta(){
+    private void notifyObserversMeta(){
         postValue(getValue());
     }
 
@@ -56,8 +55,8 @@ public class SelectableSortableMapLiveData<S extends Comparable<? super S>, T> e
     }
 
     @Nullable
-    public ArrayList<SortableItem<S,T>> removeSelected(){
-        ArrayList<SortableItem<S,T>> removed = null;
+    public ArrayList<T> removeSelected(){
+        ArrayList<T> removed = null;
         if(selectionCounter>0) {
             removed = new ArrayList<>(selectionCounter);
             for(int i = 0; i<selection.length; i++){

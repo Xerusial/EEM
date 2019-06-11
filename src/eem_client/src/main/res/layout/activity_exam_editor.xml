@@ -7,7 +7,7 @@
     tools:context=".view.ExamEditorActivity">
 
     <android.widget.Toolbar
-        android:id="@+id/toolbar2"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
@@ -46,7 +46,7 @@
             android:layout_height="0dp"
             tools:layout="@layout/fragment_itemlist"
             app:ListContent="EXAMDOCUMENT"
-            app:layout_constraintTop_toBottomOf="@id/toolbar2"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

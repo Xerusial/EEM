@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.model.SortableMapLiveData;
 
 /**
@@ -15,9 +16,9 @@ import edu.hm.eem_library.model.SortableMapLiveData;
  */
 public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerViewAdapter.StringViewHolder>{
 
-    final SortableMapLiveData<String, ?> liveData;
+    final SortableMapLiveData<String, ?, ? extends SortableItem<String, ?>> liveData;
 
-    ItemRecyclerViewAdapter(SortableMapLiveData<String, ?> liveData) {
+    ItemRecyclerViewAdapter(SortableMapLiveData<String, ?, ? extends SortableItem<String, ?>> liveData) {
         this.liveData = liveData;
     }
 
@@ -25,7 +26,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
     @Override
     public StringViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_item, parent, false);
+                .inflate(R.layout.nametab_item, parent, false);
         return new StringViewHolder(v);
     }
 
@@ -46,7 +47,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         StringViewHolder(View view){
             super(view);
             this.view = view;
-            this.nameView = view.findViewById(R.id.selectableItemName);
+            this.nameView = view.findViewById(R.id.itemname);
         }
 
         void initializeFromLiveData(int position){

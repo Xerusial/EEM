@@ -85,11 +85,6 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     }
 
     @Override
-    public void onListFragmentLongPress() {
-
-    }
-
-    @Override
     protected void onPause() {
         sw.setChecked(scanNetwork(false));
         model.getLivedata().clean(false);

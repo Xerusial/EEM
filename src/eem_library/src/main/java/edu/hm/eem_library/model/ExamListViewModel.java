@@ -16,7 +16,7 @@ public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel
         this.livedata = new ExamListLiveData();
     }
 
-    public class ExamListLiveData extends SelectableSortableMapLiveData<String, File> {
+    public class ExamListLiveData extends SelectableSortableMapLiveData<String, File, SortableItem<String, File>> {
         private final int FILEOBSERVERMASK = FileObserver.DELETE | FileObserver.CREATE;
         private final FileObserver fileObserver;
 

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -21,13 +22,15 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.HASHTOOLBOX;
+import edu.hm.eem_library.model.THUMBNAILTOOLBOX;
+import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
 public abstract class AbstractExamEditorActivity extends AppCompatActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener{
 
@@ -66,7 +69,7 @@ public abstract class AbstractExamEditorActivity extends AppCompatActivity imple
 
     @Override
     public void onClick(View v) {
-        model.writeExamToFile();
+        model.closeExam();
         finish();
     }
 
@@ -118,16 +121,17 @@ public abstract class AbstractExamEditorActivity extends AppCompatActivity imple
             if (resultData != null) {
                 Uri uri = resultData.getData();
                 byte[] hash = new byte[0];
+                File documentFile = new File(uri.getPath());
                 try {
-                    InputStream is = getContentResolver().openInputStream(uri);
-                    hash = HASHTOOLBOX.genMD5(is);
-                    is.close();
+                    FileInputStream fis = new FileInputStream(documentFile);
+                    hash = HASHTOOLBOX.genMD5(fis);
+                    fis.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                String fileName = (new File(uri.getPath())).getName();
-                ExamDocument examDocument = new ExamDocument(fileName, hash);
-                model.getLivedata().add(fileName,examDocument, false);
+                Bitmap thumbnail = THUMBNAILTOOLBOX.getThumbnailBitmap(documentFile, getApplication());
+                ThumbnailedExamDocument examDocument = new ThumbnailedExamDocument(documentFile.getName(), new ExamDocument(documentFile.getName(), hash, documentFile.getPath()), thumbnail);
+                model.getLivedata().add(documentFile.getName(),examDocument, false);
             }
         } else {
             super.onActivityResult(requestCode, resultCode, resultData);

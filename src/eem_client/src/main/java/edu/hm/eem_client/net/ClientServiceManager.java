@@ -4,15 +4,16 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
+import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.net.ServiceManager;
 
 public class ClientServiceManager extends ServiceManager {
-    private final SelectableSortableMapLiveData<String, NsdServiceInfo> selectableSortableMapLiveData;
+    private final SelectableSortableMapLiveData<String, NsdServiceInfo, SortableItem<String, NsdServiceInfo>> selectableSortableMapLiveData;
     private final NsdManager nsdm;
     private boolean discovering = false;
     private DiscoveryListener discoveryListener = null;
 
-    public ClientServiceManager(NsdManager nsdm, SelectableSortableMapLiveData<String, NsdServiceInfo> selectableSortableMapLiveData) {
+    public ClientServiceManager(NsdManager nsdm, SelectableSortableMapLiveData<String, NsdServiceInfo, SortableItem<String, NsdServiceInfo>> selectableSortableMapLiveData) {
         this.nsdm = nsdm;
         this.selectableSortableMapLiveData = selectableSortableMapLiveData;
     }
@@ -60,7 +61,8 @@ public class ClientServiceManager extends ServiceManager {
 
         @Override
         public void onServiceFound(NsdServiceInfo serviceInfo) {
-            selectableSortableMapLiveData.add(serviceInfo.getServiceName(), serviceInfo, true);
+            String name = serviceInfo.getServiceName();
+            selectableSortableMapLiveData.add(name, new SortableItem<>(name, serviceInfo), true);
         }
 
         // Useless callback. Is called periodically, even if service is available throughout

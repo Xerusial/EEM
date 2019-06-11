@@ -17,7 +17,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
         addButton.setOnClickListener(v -> checkFileManagerPermissions());
-        toolbar = findViewById(R.id.toolbar2);
+        toolbar = findViewById(R.id.toolbar);
     }
 
     @Override

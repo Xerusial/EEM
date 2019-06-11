@@ -4,7 +4,7 @@ public class SortableItem<S extends Comparable<? super S>, T> implements Compara
     public final S sortableKey;
     public final T item;
 
-    SortableItem(S sortableKey, T item) {
+    public SortableItem(S sortableKey, T item) {
         this.sortableKey = sortableKey;
         this.item = item;
     }
