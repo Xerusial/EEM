@@ -3,9 +3,10 @@
     <declare-styleable name="ItemListFragment">
         <attr name="ListContent" format="enum">
             <enum name="EXAM" value="0"/>
-            <enum name="EXAMDOCUMENT" value="1"/>
-            <enum name="HOST" value="2"/>
-            <enum name="DEVICE" value="3" />
+            <enum name="STUDENTEXAMDOCUMENT" value="1"/>
+            <enum name="TEACHEREXAMDOCUMENT" value="2" />
+            <enum name="HOST" value="3"/>
+            <enum name="DEVICE" value="4" />
         </attr>
     </declare-styleable>
 </resources>

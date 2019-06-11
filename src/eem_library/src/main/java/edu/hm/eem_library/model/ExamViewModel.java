@@ -1,26 +1,15 @@
 package edu.hm.eem_library.model;
 
-import android.app.Activity;
 import android.app.Application;
-import android.content.ContentResolver;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
 
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.util.LinkedList;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-public class ExamViewModel extends FilebackedItemViewModel<ExamViewModel.ExamDocumentLiveData> {
-    private TeacherExam current;
+public abstract class ExamViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamViewModel.ExamDocumentLiveData> {
+    private T current;
     private String currentName;
-    private static final Yaml yaml = new Yaml(new TeacherExam.ExamConstructor());
+    protected ExamFactory factory;
 
     public ExamViewModel(Application application) {
         super(application);
@@ -42,17 +31,18 @@ public class ExamViewModel extends FilebackedItemViewModel<ExamViewModel.ExamDoc
     }
 
     public void openExam(String name) {
-        current = new TeacherExam(yaml,examDir,name);
+        current = (T) factory.get(examDir,name);
         currentName = name;
         this.livedata = new ExamDocumentLiveData(current.toLiveDataSet(getApplication()), true);
     }
 
     public void closeExam(){
         current.documentsFromLivedata(livedata.backingMap.values());
-        current.writeExamToFile(yaml, examDir, currentName);
+        factory.writeExamToFile(current, examDir, currentName);
     }
 
-    public TeacherExam getCurrent() {
+    public T getCurrent() {
         return current;
     }
 }
+

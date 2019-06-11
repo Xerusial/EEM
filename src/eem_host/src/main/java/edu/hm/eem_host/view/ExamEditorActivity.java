@@ -1,7 +1,6 @@
 package edu.hm.eem_host.view;
 
 import android.app.AlertDialog;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
@@ -10,10 +9,13 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.lifecycle.ViewModelProviders;
+
 import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.ExamDocument;
-import edu.hm.eem_library.model.SortableItem;
-import edu.hm.eem_library.model.THUMBNAILTOOLBOX;
+import edu.hm.eem_library.model.StudentExamViewModel;
+import edu.hm.eem_library.model.TeacherExam;
+import edu.hm.eem_library.model.TeacherExamViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
 
@@ -26,6 +28,8 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        model = ViewModelProviders.of(this).get(TeacherExamViewModel.class);
+        model.openExam(examName);
         setContentView(R.layout.activity_exam_editor);
         pwField = findViewById(R.id.pass);
         allDocAllowedField = findViewById(R.id.allDocsAllowed);
@@ -82,7 +86,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
             Toast.makeText(getApplicationContext(),getString(R.string.toast_select_documents_teacher),Toast.LENGTH_SHORT).show();
             return;
         }
-        model.getCurrent().setPassword(pw);
+        ((TeacherExam)model.getCurrent()).setPassword(pw);
         super.onClick(v);
     }
 
@@ -107,9 +111,8 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                         Toast.makeText(getApplicationContext(), R.string.toast_specify_pages, Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    String fileName = getString(R.string.page_specified_document);
-                    ExamDocument examDocument = new ExamDocument(fileName,pages);
-                    model.getLivedata().add(fileName, new ThumbnailedExamDocument(fileName, examDocument, null), false);
+                    ThumbnailedExamDocument doc = ThumbnailedExamDocument.getInstance(getApplicationContext(), pages);
+                    model.getLivedata().add(doc.item.getName(), doc, false);
                     break;
             }
         });

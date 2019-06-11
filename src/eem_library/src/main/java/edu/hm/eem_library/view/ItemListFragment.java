@@ -30,11 +30,13 @@ import edu.hm.eem_library.model.SortableMapLiveData;
 import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.ExamListViewModel;
 import edu.hm.eem_library.model.ItemViewModel;
+import edu.hm.eem_library.model.StudentExamViewModel;
+import edu.hm.eem_library.model.TeacherExamViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.net.ClientDevice;
 
 enum ItemListContent {
-    EXAM(0), EXAMDOCUMENT(1), HOST(2), DEVICE(3);
+    EXAM(0), STUDENTEXAMDOCUMENT(1), TEACHEREXAMDOCUMENT(2), HOST(3), DEVICE(4);
     int id;
 
     ItemListContent(int id) {
@@ -84,12 +86,11 @@ public class ItemListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_itemlist, container, false);
         recyclerView = view.findViewById(R.id.list);
         Context context = recyclerView.getContext();
-        if (content == ItemListContent.EXAMDOCUMENT) {
+        if (content == ItemListContent.STUDENTEXAMDOCUMENT || content == ItemListContent.TEACHEREXAMDOCUMENT) {
             recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
         } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
         }
-        recyclerView.setAdapter(adapter);
         emptyLayout = view.findViewById(R.id.empty_layout);
         TextView tw = view.findViewById(R.id.empty_list_text);
         switch (content){
@@ -100,9 +101,13 @@ public class ItemListFragment extends Fragment {
                         ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
                 tw.setText(R.string.placeholder_exam);
                 break;
-            case EXAMDOCUMENT:
+            case STUDENTEXAMDOCUMENT:
+                //falltrough
+            case TEACHEREXAMDOCUMENT:
                 adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<String, ExamDocument, ThumbnailedExamDocument>) model.getLivedata(),
-                        (OnListFragmentPressListener) context);
+                        (OnListFragmentPressListener) context,
+                        ContextCompat.getColor(getActivity(), R.color.colorWhiteOpaque),
+                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryOpaque));
                 tw.setText(R.string.placeholder_document);
                 break;
             case HOST:
@@ -117,6 +122,7 @@ public class ItemListFragment extends Fragment {
                 tw.setText(R.string.placeholder_device);
                 break;
         }
+        recyclerView.setAdapter(adapter);
 
         return view;
     }
@@ -128,8 +134,11 @@ public class ItemListFragment extends Fragment {
             case EXAM:
                 model = ViewModelProviders.of(getActivity()).get(ExamListViewModel.class);
                 break;
-            case EXAMDOCUMENT:
-                model = ViewModelProviders.of(getActivity()).get(ExamViewModel.class);
+            case STUDENTEXAMDOCUMENT:
+                model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
+                break;
+            case TEACHEREXAMDOCUMENT:
+                model = ViewModelProviders.of(getActivity()).get(TeacherExamViewModel.class);
                 break;
             case HOST:
                 model = ViewModelProviders.of(getActivity()).get(HostViewModel.class);

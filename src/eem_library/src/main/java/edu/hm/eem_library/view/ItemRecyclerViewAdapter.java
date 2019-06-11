@@ -42,7 +42,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
 
     public class StringViewHolder extends RecyclerView.ViewHolder{
         final View view;
-        private final TextView nameView;
+        final TextView nameView;
 
         StringViewHolder(View view){
             super(view);

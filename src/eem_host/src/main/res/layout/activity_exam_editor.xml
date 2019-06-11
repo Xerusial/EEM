@@ -18,92 +18,92 @@
 
     </android.widget.Toolbar>
 
-        <EditText
-            android:id="@+id/pass"
-            android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/pass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/password"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:targetApi="o" />
+
+    <CheckBox
+        android:id="@+id/showPass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stext"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pass" />
+
+    <TextView
+        android:id="@+id/headerDocList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:padding="10dp"
+        android:text="@string/adoc"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showPass" />
+
+    <LinearLayout
+        android:id="@+id/document_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        app:layout_constraintTop_toBottomOf="@id/headerDocList">
+
+        <ImageButton
+            android:id="@+id/bt_add_doc"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/password"
-            android:importantForAutofill="no"
-            android:inputType="textPassword"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            tools:targetApi="o" />
+            android:background="@null"
+            android:contentDescription="@string/add"
+            android:elevation="0dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            app:srcCompat="@android:drawable/ic_menu_add" />
+
+        <ImageButton
+            android:id="@+id/bt_del_doc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:contentDescription="@string/del"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            app:srcCompat="@android:drawable/ic_menu_delete" />
 
         <CheckBox
-            android:id="@+id/showPass"
-            android:layout_width="match_parent"
+            android:id="@+id/allDocsAllowed"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stext"
-            app:layout_constraintTop_toBottomOf="@id/pass"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+            android:layout_marginLeft="10dp"
+            android:buttonTint="@color/white"
+            android:text="@string/all"
+            android:textColor="@color/white" />
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/headerDocList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/adoc"
-            android:textSize="20sp"
-            android:textColor="@color/white"
-            android:background="@color/colorPrimary"
-            android:padding="10dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showPass" />
-
-        <LinearLayout
-            android:id="@+id/document_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/headerDocList"
-            android:padding="10dp">
-
-            <ImageButton
-                android:id="@+id/bt_add_doc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:contentDescription="@string/add"
-                android:elevation="0dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                app:srcCompat="@android:drawable/ic_menu_add" />
-
-            <ImageButton
-                android:id="@+id/bt_del_doc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:contentDescription="@string/del"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                app:srcCompat="@android:drawable/ic_menu_delete" />
-
-            <CheckBox
-                android:id="@+id/allDocsAllowed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:buttonTint="@color/white"
-                android:text="@string/all"
-                android:textColor="@color/white" />
-        </LinearLayout>
-
-        <fragment
-            android:id="@+id/doc_list"
-            android:name="edu.hm.eem_library.view.ItemListFragment"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            tools:layout="@layout/fragment_itemlist"
-            app:ListContent="EXAMDOCUMENT"
-            app:layout_constraintTop_toBottomOf="@id/document_toolbar"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+    <fragment
+        android:id="@+id/doc_list"
+        android:name="edu.hm.eem_library.view.ItemListFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:ListContent="TEACHEREXAMDOCUMENT"
+        app:layout_constraintBottom_toTopOf="@id/bt_save"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/document_toolbar"
+        tools:layout="@layout/fragment_itemlist" />
 
     <Button
         android:id="@+id/bt_save"

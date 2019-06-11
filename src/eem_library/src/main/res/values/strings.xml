@@ -31,6 +31,7 @@
     <string name="dialog_build_document">Build document meta-data from:</string>
     <string name="dialog_delete_all_documents">Delete all documents?</string>
     <string name="from_file">file</string>
+    <string name="thumbnail_not_found">\u003cThumbnail not found\u003e</string>
     <string name="page_specified_document">Page specified document</string>
     <string name="from_page_number">number of pages</string>
     <string name="header_scan_for_exam_providers">Scan for exam providers</string>

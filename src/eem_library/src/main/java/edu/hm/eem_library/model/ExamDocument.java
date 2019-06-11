@@ -6,26 +6,26 @@ import androidx.annotation.Nullable;
  *
  */
 public class ExamDocument{
-    String name;
-    final byte[] hash;
-    final int pages;
-    @Nullable String path;
+    private String name;
+    private byte[] hash;
+    private int pages;
+    @Nullable private String path;
 
-    public ExamDocument(String name, final byte[] hash, final String path) {
+    protected ExamDocument(String name, final byte[] hash, final String path) {
         this.name = name;
         this.hash = hash;
         this.pages = 0;
         this.path = path;
     }
 
-    public ExamDocument(String name, int pages) {
+    protected ExamDocument(String name, int pages) {
         this.name = name;
         this.hash = null;
         this.pages = pages;
         this.path = null;
     }
 
-    ExamDocument(String name, final byte[] hash, int pages, final String path){
+    protected ExamDocument(String name, final byte[] hash, int pages, final String path){
         this.name = name;
         this.hash = hash;
         this.pages = pages;
@@ -34,6 +34,11 @@ public class ExamDocument{
 
     void removePath(){
         path = null;
+    }
+
+    void update(int pages, byte[] hash){
+        this.pages = pages;
+        this.hash = hash;
     }
 
     void incrName(){
