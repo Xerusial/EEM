@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.Nullable;
@@ -47,19 +46,14 @@ public class ThumbnailedExamDocument extends SortableItem<ExamDocument> {
         return new ThumbnailedExamDocument(name, doc, null, false);
     }
 
-    public static ThumbnailedExamDocument getInstance(Context context, String name, Uri uri)
+    public static ThumbnailedExamDocument getInstance(Context context, Uri uri)
     {
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-            String[] segment = uri.getLastPathSegment().split(":");
-            if(segment.length == 2)
-            {
-                if("primary".equalsIgnoreCase(segment[0]))
-                {
-                    String path = Environment.getExternalStorageDirectory() + "/" + segment[1];
-                    ExamDocument doc = new ExamDocument(name, null, path);
-                    return getThumb(context, fileDescriptor, doc);
-                }
+            String path = URITOOLBOX.pathFromUri(context, uri);
+            if(path!=null) {
+                ExamDocument doc = new ExamDocument(new File(path).getName(), null, path);
+                return getThumb(context, fileDescriptor, doc);
             }
             return null;
         } catch (FileNotFoundException e) {

@@ -1,7 +1,10 @@
 package edu.hm.eem_client.net;
 
 import android.content.Context;
+import android.util.Log;
+import android.widget.TextView;
 
+import com.github.druk.dnssd.BaseListener;
 import com.github.druk.dnssd.BrowseListener;
 import com.github.druk.dnssd.DNSSD;
 import com.github.druk.dnssd.DNSSDEmbedded;
@@ -28,7 +31,6 @@ public class ClientServiceManager extends ServiceManager {
     private final ServiceReadyListener serviceReadyListener;
     private DNSSDService dnssdService = null;
     private NsdService nsdService;
-    private boolean discovering = false;
 
     public ClientServiceManager(Context context, SelectableSortableMapLiveData<NsdService, SortableItem<NsdService>> selectableSortableMapLiveData, ServiceReadyListener serviceReadyListener) {
         this.dnssd = new DNSSDEmbedded(context);
@@ -38,16 +40,15 @@ public class ClientServiceManager extends ServiceManager {
 
     public void discover(boolean on) {
         if(on) {
+            Log.d("Main", "Started scanning!");
             try {
                 dnssdService = dnssd.browse(SERVICE_TYPE, examBrowseListener);
-                discovering = true;
             } catch (DNSSDException e) {
                 e.printStackTrace();
             }
-        } else if (discovering) {
-            if(dnssdService!=null) dnssdService.stop();
+        } else if (dnssdService!=null) {
+            dnssdService.stop();
             dnssdService = null;
-            discovering = false;
         }
     }
 
@@ -62,8 +63,8 @@ public class ClientServiceManager extends ServiceManager {
 
     private void queryRecords(String hostName) {
         try {
+            //Query for record type 1: Ipv4 https://en.wikipedia.org/wiki/List_of_DNS_record_types
             dnssd.queryRecord(0, nsdService.ifIndex, hostName, 1, 1, examQueryListener);
-            dnssd.queryRecord(0, nsdService.ifIndex, hostName, 28, 1, examQueryListener);
         } catch (DNSSDException e) {
             e.printStackTrace();
         }
@@ -97,12 +98,13 @@ public class ClientServiceManager extends ServiceManager {
 
         @Override
         public void serviceResolved(DNSSDService resolver, int flags, int ifIndex, String fullName, String hostName, int port, Map<String, String> txtRecord) {
+            nsdService.port = port;
             queryRecords(hostName);
         }
 
         @Override
         public void operationFailed(DNSSDService service, int errorCode) {
-
+            serviceReadyListener.operationFailed(service,errorCode);
         }
     }
 
@@ -120,11 +122,11 @@ public class ClientServiceManager extends ServiceManager {
 
         @Override
         public void operationFailed(DNSSDService service, int errorCode) {
-
+            serviceReadyListener.operationFailed(service,errorCode);
         }
     }
 
-    public interface ServiceReadyListener {
+    public interface ServiceReadyListener extends BaseListener {
         void onServiceReady(NsdService nsdService);
     }
 }

@@ -39,7 +39,8 @@
     <string name="placeholder_exam">List of exams</string>
     <string name="placeholder_document">List of allowed documents</string>
     <string name="placeholder_host">List of hosts in range</string>
-    <string name="placeholder_device">List of student devices in range</string>
+    <string name="placeholder_device">List of connected student devices</string>
+    <string name="waiting_for_host_to_connect">Waiting for host to connect</string>
     <string name="toast_read_files_warning">This App needs internal storage access for you to choose the allowed documents in the exam.</string>
     <string name="toast_enter_password">Please enter a password!</string>
     <string name="toast_select_documents_teacher">If not all documents are allowed, specify at least one!</string>

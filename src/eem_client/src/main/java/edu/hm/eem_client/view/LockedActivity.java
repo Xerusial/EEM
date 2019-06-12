@@ -23,7 +23,8 @@ public class LockedActivity extends AppCompatActivity {
         Intent intent = getIntent();
         InetAddress host = (InetAddress) intent.getSerializableExtra(ScanActivity.ADDRESS_FIELD);
         int port = intent.getIntExtra(ScanActivity.PORT_FIELD, 0);
-        TextView nameView = findViewById(R.id.itemname);
+        TextView nameView = findViewById(R.id.textView);
+        nameView.setText(intent.getStringExtra(ScanActivity.PROF_FIELD));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString(getString(R.string.preferences_username), "Username@" + android.os.Build.MODEL);
         pm = new ClientProtocolManager(this, host, port, name);

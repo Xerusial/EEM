@@ -12,7 +12,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.druk.dnssd.DNSSDService;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_library.net.NsdService;
@@ -31,6 +34,8 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     private ImageView progressBg;
     private ImageView progress;
     private AnimationDrawable progressAnim;
+    private TextView uiLockView;
+    private boolean uiLocked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +44,11 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         cm = (ConnectivityManager) getApplicationContext().getSystemService( Context.CONNECTIVITY_SERVICE);
         sw = findViewById(R.id.sw_scan_services);
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> sw.setChecked(progress(scanNetwork(isChecked))));
-
         model = ViewModelProviders.of(this).get(HostViewModel.class);
         clientServiceManager = new ClientServiceManager(getApplicationContext(), model.getLivedata(), this);
         progressBg = findViewById(R.id.progress_background);
         progress = findViewById(R.id.progress);
+        uiLockView = findViewById(R.id.ui_locker);
         progressAnim = (AnimationDrawable) progress.getDrawable();
     }
 
@@ -58,6 +63,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
                 return false;
             }
         }
+        if(on) model.getLivedata().clean(true);
         clientServiceManager.discover(on);
         return ret;
     }
@@ -77,14 +83,23 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
 
     @Override
     public void onListFragmentPress(int index) {
-        NsdService item = model.get(index);
-        clientServiceManager.resolve(item);
+        if(!uiLocked) {
+            lock(true);
+            NsdService item = model.get(index);
+            clientServiceManager.resolve(item);
+        }
+    }
+
+    private void lock(boolean enable){
+        uiLocked = enable;
+        uiLockView.setVisibility(enable?View.VISIBLE:View.INVISIBLE);
     }
 
     @Override
     protected void onPause() {
         sw.setChecked(scanNetwork(false));
         model.getLivedata().clean(false);
+        lock(false);
         super.onPause();
     }
 
@@ -101,5 +116,10 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         intent.putExtra(ADDRESS_FIELD, nsdService.address);
         intent.putExtra(PORT_FIELD, nsdService.port);
         startActivity(intent);
+    }
+
+    @Override
+    public void operationFailed(DNSSDService service, int errorCode) {
+        lock(false);
     }
 }

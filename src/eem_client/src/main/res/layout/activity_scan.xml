@@ -21,10 +21,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/scan_for_services"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/number_of_pages"/>
-        tools:layout_editor_absoluteY="56dp" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView2"/>
 
     <ImageView
         android:id="@+id/progress_background"
@@ -53,11 +52,23 @@
     <fragment
         android:id="@+id/fragment"
         android:name="edu.hm.eem_library.view.ItemListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:ListContent="HOST"
-        app:layout_constraintTop_toBottomOf="@id/progress"
+        app:layout_constraintTop_toBottomOf="@id/progress_background"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:layout="@layout/fragment_itemlist" />
+
+    <TextView
+        android:id="@+id/ui_locker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/waiting_for_host_to_connect"
+        android:textSize="36sp"
+        android:visibility="invisible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
