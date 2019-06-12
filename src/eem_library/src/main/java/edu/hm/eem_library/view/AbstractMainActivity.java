@@ -34,6 +34,7 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_abstract_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.burger_popup);
         setActionBar(toolbar);
         model = ViewModelProviders.of(this).get(ExamListViewModel.class);
         del_button = findViewById(R.id.bt_del_exam);
@@ -54,13 +55,6 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
             buttonSetEnabled(del_button,sel_cnt>0);
             buttonSetEnabled(edit_button,sel_cnt==1);
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.burger_popup, menu);
-        return true;
     }
 
     private void buttonSetEnabled(ImageButton button, boolean enable){

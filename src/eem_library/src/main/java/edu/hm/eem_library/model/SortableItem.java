@@ -1,16 +1,16 @@
 package edu.hm.eem_library.model;
 
-public class SortableItem<S extends Comparable<? super S>, T> implements Comparable<SortableItem<S,T>>{
-    public final S sortableKey;
+public class SortableItem<T> implements Comparable<SortableItem<T>>{
+    public final String sortableKey;
     public final T item;
 
-    public SortableItem(S sortableKey, T item) {
+    public SortableItem(String sortableKey, T item) {
         this.sortableKey = sortableKey;
         this.item = item;
     }
 
     @Override
-    public int compareTo(SortableItem<S, T> o) {
-        return this.sortableKey.compareTo(o.sortableKey);
+    public int compareTo(SortableItem<T> o) {
+        return this.sortableKey.compareToIgnoreCase(o.sortableKey);
     }
 }

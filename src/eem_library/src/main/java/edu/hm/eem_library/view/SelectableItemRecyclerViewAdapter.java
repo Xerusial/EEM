@@ -15,7 +15,7 @@ public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerView
 
     private final ItemListFragment.OnListFragmentPressListener listener;
 
-    SelectableItemRecyclerViewAdapter(SelectableSortableMapLiveData<String, ?, ? extends SortableItem<String, ?>> liveData,
+    SelectableItemRecyclerViewAdapter(SelectableSortableMapLiveData<?, ? extends SortableItem<?>> liveData,
                                       ItemListFragment.OnListFragmentPressListener listener) {
         super(liveData);
         this.listener = listener;
@@ -28,7 +28,7 @@ public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerView
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        ((SelectableSortableMapLiveData<String, ?, SortableItem<String, ?>>)liveData).clearSelection();
+        ((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).clearSelection();
     }
 
     abstract class SelectableStringViewHolder extends ItemRecyclerViewAdapter.StringViewHolder {
@@ -38,7 +38,7 @@ public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerView
         }
 
         private void updateState(int position){
-            setSelected(((SelectableSortableMapLiveData<String, ?, SortableItem<String, ?>>)liveData).isSelected(position));
+            setSelected(((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).isSelected(position));
         }
 
         abstract void setSelected(boolean selected);
@@ -53,7 +53,7 @@ public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerView
                 }
             });
             view.setOnLongClickListener(v -> {
-                ((SelectableSortableMapLiveData<String, ?, SortableItem<String, ?>>)liveData).toggleSelected(getAdapterPosition());
+                ((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).toggleSelected(getAdapterPosition());
                 return true;
             });
         }

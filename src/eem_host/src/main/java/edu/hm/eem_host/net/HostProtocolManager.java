@@ -21,11 +21,11 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class HostProtocolManager extends ProtocolManager {
     private final ServerSocket serverSocket;
-    private SortableMapLiveData<String, Socket, SortableItem<String, Socket>> liveData;
+    private SortableMapLiveData<Socket, SortableItem<Socket>> liveData;
 
     private Thread serverThread;
 
-    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<String, Socket, SortableItem<String, Socket>> liveData) {
+    public HostProtocolManager(Activity context, ServerSocket serverSocket, SortableMapLiveData<Socket, SortableItem<Socket>> liveData) {
         super(context);
         this.serverSocket = serverSocket;
         this.serverThread = new Thread(new ServerThread());

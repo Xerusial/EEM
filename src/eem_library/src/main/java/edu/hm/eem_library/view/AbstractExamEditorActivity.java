@@ -122,7 +122,7 @@ public abstract class AbstractExamEditorActivity extends AppCompatActivity imple
                 String path = uri.getLastPathSegment();
                 String name = new File(path).getName();
                 ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(getApplicationContext(), name, uri);
-                model.getLivedata().add(name, examDocument, false);
+                model.getLivedata().add(examDocument.item.getName(), examDocument, false);
             }
         } else {
             super.onActivityResult(requestCode, resultCode, resultData);

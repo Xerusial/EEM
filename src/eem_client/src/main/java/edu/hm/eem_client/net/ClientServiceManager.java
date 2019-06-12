@@ -1,36 +1,72 @@
 package edu.hm.eem_client.net;
 
-import android.net.nsd.NsdManager;
-import android.net.nsd.NsdServiceInfo;
+import android.content.Context;
+
+import com.github.druk.dnssd.BrowseListener;
+import com.github.druk.dnssd.DNSSD;
+import com.github.druk.dnssd.DNSSDEmbedded;
+import com.github.druk.dnssd.DNSSDException;
+import com.github.druk.dnssd.DNSSDService;
+import com.github.druk.dnssd.QueryListener;
+import com.github.druk.dnssd.ResolveListener;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
+import edu.hm.eem_library.net.NsdService;
 import edu.hm.eem_library.net.ServiceManager;
 
 public class ClientServiceManager extends ServiceManager {
-    private final SelectableSortableMapLiveData<String, NsdServiceInfo, SortableItem<String, NsdServiceInfo>> selectableSortableMapLiveData;
-    private final NsdManager nsdm;
+    private final SelectableSortableMapLiveData<NsdService, SortableItem<NsdService>> selectableSortableMapLiveData;
+    private final DNSSD dnssd;
+    private final ExamBrowseListener examBrowseListener = new ExamBrowseListener();
+    private final ExamResolverListener examResolverListener = new ExamResolverListener();
+    private final ExamQueryListener examQueryListener = new ExamQueryListener();
+    private final ServiceReadyListener serviceReadyListener;
+    private DNSSDService dnssdService = null;
+    private NsdService nsdService;
     private boolean discovering = false;
-    private DiscoveryListener discoveryListener = null;
 
-    public ClientServiceManager(NsdManager nsdm, SelectableSortableMapLiveData<String, NsdServiceInfo, SortableItem<String, NsdServiceInfo>> selectableSortableMapLiveData) {
-        this.nsdm = nsdm;
+    public ClientServiceManager(Context context, SelectableSortableMapLiveData<NsdService, SortableItem<NsdService>> selectableSortableMapLiveData, ServiceReadyListener serviceReadyListener) {
+        this.dnssd = new DNSSDEmbedded(context);
         this.selectableSortableMapLiveData = selectableSortableMapLiveData;
+        this.serviceReadyListener = serviceReadyListener;
     }
 
     public void discover(boolean on) {
         if(on) {
-            discoveryListener = new DiscoveryListener();
-            nsdm.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-            discovering = true;
+            try {
+                dnssdService = dnssd.browse(SERVICE_TYPE, examBrowseListener);
+                discovering = true;
+            } catch (DNSSDException e) {
+                e.printStackTrace();
+            }
         } else if (discovering) {
-            nsdm.stopServiceDiscovery(discoveryListener);
+            if(dnssdService!=null) dnssdService.stop();
+            dnssdService = null;
             discovering = false;
         }
     }
 
-    public void resolve(NsdServiceInfo serviceInfo, NsdManager.ResolveListener listener){
-        nsdm.resolveService(serviceInfo, listener);
+    public void resolve(NsdService nsdService) {
+        this.nsdService = nsdService;
+        try {
+            dnssd.resolve(nsdService.flags, nsdService.ifIndex, nsdService.serviceName, nsdService.regType, nsdService.domain, examResolverListener);
+        } catch (DNSSDException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void queryRecords(String hostName) {
+        try {
+            dnssd.queryRecord(0, nsdService.ifIndex, hostName, 1, 1, examQueryListener);
+            dnssd.queryRecord(0, nsdService.ifIndex, hostName, 28, 1, examQueryListener);
+        } catch (DNSSDException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -38,38 +74,57 @@ public class ClientServiceManager extends ServiceManager {
         discover(false);
     }
 
-    private class DiscoveryListener implements NsdManager.DiscoveryListener {
+    private class ExamBrowseListener implements BrowseListener {
+
         @Override
-        public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+        public void serviceFound(DNSSDService browser, int flags, int ifIndex, String serviceName, String regType, String domain) {
+            NsdService service = new NsdService(flags, ifIndex, serviceName, regType, domain);
+            selectableSortableMapLiveData.add(serviceName, new SortableItem<>(serviceName, service), true);
+        }
+
+        @Override
+        public void serviceLost(DNSSDService browser, int flags, int ifIndex, String serviceName, String regType, String domain) {
 
         }
 
         @Override
-        public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+        public void operationFailed(DNSSDService service, int errorCode) {
 
+        }
+    }
+
+    private class ExamResolverListener implements ResolveListener {
+
+        @Override
+        public void serviceResolved(DNSSDService resolver, int flags, int ifIndex, String fullName, String hostName, int port, Map<String, String> txtRecord) {
+            queryRecords(hostName);
         }
 
         @Override
-        public void onDiscoveryStarted(String serviceType) {
+        public void operationFailed(DNSSDService service, int errorCode) {
 
+        }
+    }
+
+    private class ExamQueryListener implements QueryListener {
+
+        @Override
+        public void queryAnswered(DNSSDService query, int flags, int ifIndex, String fullName, int rrtype, int rrclass, byte[] rdata, int ttl) {
+            try {
+                nsdService.address = InetAddress.getByAddress(rdata);
+                serviceReadyListener.onServiceReady(nsdService);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
-        public void onDiscoveryStopped(String serviceType) {
+        public void operationFailed(DNSSDService service, int errorCode) {
 
         }
+    }
 
-        @Override
-        public void onServiceFound(NsdServiceInfo serviceInfo) {
-            String name = serviceInfo.getServiceName();
-            selectableSortableMapLiveData.add(name, new SortableItem<>(name, serviceInfo), true);
-        }
-
-        // Useless callback. Is called periodically, even if service is available throughout
-        // operation. Check avaliability with resolve instead.
-        @Override
-        public void onServiceLost(NsdServiceInfo serviceInfo) {
-
-        }
+    public interface ServiceReadyListener {
+        void onServiceReady(NsdService nsdService);
     }
 }

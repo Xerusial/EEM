@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.nsd.NsdManager;
-import android.net.nsd.NsdServiceInfo;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,11 +15,12 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import edu.hm.eem_client.R;
+import edu.hm.eem_library.net.NsdService;
 import edu.hm.eem_library.model.HostViewModel;
 import edu.hm.eem_client.net.ClientServiceManager;
 import edu.hm.eem_library.view.ItemListFragment;
 
-public class ScanActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener, NsdManager.ResolveListener {
+public class ScanActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener, ClientServiceManager.ServiceReadyListener {
     public static final String PROF_FIELD = "Prof";
     public static final String ADDRESS_FIELD = "Address";
     public static final String PORT_FIELD = "Port";
@@ -29,7 +28,6 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     private ClientServiceManager clientServiceManager;
     private HostViewModel model;
     private Switch sw;
-    private NsdManager nsdm;
     private ImageView progressBg;
     private ImageView progress;
     private AnimationDrawable progressAnim;
@@ -42,9 +40,8 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         sw = findViewById(R.id.sw_scan_services);
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> sw.setChecked(progress(scanNetwork(isChecked))));
 
-        nsdm = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
         model = ViewModelProviders.of(this).get(HostViewModel.class);
-        clientServiceManager = new ClientServiceManager(nsdm, model.getLivedata());
+        clientServiceManager = new ClientServiceManager(getApplicationContext(), model.getLivedata(), this);
         progressBg = findViewById(R.id.progress_background);
         progress = findViewById(R.id.progress);
         progressAnim = (AnimationDrawable) progress.getDrawable();
@@ -80,8 +77,8 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
 
     @Override
     public void onListFragmentPress(int index) {
-        NsdServiceInfo item = model.get(index);
-        clientServiceManager.resolve(item, this);
+        NsdService item = model.get(index);
+        clientServiceManager.resolve(item);
     }
 
     @Override
@@ -98,16 +95,11 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     }
 
     @Override
-    public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
-
-    }
-
-    @Override
-    public void onServiceResolved(NsdServiceInfo serviceInfo) {
+    public void onServiceReady(NsdService nsdService) {
         Intent intent = new Intent(this, LockedActivity.class);
-        intent.putExtra(PROF_FIELD, serviceInfo.getServiceName());
-        intent.putExtra(ADDRESS_FIELD, serviceInfo.getHost());
-        intent.putExtra(PORT_FIELD, serviceInfo.getPort());
+        intent.putExtra(PROF_FIELD, nsdService.serviceName);
+        intent.putExtra(ADDRESS_FIELD, nsdService.address);
+        intent.putExtra(PORT_FIELD, nsdService.port);
         startActivity(intent);
     }
 }

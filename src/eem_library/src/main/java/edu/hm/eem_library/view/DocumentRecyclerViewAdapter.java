@@ -17,7 +17,7 @@ public class DocumentRecyclerViewAdapter extends SelectableItemRecyclerViewAdapt
     private final int colorWhiteOpaque;
     private final int colorPrimaryOpaque;
 
-    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<String, ExamDocument, ThumbnailedExamDocument> liveData, ItemListFragment.OnListFragmentPressListener listener, int colorWhiteOpaque, int colorPrimaryOpaque) {
+    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, ItemListFragment.OnListFragmentPressListener listener, int colorWhiteOpaque, int colorPrimaryOpaque) {
         super(liveData, listener);
         this.colorWhiteOpaque = colorWhiteOpaque;
         this.colorPrimaryOpaque = colorPrimaryOpaque;

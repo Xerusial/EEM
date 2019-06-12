@@ -15,7 +15,7 @@ public class NameTabRecyclerViewAdapter extends SelectableItemRecyclerViewAdapte
     private final int colorPrimary;
     private final int colorPrimaryLight;
 
-    public NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<String, ?, SortableItem<String, ?>> liveData, ItemListFragment.OnListFragmentPressListener listener, int colorPrimary, int colorPrimaryLight) {
+    public NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<?, SortableItem<?>> liveData, ItemListFragment.OnListFragmentPressListener listener, int colorPrimary, int colorPrimaryLight) {
         super(liveData, listener);
         this.colorPrimary = colorPrimary;
         this.colorPrimaryLight = colorPrimaryLight;

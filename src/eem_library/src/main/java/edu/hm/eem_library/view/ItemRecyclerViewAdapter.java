@@ -16,9 +16,9 @@ import edu.hm.eem_library.model.SortableMapLiveData;
  */
 public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerViewAdapter.StringViewHolder>{
 
-    final SortableMapLiveData<String, ?, ? extends SortableItem<String, ?>> liveData;
+    final SortableMapLiveData<?, ? extends SortableItem<?>> liveData;
 
-    ItemRecyclerViewAdapter(SortableMapLiveData<String, ?, ? extends SortableItem<String, ?>> liveData) {
+    ItemRecyclerViewAdapter(SortableMapLiveData<?, ? extends SortableItem<?>> liveData) {
         this.liveData = liveData;
     }
 

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-public class SelectableSortableMapLiveData<K extends Comparable<? super K>,V,T extends SortableItem<K , V>> extends SortableMapLiveData<K, V, T> {
+public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends SortableMapLiveData<V, T> {
     private boolean[] selection;
     private int selectionCounter;
 

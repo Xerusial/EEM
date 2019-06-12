@@ -17,7 +17,7 @@ import edu.hm.eem_library.R;
 
 import static java.lang.Math.sqrt;
 
-public class ThumbnailedExamDocument extends SortableItem<String, ExamDocument> {
+public class ThumbnailedExamDocument extends SortableItem<ExamDocument> {
     @Nullable public final Bitmap thumbnail;
     public final boolean hasThumbnail;
 

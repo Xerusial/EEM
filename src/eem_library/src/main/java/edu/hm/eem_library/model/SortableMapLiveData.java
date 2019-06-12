@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class SortableMapLiveData<K extends Comparable<? super K>, V, T extends SortableItem<K,V>> extends MutableLiveData<ArrayList<T>> {
-    final SortedMap<K, T> backingMap;
+public class SortableMapLiveData<V, T extends SortableItem<V>> extends MutableLiveData<ArrayList<T>> {
+    final SortedMap<String,T> backingMap;
     final boolean notificationNeeded;
 
     SortableMapLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
@@ -29,7 +29,7 @@ public class SortableMapLiveData<K extends Comparable<? super K>, V, T extends S
         }
     }
 
-    public boolean add(K sortableKey, T item, boolean post){
+    public boolean add(String sortableKey, T item, boolean post){
         boolean ret = !backingMap.containsKey(sortableKey);
         if (ret) {
             put(sortableKey,item);
@@ -38,11 +38,11 @@ public class SortableMapLiveData<K extends Comparable<? super K>, V, T extends S
         return ret;
     }
 
-    private void put(K sortableKey, T item){
+    private void put(String sortableKey, T item){
         backingMap.put(sortableKey, item);
     }
 
-    public T remove(K sortableKey, boolean post){
+    public T remove(String sortableKey, boolean post){
         T removed = backingMap.remove(sortableKey);
         if(notificationNeeded) notifyObservers(post);
         return removed;
@@ -57,7 +57,7 @@ public class SortableMapLiveData<K extends Comparable<? super K>, V, T extends S
         return backingMap.isEmpty();
     }
 
-    public boolean contains(K sortableKey){
+    public boolean contains(String sortableKey){
         return backingMap.containsKey(sortableKey);
     }
 

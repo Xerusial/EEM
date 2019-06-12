@@ -16,7 +16,7 @@ public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel
         this.livedata = new ExamListLiveData();
     }
 
-    public class ExamListLiveData extends SelectableSortableMapLiveData<String, File, SortableItem<String, File>> {
+    public class ExamListLiveData extends SelectableSortableMapLiveData<File, SortableItem<File>> {
         private final int FILEOBSERVERMASK = FileObserver.DELETE | FileObserver.CREATE;
         private final FileObserver fileObserver;
 
@@ -35,8 +35,8 @@ public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel
             notifyObservers(false);
         }
 
-        private Set<SortableItem<String,File>> getDir(){
-            Set<SortableItem<String,File>> ret = new TreeSet<>();
+        private Set<SortableItem<File>> getDir(){
+            Set<SortableItem<File>> ret = new TreeSet<>();
             for(File f: examDir.listFiles()){
                 ret.add(new SortableItem<>(f.getName(), f));
             }
@@ -45,9 +45,9 @@ public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel
 
         @Nullable
         @Override
-        public ArrayList<SortableItem<String, File>> removeSelected() {
-            ArrayList<SortableItem<String, File>> ret = super.removeSelected();
-            for (SortableItem<String, File> s: ret){
+        public ArrayList<SortableItem<File>> removeSelected() {
+            ArrayList<SortableItem<File>> ret = super.removeSelected();
+            for (SortableItem<File> s: ret){
                 //noinspection ResultOfMethodCallIgnored
                 s.item.delete();
             }
@@ -55,8 +55,8 @@ public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel
         }
 
         @Override
-        public SortableItem<String, File> remove(String sortableKey, boolean post) {
-            SortableItem<String, File> ret = super.remove(sortableKey, post);
+        public SortableItem<File> remove(String sortableKey, boolean post) {
+            SortableItem<File> ret = super.remove(sortableKey, post);
             //noinspection ResultOfMethodCallIgnored
             ret.item.delete();
             return ret;

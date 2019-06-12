@@ -15,7 +15,7 @@ public abstract class ExamViewModel<T extends StudentExam> extends FilebackedIte
         super(application);
     }
 
-    public class ExamDocumentLiveData extends SelectableSortableMapLiveData<String, ExamDocument, ThumbnailedExamDocument>{
+    public class ExamDocumentLiveData extends SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>{
         ExamDocumentLiveData(@Nullable Set<ThumbnailedExamDocument> set, boolean notificationNeeded) {
             super(set, notificationNeeded);
         }
