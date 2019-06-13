@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import edu.hm.eem_client.view.LockedActivity;
 import edu.hm.eem_library.net.DataPacket;
 import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
@@ -18,10 +19,12 @@ import edu.hm.eem_library.net.SignalPacket;
 public class ClientProtocolManager extends ProtocolManager {
     private Socket socket;
     private final String name;
+    private final LockedActivity.LockedHandler handler;
 
-    public ClientProtocolManager(Activity context, InetAddress host, int port, String name) {
+    public ClientProtocolManager(Activity context, InetAddress host, int port, String name, LockedActivity.LockedHandler handler) {
         super(context);
         this.name = name;
+        this.handler = handler;
         PrepTask task = new PrepTask();
         task.execute(new Pair<>(host, port));
     }
@@ -36,6 +39,7 @@ public class ClientProtocolManager extends ProtocolManager {
                 ret = new Socket(pairs[0].first, pairs[0].second);
             } catch (IOException e) {
                 e.printStackTrace();
+                handler.gracefulShutdown();
             }
             return ret;
         }
@@ -58,8 +62,8 @@ public class ClientProtocolManager extends ProtocolManager {
 
     @Override
     public void quit(){
-        SignalPacket ternSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
-        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, ternSig);
+        SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
+        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);
         thread.start();
         super.quit();
     }
@@ -71,26 +75,28 @@ public class ClientProtocolManager extends ProtocolManager {
 
         @Override
         protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
-            boolean ret = false;
+            boolean terminate = false;
             switch (type) {
                 case EXAMFILE:
-                    ret = true;
+
                     break;
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal){
-                        case VALID_LOGIN:
-                            ret = true;
-                            break;
                         case INVALID_LOGIN:
                             putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
                             context.finish();
-                            ret = true;
+                            break;
+                        case LIGHTHOUSE_ON:
+                            handler.postLighthouse(true);
+                            break;
+                        case LIGHTHOUSE_OFF:
+                            handler.postLighthouse(false);
                             break;
                     }
                     break;
             }
-            return ret;
+            return terminate;
         }
     }
 }

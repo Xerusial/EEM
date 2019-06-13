@@ -1,5 +1,6 @@
 package edu.hm.eem_library.view;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +14,14 @@ import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
-public class DocumentRecyclerViewAdapter extends SelectableItemRecyclerViewAdapter {
+public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
     private final int colorWhiteOpaque;
     private final int colorPrimaryOpaque;
 
-    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, ItemListFragment.OnListFragmentPressListener listener, int colorWhiteOpaque, int colorPrimaryOpaque) {
-        super(liveData, listener);
-        this.colorWhiteOpaque = colorWhiteOpaque;
-        this.colorPrimaryOpaque = colorPrimaryOpaque;
+    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListContent content) {
+        super(liveData, context, content);
+        this.colorWhiteOpaque = context.getColor(R.color.colorWhiteOpaque);
+        this.colorPrimaryOpaque = context.getColor(R.color.colorPrimaryOpaque);
     }
 
     @NonNull
@@ -37,7 +38,7 @@ public class DocumentRecyclerViewAdapter extends SelectableItemRecyclerViewAdapt
 
         DocumentViewHolder(View view) {
             super(view);
-            thumbnail = view.findViewById(R.id.thumbnail);
+            thumbnail = view.findViewById(R.id.icon);
             numberPages = view.findViewById(R.id.number_of_pages);
         }
 

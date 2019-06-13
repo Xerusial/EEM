@@ -12,9 +12,12 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toolbar;
@@ -26,12 +29,15 @@ import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.DeviceViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
 import edu.hm.eem_host.net.HostServiceManager;
+import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
+import edu.hm.eem_library.view.ItemListFragment;
 
 public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
-        HotspotManager.OnHotspotEnabledListener {
+        HotspotManager.OnHotspotEnabledListener,
+        ItemListFragment.OnListFragmentPressListener{
     private HotspotManager hotspotManager;
     private WifiManager wm;
     private LocationManager lm;
@@ -43,6 +49,13 @@ public class LockActivity extends AppCompatActivity
     private HostServiceManager hostServiceManager;
     private DeviceViewModel model;
     private String examName;
+    private LockHandler handler;
+
+    public class LockHandler extends Handler {
+        private LockHandler(Looper looper){
+            super(looper);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +84,7 @@ public class LockActivity extends AppCompatActivity
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         hotspotManager = new HotspotManager(wm, this);
         model = ViewModelProviders.of(this).get(DeviceViewModel.class);
+        handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
     }
 
@@ -85,7 +99,7 @@ public class LockActivity extends AppCompatActivity
         try {
             ServerSocket serverSocket = new ServerSocket(0);
             hostServiceManager = new HostServiceManager(this, serverSocket, profName);
-            hostProtocolManager = new HostProtocolManager(LockActivity.this, serverSocket, model.getLivedata());
+            hostProtocolManager = new HostProtocolManager(LockActivity.this, serverSocket, model.getLivedata(), handler, examName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -151,6 +165,13 @@ public class LockActivity extends AppCompatActivity
             case WIFIANDLOCATIONCHECKER.LOCATION_REQUEST:
                 WIFIANDLOCATIONCHECKER.checkLocation(this, lm, false);
                 break;
+                default:
+                    super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onListFragmentPress(int index) {
+        hostProtocolManager.sendLightHouse(index);
     }
 }

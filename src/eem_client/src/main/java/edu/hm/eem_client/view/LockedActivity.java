@@ -5,16 +5,42 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.net.InetAddress;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_client.net.ClientProtocolManager;
+import edu.hm.eem_library.net.ProtocolHandler;
 
 public class LockedActivity extends AppCompatActivity {
     private ClientProtocolManager pm;
+    private LockedHandler handler;
+    private ImageView lightHouse;
+
+    public class LockedHandler extends Handler {
+        private LockedHandler(Looper looper){
+            super(looper);
+        }
+
+        public void postLighthouse(boolean on){
+            this.post(() -> lightHouse.setVisibility(on?View.VISIBLE:View.INVISIBLE));
+        }
+
+        public void gracefulShutdown(){
+            this.post(() ->{
+                Log.e(LockedActivity.this.getPackageName(), "Connection was refused!");
+                finish();
+            });
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +53,9 @@ public class LockedActivity extends AppCompatActivity {
         nameView.setText(intent.getStringExtra(ScanActivity.PROF_FIELD));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString(getString(R.string.preferences_username), "Username@" + android.os.Build.MODEL);
-        pm = new ClientProtocolManager(this, host, port, name);
+        lightHouse = findViewById(R.id.lighthouse);
+        handler = new LockedHandler(Looper.getMainLooper());
+        pm = new ClientProtocolManager(this, host, port, name, handler);
     }
 
     @Override

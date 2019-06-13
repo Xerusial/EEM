@@ -41,4 +41,5 @@ dependencies {
     implementation 'org.yaml:snakeyaml:1.24:android'
     implementation 'androidx.navigation:navigation-fragment:2.0.0'
     implementation 'androidx.navigation:navigation-ui:2.0.0'
+    implementation 'commons-io:commons-io:2.4'
 }

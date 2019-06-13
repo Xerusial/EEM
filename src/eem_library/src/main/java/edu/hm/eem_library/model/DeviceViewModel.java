@@ -4,10 +4,10 @@ import android.app.Application;
 
 import java.net.Socket;
 
-public class DeviceViewModel extends ItemViewModel<SortableMapLiveData<Socket, SortableItem<Socket>>> {
+public class DeviceViewModel extends ItemViewModel<SelectableSortableMapLiveData<Socket, SortableItem<Socket>>> {
     public DeviceViewModel(Application application) {
         super(application);
-        this.livedata = new SortableMapLiveData<>(null, true);
+        this.livedata = new SelectableSortableMapLiveData<>(null, true);
     }
 
 

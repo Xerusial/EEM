@@ -95,30 +95,21 @@ public class ItemListFragment extends Fragment {
         TextView tw = view.findViewById(R.id.empty_list_text);
         switch (content){
             case EXAM:
-                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SortableItem<?>>) model.getLivedata(),
-                        (OnListFragmentPressListener) context,
-                        ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SortableItem<?>>) model.getLivedata(), context, content);
                 tw.setText(R.string.placeholder_exam);
                 break;
             case STUDENTEXAMDOCUMENT:
                 //falltrough
             case TEACHEREXAMDOCUMENT:
-                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(),
-                        (OnListFragmentPressListener) context,
-                        ContextCompat.getColor(getActivity(), R.color.colorWhiteOpaque),
-                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryOpaque));
+                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, content);
                 tw.setText(R.string.placeholder_document);
                 break;
             case HOST:
-                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SortableItem<?>>) model.getLivedata(),
-                        (OnListFragmentPressListener) context,
-                        ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-                        ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SortableItem<?>>) model.getLivedata(), context, content);
                 tw.setText(R.string.placeholder_host);
                 break;
             case DEVICE:
-                adapter = new ItemRecyclerViewAdapter((SortableMapLiveData<ClientDevice, SortableItem<ClientDevice>>) model.getLivedata());
+                adapter = new StudentDeviceRecyclerviewAdapter((SelectableSortableMapLiveData<ClientDevice, SortableItem<ClientDevice>>) model.getLivedata(), context, content);
                 tw.setText(R.string.placeholder_device);
                 break;
         }

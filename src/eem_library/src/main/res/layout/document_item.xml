@@ -10,7 +10,7 @@
     tools:layout_width="200dp">
 
     <ImageView
-        android:id="@+id/thumbnail"
+        android:id="@+id/icon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="10dp"

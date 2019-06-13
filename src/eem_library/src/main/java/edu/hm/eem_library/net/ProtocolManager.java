@@ -13,7 +13,7 @@ import java.util.LinkedList;
 
 import edu.hm.eem_library.R;
 
-public abstract class ProtocolManager {
+public abstract class ProtocolManager{
     protected final Activity context;
     private final Toast toast;
     private final LinkedList<ReceiverThread> threads;
@@ -55,7 +55,7 @@ public abstract class ProtocolManager {
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
                     putToast(R.string.toast_protocol_too_new);
                 }
-                if(!handleMessage((DataPacket.Type) header[1], is, inputSocket))
+                if(handleMessage((DataPacket.Type) header[1], is, inputSocket))
                     interrupt();
             }
         }

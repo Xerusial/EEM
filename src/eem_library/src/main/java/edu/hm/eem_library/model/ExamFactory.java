@@ -9,6 +9,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+
+import edu.hm.eem_library.net.FilePacket;
 
 public class ExamFactory {
     public enum ExamType {
@@ -35,7 +38,7 @@ public class ExamFactory {
         StudentExam retval = null;
         try {
             FileInputStream fis = new FileInputStream(in);
-            retval = yaml.load(fis);
+            retval = extract(fis);
             fis.close();
         } catch (FileNotFoundException e) {
             switch (type) {
@@ -52,6 +55,10 @@ public class ExamFactory {
         return retval;
     }
 
+    public StudentExam extract(InputStream is){
+        return yaml.load(is);
+    }
+
     <T extends StudentExam> void writeExamToFile(T exam, File examDir, String name) {
         File out = new File(examDir.getPath() + File.separator + name);
         try {
@@ -65,11 +72,11 @@ public class ExamFactory {
         }
     }
 
-    <T extends StudentExam> void createSendableVersion(File mainDir, File examDir, String name){
+    public <T extends StudentExam> void createSendableVersion(File mainDir, File examDir, String name){
         T exam = (T) get(examDir, name);
         for(ExamDocument doc : exam.getAllowedDocuments()){
             doc.removePath();
         }
-        writeExamToFile(exam, mainDir, "sendable_exam");
+        writeExamToFile(exam, mainDir, FilePacket.FILENAME);
     }
 }

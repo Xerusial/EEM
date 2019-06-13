@@ -2,6 +2,8 @@ package edu.hm.eem_library.view;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
@@ -11,14 +13,14 @@ import edu.hm.eem_library.model.SortableItem;
  * {@link RecyclerView.Adapter} that can display a {@link String} and makes a call to the
  * specified {@link ItemListFragment.OnListFragmentPressListener}.
  */
-public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerViewAdapter {
+public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerViewAdapter {
 
-    private final ItemListFragment.OnListFragmentPressListener listener;
+    final ItemListFragment.OnListFragmentPressListener listener;
 
-    SelectableItemRecyclerViewAdapter(SelectableSortableMapLiveData<?, ? extends SortableItem<?>> liveData,
-                                      ItemListFragment.OnListFragmentPressListener listener) {
-        super(liveData);
-        this.listener = listener;
+    InteractableItemRecyclerViewAdapter(SelectableSortableMapLiveData<?, ? extends SortableItem<?>> liveData,
+                                        Context context, ItemListContent content) {
+        super(liveData, content);
+        this.listener = (ItemListFragment.OnListFragmentPressListener) context;
     }
 
     @NonNull
@@ -43,10 +45,7 @@ public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerView
 
         abstract void setSelected(boolean selected);
 
-        @Override
-        void initializeFromLiveData(int position) {
-            super.initializeFromLiveData(position);
-            updateState(position);
+        void setInteractions(){
             view.setOnClickListener(v -> {
                 if (null != listener) {
                     listener.onListFragmentPress(getAdapterPosition());
@@ -56,6 +55,13 @@ public abstract class SelectableItemRecyclerViewAdapter extends ItemRecyclerView
                 ((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).toggleSelected(getAdapterPosition());
                 return true;
             });
+        }
+
+        @Override
+        void initializeFromLiveData(int position) {
+            super.initializeFromLiveData(position);
+            updateState(position);
+            setInteractions();
         }
 
     }
