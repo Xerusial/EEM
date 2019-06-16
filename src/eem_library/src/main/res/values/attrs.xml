@@ -7,6 +7,7 @@
             <enum name="TEACHEREXAMDOCUMENT" value="2" />
             <enum name="HOST" value="3"/>
             <enum name="DEVICE" value="4" />
+            <enum name="EXAMDOCUMENTEXPLORER" value="5"/>
         </attr>
     </declare-styleable>
 </resources>

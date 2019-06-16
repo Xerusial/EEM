@@ -5,12 +5,22 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toolbar;
+
+import java.util.ArrayList;
 
 import edu.hm.eem_client.R;
+import edu.hm.eem_library.model.ExamViewModel;
+import edu.hm.eem_library.model.StudentExamViewModel;
+import edu.hm.eem_library.model.ThumbnailedExamDocument;
+import edu.hm.eem_library.view.AbstractMainActivity;
+import edu.hm.eem_library.view.ItemListFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,9 +28,12 @@ import edu.hm.eem_client.R;
  * {@link DocumentExplorerFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class DocumentExplorerFragment extends Fragment {
+public class DocumentExplorerFragment extends Fragment implements ItemListFragment.OnListFragmentPressListener {
+    public final static String EXAMDOCUMENT_FIELD = "ExamDocument";
 
     private OnFragmentInteractionListener mListener;
+    private StudentExamViewModel model;
+    private Toolbar toolbar;
 
     public DocumentExplorerFragment() {
         // Required empty public constructor
@@ -31,7 +44,13 @@ public class DocumentExplorerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_document_explorer, container, false);
+        View view = inflater.inflate(R.layout.fragment_document_explorer, container, false);
+        toolbar = view.findViewById(R.id.toolbar);
+        Bundle args = getArguments();
+        String examName = args.getString(AbstractMainActivity.EXAMNAME_FIELD);
+        String profName = args.getString(ScanActivity.PROF_FIELD);
+        toolbar.setTitle(examName + " @ " + profName);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -44,18 +63,27 @@ public class DocumentExplorerFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
+        /*if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
-        }
+        }*/
+        model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onListFragmentPress(int index) {
+        Bundle bundle = new Bundle();
+        String path = ((ArrayList<ThumbnailedExamDocument>) model.getLivedata().getValue()).get(index).item.getPath();
+        bundle.putString(EXAMDOCUMENT_FIELD, path);
+        Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
     }
 
     /**

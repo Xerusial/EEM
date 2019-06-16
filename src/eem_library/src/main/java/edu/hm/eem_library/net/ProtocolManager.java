@@ -50,13 +50,20 @@ public abstract class ProtocolManager{
                     is = inputSocket.getInputStream();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    interrupt();
                 }
                 Object[] header = DataPacket.readHeader(is);
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
                     putToast(R.string.toast_protocol_too_new);
                 }
-                if(handleMessage((DataPacket.Type) header[1], is, inputSocket))
+                if(handleMessage((DataPacket.Type) header[1], is, inputSocket)) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     interrupt();
+                }
             }
         }
 

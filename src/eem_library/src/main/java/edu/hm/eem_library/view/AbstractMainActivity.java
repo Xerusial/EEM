@@ -21,6 +21,8 @@ import edu.hm.eem_library.model.ExamListViewModel;
 
 public abstract class AbstractMainActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener {
 
+    public static final String EXAMNAME_FIELD = "ExamName";
+
     public enum ActionType {
         ACTION_EDITOR, ACTION_LOCK
     }
@@ -41,7 +43,7 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
         del_button.setOnClickListener(v -> model.getLivedata().removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);
         edit_button.setOnClickListener(v -> {
-            String name = model.getLivedata().getSelected().sortableKey;
+            String name = model.getLivedata().getSelected().getName();
             startSubApplication(name, ActionType.ACTION_EDITOR);
         });
         findViewById(R.id.bt_add_exam).setOnClickListener(v -> {

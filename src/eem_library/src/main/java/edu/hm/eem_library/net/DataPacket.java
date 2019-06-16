@@ -10,8 +10,7 @@ public abstract class DataPacket {
     /* Protocol specification: EEP - E-Reader TeacherExam Protocol
        [4 Byte: Version]
        [4 Byte: Type]
-       [8 Bytes: Size]
-       [Size Bytes: Data]
+       [following Bytes: Data]
        Data specification can be found in the respective child-classes.
      */
     public enum Type {
@@ -38,7 +37,7 @@ public abstract class DataPacket {
     static final int PROTOCOL_VERSION = 0;
     private static final int HEADER_FIELDS = 3;
     static final int INT_BYTES = 4;
-    private static final int LONG_BYTES = 8;
+    static final int LONG_BYTES = 8;
     private static final int HEADER_SIZE = 2*INT_BYTES + LONG_BYTES;
 
     DataPacket(Type type) {
@@ -49,7 +48,6 @@ public abstract class DataPacket {
         ByteBuffer bb = ByteBuffer.allocate(HEADER_SIZE);
         bb.putInt(PROTOCOL_VERSION);
         type.insertInBytebuffer(bb);
-        bb.putLong(getSize());
         try {
             os.write(bb.array());
             os.flush();
@@ -70,12 +68,10 @@ public abstract class DataPacket {
         ByteBuffer bb = ByteBuffer.wrap(bytes);
         ret[0] = bb.getInt();
         ret[1] = Type.extractFromBytebuffer(bb);
-        ret[2] = bb.getLong();
         return ret;
     }
 
     protected abstract void writeData(OutputStream os);
-    protected abstract long getSize();
 
     private void sendData(OutputStream os) {
         writeHeader(os);

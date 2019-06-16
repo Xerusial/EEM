@@ -18,8 +18,8 @@ public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAda
     private final int colorWhiteOpaque;
     private final int colorPrimaryOpaque;
 
-    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListContent content) {
-        super(liveData, context, content);
+    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
+        super(liveData, context, listener, content, isSelectable);
         this.colorWhiteOpaque = context.getColor(R.color.colorWhiteOpaque);
         this.colorPrimaryOpaque = context.getColor(R.color.colorPrimaryOpaque);
     }
@@ -46,26 +46,46 @@ public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAda
         void initializeFromLiveData(int position) {
             super.initializeFromLiveData(position);
             ThumbnailedExamDocument ted = (ThumbnailedExamDocument) liveData.getValue().get(position);
-            if(ted.hasThumbnail) {
-                if(ted.thumbnail!=null){
-                    thumbnail.setImageBitmap(ted.thumbnail);
-                    numberPages.setVisibility(View.INVISIBLE);
+            if(isSelectable) {
+                if (ted.hasThumbnail) {
+                    if (ted.thumbnail != null) {
+                        thumbnail.setImageBitmap(ted.thumbnail);
+                        numberPages.setVisibility(View.INVISIBLE);
+                    } else {
+                        numberPages.setText(R.string.thumbnail_not_found);
+                        numberPages.setVisibility(View.VISIBLE);
+                        numberPages.setTextSize(18);
+                    }
                 } else {
-                    numberPages.setText(R.string.thumbnail_not_found);
+                    numberPages.setText(String.valueOf(ted.item.getPages()));
                     numberPages.setVisibility(View.VISIBLE);
-                    numberPages.setTextSize(18);
+                    numberPages.setTextSize(36);
                 }
             } else {
-                numberPages.setText(String.valueOf(ted.item.getPages()));
-                numberPages.setVisibility(View.VISIBLE);
-                numberPages.setTextSize(36);
+                switch (ted.reason){
+                    case TOO_MANY_PAGES:
+                        numberPages.setText(R.string.too_many_pages);
+                        break;
+                    case HASH_DOES_NOT_MATCH:
+                        numberPages.setText(R.string.incorrect_document);
+                        break;
+                    case TOO_MANY_DOCS:
+                        numberPages.setText(R.string.too_many_docs);
+                        break;
+                }
             }
 
         }
 
         @Override
         void setSelected(boolean selected) {
-            nameView.setBackgroundColor(selected?colorPrimaryOpaque: colorWhiteOpaque);
+            if(isSelectable) {
+                nameView.setBackgroundColor(selected ? colorPrimaryOpaque : colorWhiteOpaque);
+            } else {
+                numberPages.setVisibility(selected?View.VISIBLE:View.INVISIBLE);
+                thumbnail.setImageAlpha(selected?128:255);
+                nameView.setAlpha(selected?0.5f:1);
+            }
         }
     }
 }

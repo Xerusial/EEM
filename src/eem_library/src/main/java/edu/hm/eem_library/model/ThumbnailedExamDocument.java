@@ -16,14 +16,20 @@ import edu.hm.eem_library.R;
 
 import static java.lang.Math.sqrt;
 
-public class ThumbnailedExamDocument extends SortableItem<ExamDocument> {
+public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument> {
     @Nullable public final Bitmap thumbnail;
     public final boolean hasThumbnail;
+    public RejectionReason reason;
+
+    public enum RejectionReason{
+        NONE,TOO_MANY_PAGES, HASH_DOES_NOT_MATCH, TOO_MANY_DOCS;
+    }
 
     private ThumbnailedExamDocument(String sortableKey, ExamDocument item, @Nullable Bitmap thumbnail, boolean hasThumbnail) {
         super(sortableKey, item);
         this.thumbnail = thumbnail;
         this.hasThumbnail = hasThumbnail;
+        reason = RejectionReason.NONE;
     }
 
     static ThumbnailedExamDocument getInstance(Context context, ExamDocument doc) {

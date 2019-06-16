@@ -10,9 +10,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 public class LoginPacket extends DataPacket {
-    /*  Login Packet: //TODO care about encoding
+    /*  Login Packet: TODO care about encoding
         [Newline terminated String: name]
-        (Size is not needed here)
      */
     private String name;
     public LoginPacket(String name){
@@ -25,11 +24,6 @@ public class LoginPacket extends DataPacket {
         PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(os)), true);
         out.println(name);
         out.flush();
-    }
-
-    @Override
-    protected long getSize() {
-        return 0;
     }
 
     public static String readData(InputStream is) {

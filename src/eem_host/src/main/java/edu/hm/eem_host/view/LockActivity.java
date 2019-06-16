@@ -15,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -29,9 +27,9 @@ import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.DeviceViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
 import edu.hm.eem_host.net.HostServiceManager;
-import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
+import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
 
 public class LockActivity extends AppCompatActivity
@@ -61,7 +59,7 @@ public class LockActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock);
-        examName = getIntent().getStringExtra("Name");
+        examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
         swStartService = findViewById(R.id.sw_start_service);

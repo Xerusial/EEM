@@ -1,13 +1,13 @@
 package edu.hm.eem_library.net;
 
-import java.io.OutputStream;
+import java.net.Socket;
 
 public class ClientDevice {
-    String clientName;
-    OutputStream outputStream;
+    public Socket socket;
+    public boolean lighthoused;
 
-    public ClientDevice(String clientName, OutputStream outputStream) {
-        this.clientName = clientName;
-        this.outputStream = outputStream;
+    public ClientDevice(Socket socket) {
+        this.socket = socket;
+        this.lighthoused = false;
     }
 }

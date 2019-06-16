@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import edu.hm.eem_host.view.LockActivity;
+import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.model.SortableMapLiveData;
@@ -25,12 +26,12 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class HostProtocolManager extends ProtocolManager {
     private final ServerSocket serverSocket;
-    private SelectableSortableMapLiveData<Socket, SortableItem<Socket>> liveData;
+    private SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData;
     private Thread serverThread;
     private LockActivity.LockHandler handler;
     private final String exam;
 
-    public HostProtocolManager(Activity context, ServerSocket serverSocket, SelectableSortableMapLiveData<Socket, SortableItem<Socket>> liveData, LockActivity.LockHandler handler, String exam) {
+    public HostProtocolManager(Activity context, ServerSocket serverSocket, SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData, LockActivity.LockHandler handler, String exam) {
         super(context);
         this.serverSocket = serverSocket;
         this.serverThread = new Thread(new ServerThread());
@@ -58,8 +59,9 @@ public class HostProtocolManager extends ProtocolManager {
     }
 
     public void sendLightHouse(int index){
-        SignalPacket lightHouseSig = new SignalPacket(liveData.isSelected(index)? SignalPacket.Signal.LIGHTHOUSE_OFF: SignalPacket.Signal.LIGHTHOUSE_ON);
-        DataPacket.SenderThread thread = new DataPacket.SenderThread(liveData.getValue().get(index).item, lightHouseSig);
+        ClientDevice device = liveData.getValue().get(index).item;
+        SignalPacket lightHouseSig = new SignalPacket(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_OFF: SignalPacket.Signal.LIGHTHOUSE_ON);
+        DataPacket.SenderThread thread = new DataPacket.SenderThread(device.socket, lightHouseSig);
         thread.start();
     }
 
@@ -81,15 +83,19 @@ public class HostProtocolManager extends ProtocolManager {
             switch (type) {
                 case LOGIN:
                     name = LoginPacket.readData(is);
-                    DataPacket dataPacket;
-                    if (liveData.contains(name)) {
-                        dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
+                    if(name!=null) {
+                        DataPacket dataPacket;
+                        if (liveData.contains(name)) {
+                            dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
+                        } else {
+                            liveData.add(name, new SelectableSortableItem<>(name, new ClientDevice(socket)), true);
+                            dataPacket = new FilePacket(context.getFilesDir(), exam);
+                        }
+                        DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);
+                        sender.start();
                     } else {
-                        liveData.add(name, new SortableItem<>(name, socket), true);
-                        dataPacket = new FilePacket(context.getFilesDir(), exam);
+                        terminate = true;
                     }
-                    DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);
-                    sender.start();
                     break;
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
@@ -98,6 +104,8 @@ public class HostProtocolManager extends ProtocolManager {
                             liveData.remove(name, true);
                             terminate = true;
                             break;
+                        case ALL_DOC_ACCEPTED:
+                            liveData.toggleSelected(name);
                     }
                     break;
 

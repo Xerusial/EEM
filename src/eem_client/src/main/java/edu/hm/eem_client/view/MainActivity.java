@@ -44,7 +44,7 @@ public class MainActivity extends AbstractMainActivity {
                 break;
         }
         if (examName != null){
-            intent.putExtra("Name", examName);
+            intent.putExtra(EXAMNAME_FIELD, examName);
             startActivity(intent);
         }
     }

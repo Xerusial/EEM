@@ -11,7 +11,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import edu.hm.eem_client.view.LockedActivity;
+import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.net.DataPacket;
+import edu.hm.eem_library.net.FilePacket;
 import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
@@ -39,7 +41,7 @@ public class ClientProtocolManager extends ProtocolManager {
                 ret = new Socket(pairs[0].first, pairs[0].second);
             } catch (IOException e) {
                 e.printStackTrace();
-                handler.gracefulShutdown();
+                handler.gracefulShutdown("Connection was refused!");
             }
             return ret;
         }
@@ -78,14 +80,19 @@ public class ClientProtocolManager extends ProtocolManager {
             boolean terminate = false;
             switch (type) {
                 case EXAMFILE:
-
+                    TeacherExam exam = FilePacket.readData(is);
+                    if(handler.receiveExam(exam)){
+                        SignalPacket successSig = new SignalPacket(SignalPacket.Signal.ALL_DOC_ACCEPTED);
+                        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, successSig);
+                        thread.start();
+                    }
                     break;
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal){
                         case INVALID_LOGIN:
                             putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
-                            context.finish();
+                            handler.gracefulShutdown(null);
                             break;
                         case LIGHTHOUSE_ON:
                             handler.postLighthouse(true);

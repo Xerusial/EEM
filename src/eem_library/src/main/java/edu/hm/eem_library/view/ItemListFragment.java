@@ -8,12 +8,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,19 +24,16 @@ import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.DeviceViewModel;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.HostViewModel;
+import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.model.SortableItem;
-import edu.hm.eem_library.model.SortableMapLiveData;
-import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.ExamListViewModel;
 import edu.hm.eem_library.model.ItemViewModel;
 import edu.hm.eem_library.model.StudentExamViewModel;
 import edu.hm.eem_library.model.TeacherExamViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
-import edu.hm.eem_library.net.ClientDevice;
 
 enum ItemListContent {
-    EXAM(0), STUDENTEXAMDOCUMENT(1), TEACHEREXAMDOCUMENT(2), HOST(3), DEVICE(4);
+    EXAM(0), STUDENTEXAMDOCUMENT(1), TEACHEREXAMDOCUMENT(2), HOST(3), DEVICE(4), EXAMDOCUMENTEXPLORER(5);
     int id;
 
     ItemListContent(int id) {
@@ -86,8 +83,22 @@ public class ItemListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_itemlist, container, false);
         recyclerView = view.findViewById(R.id.list);
         Context context = recyclerView.getContext();
-        if (content == ItemListContent.STUDENTEXAMDOCUMENT || content == ItemListContent.TEACHEREXAMDOCUMENT) {
-            recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
+        Fragment parentFragment = getParentFragment();
+        OnListFragmentPressListener listener;
+        if(parentFragment instanceof OnListFragmentPressListener){
+            listener = (OnListFragmentPressListener) parentFragment;
+        } else if (context instanceof OnListFragmentPressListener){
+            listener = (OnListFragmentPressListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentPressListener");
+        }
+        if (content == ItemListContent.STUDENTEXAMDOCUMENT ||
+                content == ItemListContent.TEACHEREXAMDOCUMENT ||
+                content == ItemListContent.EXAMDOCUMENTEXPLORER) {
+            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            int spans = (int) (metrics.widthPixels / metrics.density / 200);
+            recyclerView.setLayoutManager(new GridLayoutManager(context, spans));
         } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
         }
@@ -95,22 +106,25 @@ public class ItemListFragment extends Fragment {
         TextView tw = view.findViewById(R.id.empty_list_text);
         switch (content){
             case EXAM:
-                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SortableItem<?>>) model.getLivedata(), context, content);
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content, true);
                 tw.setText(R.string.placeholder_exam);
                 break;
             case STUDENTEXAMDOCUMENT:
                 //falltrough
             case TEACHEREXAMDOCUMENT:
-                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, content);
+                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, true);
                 tw.setText(R.string.placeholder_document);
                 break;
             case HOST:
-                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SortableItem<?>>) model.getLivedata(), context, content);
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content, false);
                 tw.setText(R.string.placeholder_host);
                 break;
             case DEVICE:
-                adapter = new StudentDeviceRecyclerviewAdapter((SelectableSortableMapLiveData<ClientDevice, SortableItem<ClientDevice>>) model.getLivedata(), context, content);
+                adapter = new StudentDeviceRecyclerviewAdapter((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content);
                 tw.setText(R.string.placeholder_device);
+                break;
+            case EXAMDOCUMENTEXPLORER:
+                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, false);
                 break;
         }
         recyclerView.setAdapter(adapter);
@@ -136,6 +150,9 @@ public class ItemListFragment extends Fragment {
                 break;
             case DEVICE:
                 model = ViewModelProviders.of(getActivity()).get(DeviceViewModel.class);
+                break;
+            case EXAMDOCUMENTEXPLORER:
+                model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
                 break;
         }
     }

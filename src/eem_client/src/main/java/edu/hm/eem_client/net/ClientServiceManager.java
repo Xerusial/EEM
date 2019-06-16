@@ -17,13 +17,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.net.NsdService;
 import edu.hm.eem_library.net.ServiceManager;
 
 public class ClientServiceManager extends ServiceManager {
-    private final SelectableSortableMapLiveData<NsdService, SortableItem<NsdService>> selectableSortableMapLiveData;
+    private final SelectableSortableMapLiveData<NsdService, SelectableSortableItem<NsdService>> selectableSortableMapLiveData;
     private final DNSSD dnssd;
     private final ExamBrowseListener examBrowseListener = new ExamBrowseListener();
     private final ExamResolverListener examResolverListener = new ExamResolverListener();
@@ -32,7 +33,7 @@ public class ClientServiceManager extends ServiceManager {
     private DNSSDService dnssdService = null;
     private NsdService nsdService;
 
-    public ClientServiceManager(Context context, SelectableSortableMapLiveData<NsdService, SortableItem<NsdService>> selectableSortableMapLiveData, ServiceReadyListener serviceReadyListener) {
+    public ClientServiceManager(Context context, SelectableSortableMapLiveData<NsdService, SelectableSortableItem<NsdService>> selectableSortableMapLiveData, ServiceReadyListener serviceReadyListener) {
         this.dnssd = new DNSSDEmbedded(context);
         this.selectableSortableMapLiveData = selectableSortableMapLiveData;
         this.serviceReadyListener = serviceReadyListener;
@@ -80,7 +81,7 @@ public class ClientServiceManager extends ServiceManager {
         @Override
         public void serviceFound(DNSSDService browser, int flags, int ifIndex, String serviceName, String regType, String domain) {
             NsdService service = new NsdService(flags, ifIndex, serviceName, regType, domain);
-            selectableSortableMapLiveData.add(serviceName, new SortableItem<>(serviceName, service), true);
+            selectableSortableMapLiveData.add(serviceName, new SelectableSortableItem<>(serviceName, service), true);
         }
 
         @Override

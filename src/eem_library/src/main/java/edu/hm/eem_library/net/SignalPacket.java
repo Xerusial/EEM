@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public class SignalPacket extends DataPacket {
     public enum Signal {
-        VALID_LOGIN, INVALID_LOGIN, LOGOFF, LIGHTHOUSE_ON, LIGHTHOUSE_OFF;
+        VALID_LOGIN, INVALID_LOGIN, LOGOFF, LIGHTHOUSE_ON, LIGHTHOUSE_OFF, ALL_DOC_ACCEPTED;
 
         private static Signal[] values = null;
 
@@ -33,7 +33,7 @@ public class SignalPacket extends DataPacket {
 
     @Override
     protected void writeData(OutputStream os) {
-        ByteBuffer bb = ByteBuffer.allocate((int)getSize());
+        ByteBuffer bb = ByteBuffer.allocate(INT_BYTES);
         signal.insertInBytebuffer(bb);
         try {
             os.write(bb.array());
@@ -41,11 +41,6 @@ public class SignalPacket extends DataPacket {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    protected long getSize() {
-        return INT_BYTES;
     }
 
     public static Signal readData(InputStream is) {

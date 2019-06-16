@@ -32,6 +32,9 @@
     <string name="dialog_build_document">Build document meta-data from:</string>
     <string name="dialog_delete_all_documents">Delete all documents?</string>
     <string name="from_file">file</string>
+    <string name="incorrect_document">Incorrect document!</string>
+    <string name="too_many_pages">Document has too many pages!</string>
+    <string name="too_many_docs">Too many documents!</string>
     <string name="thumbnail_not_found">\u003cThumbnail not found\u003e</string>
     <string name="page_specified_document">Page specified document</string>
     <string name="from_page_number">number of pages</string>

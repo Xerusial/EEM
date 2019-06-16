@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+
+import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
 
@@ -16,11 +18,13 @@ import edu.hm.eem_library.model.SortableItem;
 public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerViewAdapter {
 
     final ItemListFragment.OnListFragmentPressListener listener;
+    final boolean isSelectable;
 
     InteractableItemRecyclerViewAdapter(SelectableSortableMapLiveData<?, ? extends SortableItem<?>> liveData,
-                                        Context context, ItemListContent content) {
+                                        Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, content);
-        this.listener = (ItemListFragment.OnListFragmentPressListener) context;
+        this.listener = listener;
+        this.isSelectable = isSelectable;
     }
 
     @NonNull
@@ -30,7 +34,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        ((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).clearSelection();
+        ((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>)liveData).clearSelection();
     }
 
     abstract class SelectableStringViewHolder extends ItemRecyclerViewAdapter.StringViewHolder {
@@ -40,7 +44,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
         }
 
         private void updateState(int position){
-            setSelected(((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).isSelected(position));
+            setSelected(((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>)liveData).getValue().get(position).selected);
         }
 
         abstract void setSelected(boolean selected);
@@ -51,10 +55,12 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
                     listener.onListFragmentPress(getAdapterPosition());
                 }
             });
-            view.setOnLongClickListener(v -> {
-                ((SelectableSortableMapLiveData<?, SortableItem<?>>)liveData).toggleSelected(getAdapterPosition());
-                return true;
-            });
+            if(isSelectable) {
+                view.setOnLongClickListener(v -> {
+                    ((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) liveData).toggleSelected(getAdapterPosition());
+                    return true;
+                });
+            }
         }
 
         @Override

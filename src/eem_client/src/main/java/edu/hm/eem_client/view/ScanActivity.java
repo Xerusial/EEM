@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.github.druk.dnssd.DNSSDService;
 
@@ -21,6 +22,7 @@ import edu.hm.eem_client.R;
 import edu.hm.eem_library.net.NsdService;
 import edu.hm.eem_library.model.HostViewModel;
 import edu.hm.eem_client.net.ClientServiceManager;
+import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
 
 public class ScanActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener, ClientServiceManager.ServiceReadyListener {
@@ -36,6 +38,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     private AnimationDrawable progressAnim;
     private TextView uiLockView;
     private boolean uiLocked = false;
+    private String examName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,9 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         progress = findViewById(R.id.progress);
         uiLockView = findViewById(R.id.ui_locker);
         progressAnim = (AnimationDrawable) progress.getDrawable();
+        examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            toolbar.setTitle(examName);
     }
 
     private boolean scanNetwork(boolean on){
@@ -115,6 +121,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         intent.putExtra(PROF_FIELD, nsdService.serviceName);
         intent.putExtra(ADDRESS_FIELD, nsdService.address);
         intent.putExtra(PORT_FIELD, nsdService.port);
+        intent.putExtra(AbstractMainActivity.EXAMNAME_FIELD, examName);
         startActivity(intent);
     }
 

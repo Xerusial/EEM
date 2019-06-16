@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 
 import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
 
@@ -16,8 +17,8 @@ public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdap
     private final int colorPrimary;
     private final int colorPrimaryLight;
 
-    NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<?, SortableItem<?>> liveData, Context context, ItemListContent content) {
-        super(liveData, context, content);
+    NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
+        super(liveData, context, listener, content, isSelectable);
         this.colorPrimary = context.getColor(R.color.colorPrimary);
         this.colorPrimaryLight = context.getColor(R.color.colorPrimaryLight);
     }
@@ -43,6 +44,8 @@ public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdap
                 case HOST:
                     icon.setImageResource(R.drawable.ic_teacher);
                     break;
+                case DEVICE:
+                    icon.setImageResource(R.drawable.ic_student);
             }
         }
 

@@ -1,5 +1,7 @@
 package edu.hm.eem_library.net;
 
+import androidx.annotation.Nullable;
+
 import org.apache.commons.io.input.BoundedInputStream;
 
 import java.io.File;
@@ -8,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.model.TeacherExam;
@@ -16,7 +19,7 @@ import static java.lang.System.exit;
 
 public class FilePacket extends DataPacket {
     /*  File Packet: TODO!!!
-        [4 Bytes: Size]
+        [8 Bytes: Size]
         [Size Bytes: File]
      */
     public static final String FILENAME = "sendable_exam";
@@ -33,8 +36,10 @@ public class FilePacket extends DataPacket {
     @Override
     protected void writeData(OutputStream os) {
         try {
+            ByteBuffer buffer = ByteBuffer.wrap(new byte[LONG_BYTES]);
+            os.write(buffer.putLong(f.length()).array());
             FileInputStream fis = new FileInputStream(f);
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[4096];
             int read;
             while ((read = fis.read(buf, 0, buf.length)) != -1) {
                 os.write(buf, 0, read);
@@ -49,15 +54,15 @@ public class FilePacket extends DataPacket {
         }
     }
 
-    @Override
-    protected long getSize() {
-        return f.length();
-    }
-
-    static TeacherExam readData(InputStream is, long size) {
-        BoundedInputStream bis = new BoundedInputStream(is, size);
-        TeacherExam exam = (TeacherExam) factory.extract(bis);
+    @Nullable
+    public static TeacherExam readData(InputStream is) {
+        byte[] sizeBytes = new byte[LONG_BYTES];
+        TeacherExam exam = null;
         try {
+            is.read(sizeBytes);
+            long size = ByteBuffer.wrap(sizeBytes).getLong();
+            BoundedInputStream bis = new BoundedInputStream(is, size);
+            exam = (TeacherExam) factory.extract(bis);
             bis.close();
         } catch (IOException e) {
             e.printStackTrace();

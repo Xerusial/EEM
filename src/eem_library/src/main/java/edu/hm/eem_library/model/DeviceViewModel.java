@@ -4,7 +4,9 @@ import android.app.Application;
 
 import java.net.Socket;
 
-public class DeviceViewModel extends ItemViewModel<SelectableSortableMapLiveData<Socket, SortableItem<Socket>>> {
+import edu.hm.eem_library.net.ClientDevice;
+
+public class DeviceViewModel extends ItemViewModel<SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>>> {
     public DeviceViewModel(Application application) {
         super(application);
         this.livedata = new SelectableSortableMapLiveData<>(null, true);

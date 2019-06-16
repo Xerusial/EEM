@@ -50,7 +50,7 @@ public abstract class AbstractExamEditorActivity extends AppCompatActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        examName = getIntent().getStringExtra("Name");
+        examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
     }
 
     @Override

@@ -2,11 +2,9 @@ package edu.hm.eem_library.model;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 
-public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends SortableMapLiveData<V, T> {
-    private boolean[] selection;
+public class SelectableSortableMapLiveData<V,T extends SelectableSortableItem<V>> extends SortableMapLiveData<V, T> {
     private int selectionCounter;
 
     SelectableSortableMapLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
@@ -14,7 +12,12 @@ public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends 
     }
 
     public void toggleSelected(int index) {
-        selectionCounter += (selection[index]^=true) ? 1 : -1;
+        selectionCounter += (getValue().get(index).selected^=true) ? 1 : -1;
+        notifyObserversMeta();
+    }
+
+    public void toggleSelected(String name){
+        selectionCounter += (backingMap.get(name).selected^= true) ? 1 : -1;
         notifyObserversMeta();
     }
 
@@ -23,11 +26,11 @@ public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends 
      * @return The first item in the list, which is selected. If none is selected, returns null.
      */
     @Nullable
-    public T getSelected(){
-        T ret = null;
-        for(int i = 0; i<selection.length; i++){
-            if(selection[i]){
-                ret = getValue().get(i);
+    public V getSelected(){
+        V ret = null;
+        for(SelectableSortableItem<V> item : backingMap.values()){
+            if(item.selected){
+                ret = item.item;
                 break;
             }
         }
@@ -41,16 +44,13 @@ public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends 
         postValue(getValue());
     }
 
-    public boolean isSelected(int index){
-        return selection[index];
-    }
-
     public int getSelectionCount(){
         return selectionCounter;
     }
 
     public void clearSelection() {
-        Arrays.fill(selection,false);
+        for(SelectableSortableItem<V> item : backingMap.values())
+            item.selected = false;
         selectionCounter = 0;
     }
 
@@ -59,12 +59,12 @@ public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends 
         ArrayList<T> removed = null;
         if(selectionCounter>0) {
             removed = new ArrayList<>(selectionCounter);
-            for(int i = 0; i<selection.length; i++){
-                if(selection[i]){
-                    removed.add(backingMap.remove(getValue().get(i).sortableKey));
+            for (SelectableSortableItem<V> item : backingMap.values()){
+                if(item.selected) {
+                    removed.add(backingMap.remove(item.sortableKey));
                 }
             }
-            clearSelection();
+            selectionCounter = 0;
             if(notificationNeeded) notifyObservers(false);
         }
         return removed;
@@ -72,8 +72,6 @@ public class SelectableSortableMapLiveData<V,T extends SortableItem<V>> extends 
 
     @Override
     void notifyObservers(boolean post) {
-        this.selection = new boolean[backingMap.size()];
-        this.selectionCounter = 0;
         super.notifyObservers(post);
     }
 

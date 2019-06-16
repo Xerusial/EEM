@@ -28,6 +28,11 @@ public abstract class ExamViewModel<T extends StudentExam> extends FilebackedIte
             }
             return true;
         }
+
+        public void setRejected(int index, ThumbnailedExamDocument.RejectionReason reason){
+            getValue().get(index).reason = reason;
+            toggleSelected(index);
+        }
     }
 
     public void openExam(String name) {
