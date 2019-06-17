@@ -17,13 +17,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.net.InetAddress;
+import java.util.List;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_client.net.ClientProtocolManager;
+import edu.hm.eem_library.model.ProtocolHandler;
 import edu.hm.eem_library.model.StudentExamViewModel;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.view.AbstractMainActivity;
@@ -35,27 +39,38 @@ public class LockedActivity extends AppCompatActivity {
     private String examName;
     private String profName;
     private StudentExamViewModel model;
+    private ReaderFragment reader;
 
-    public class LockedHandler extends Handler {
-        private LockedHandler(Looper looper){
+    public class LockedHandler extends Handler implements ProtocolHandler, DocumentExplorerFragment.OnDocumentsAcceptedListener {
+        private LockedHandler(Looper looper) {
             super(looper);
         }
 
-        public void postLighthouse(boolean on){
-            this.post(() -> lightHouse.setVisibility(on?View.VISIBLE:View.INVISIBLE));
+        public void postLighthouse(boolean on) {
+            this.post(() -> lightHouse.setVisibility(on ? View.VISIBLE : View.INVISIBLE));
         }
 
-        public boolean receiveExam(TeacherExam exam){
+        public boolean receiveExam(TeacherExam exam) {
             return model.checkExam(exam);
         }
 
-        public void gracefulShutdown(@Nullable String message){
-            this.post(() ->{
-                if(message!=null) {
+        public void gracefulShutdown(@Nullable String message) {
+            this.post(() -> {
+                if (message != null) {
                     Log.e(LockedActivity.this.getPackageName(), message);
                 }
                 finish();
             });
+        }
+
+        @Override
+        public void putToast(int resId) {
+            this.post(() -> Toast.makeText(LockedActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
+        }
+
+        @Override
+        public void onDocumentsAccepted() {
+            pm.allDocumentsAccepted();
         }
     }
 
@@ -70,11 +85,27 @@ public class LockedActivity extends AppCompatActivity {
         examName = intent.getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         model = ViewModelProviders.of(this).get(StudentExamViewModel.class);
         model.openExam(examName);
-        NavController navController= Navigation.findNavController(LockedActivity.this,R.id.nav_host);
+        NavController navController = Navigation.findNavController(LockedActivity.this, R.id.nav_host);
         Bundle startArgs = new Bundle();
         startArgs.putString(AbstractMainActivity.EXAMNAME_FIELD, examName);
         startArgs.putString(ScanActivity.PROF_FIELD, profName);
         navController.setGraph(R.navigation.lockedactivity_nav, startArgs);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host);
+        FragmentManager navHostManager = navHostFragment.getChildFragmentManager();
+        FragmentManager.OnBackStackChangedListener listener = () -> {
+                List<Fragment> frags = navHostManager.getFragments();
+                if(!frags.isEmpty()) {
+                    reader = (ReaderFragment) frags.get(0);
+                }
+        };
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                if(destination.getId()==R.id.readerFragment){
+                    navHostManager.addOnBackStackChangedListener(listener);
+                } else {
+                    navHostManager.removeOnBackStackChangedListener(listener);
+                    reader = null;
+                }
+        });
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString(getString(R.string.preferences_username), "User@" + android.os.Build.MODEL);
         lightHouse = findViewById(R.id.lighthouse);
@@ -82,20 +113,19 @@ public class LockedActivity extends AppCompatActivity {
         pm = new ClientProtocolManager(this, host, port, name, handler);
     }
 
-    /*@Override
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(currentFragment.first==R.id.readerFragment){
-            ReaderFragment reader = (ReaderFragment) currentFragment.second;
+        if(reader!=null){
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
-                reader.turnPage(false);
-                return false;
+                reader.turnPageAsync(true);
+                return true;
             } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
-                reader.turnPage(true);
-                return false;
+                reader.turnPageAsync(false);
+                return true;
             }
         }
-        return true;
-    }*/
+        return super.onKeyDown(keyCode,event);
+    }
 
     @Override
     protected void onStop() {

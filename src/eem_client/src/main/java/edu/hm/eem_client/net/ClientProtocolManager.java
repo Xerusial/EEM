@@ -19,14 +19,12 @@ import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
 public class ClientProtocolManager extends ProtocolManager {
-    private Socket socket;
+    private Socket socket = null;
     private final String name;
-    private final LockedActivity.LockedHandler handler;
 
     public ClientProtocolManager(Activity context, InetAddress host, int port, String name, LockedActivity.LockedHandler handler) {
-        super(context);
+        super(context, handler);
         this.name = name;
-        this.handler = handler;
         PrepTask task = new PrepTask();
         task.execute(new Pair<>(host, port));
     }
@@ -41,7 +39,8 @@ public class ClientProtocolManager extends ProtocolManager {
                 ret = new Socket(pairs[0].first, pairs[0].second);
             } catch (IOException e) {
                 e.printStackTrace();
-                handler.gracefulShutdown("Connection was refused!");
+                ((LockedActivity.LockedHandler)handler).gracefulShutdown("Connection was refused!");
+                ret = null;
             }
             return ret;
         }
@@ -49,7 +48,8 @@ public class ClientProtocolManager extends ProtocolManager {
         @Override
         protected void onPostExecute(Socket socket) {
             super.onPostExecute(socket);
-            prep(socket);
+            if(socket!=null)
+                prep(socket);
         }
     }
 
@@ -62,11 +62,19 @@ public class ClientProtocolManager extends ProtocolManager {
         senderThread.start();
     }
 
+    public void allDocumentsAccepted(){
+        SignalPacket successSig = new SignalPacket(SignalPacket.Signal.ALL_DOC_ACCEPTED);
+        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, successSig);
+        thread.start();
+    }
+
     @Override
     public void quit(){
-        SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
-        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);
-        thread.start();
+        if(socket!=null) {
+            SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
+            DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);
+            thread.start();
+        }
         super.quit();
     }
 
@@ -78,20 +86,19 @@ public class ClientProtocolManager extends ProtocolManager {
         @Override
         protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
             boolean terminate = false;
+            LockedActivity.LockedHandler handler = (LockedActivity.LockedHandler) ClientProtocolManager.this.handler;
             switch (type) {
                 case EXAMFILE:
                     TeacherExam exam = FilePacket.readData(is);
                     if(handler.receiveExam(exam)){
-                        SignalPacket successSig = new SignalPacket(SignalPacket.Signal.ALL_DOC_ACCEPTED);
-                        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, successSig);
-                        thread.start();
+                        allDocumentsAccepted();
                     }
                     break;
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal){
                         case INVALID_LOGIN:
-                            putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
+                            handler.putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
                             handler.gracefulShutdown(null);
                             break;
                         case LIGHTHOUSE_ON:

@@ -20,8 +20,15 @@
     <string name="adoc">Allowed documents</string>
     <string name="use_hotspot">Use hotspot</string>
     <string name="start_service">Start service</string>
+    <string name="documents_checked">Documents are ok!</string>
     <string name="blank">---</string>
     <string name="stext">Show text</string>
+    <string name="student_left">Student left!</string>
+    <string name="student_left_text1">Student</string>
+    <string name="student_left_text2">has terminated his reader app!</string>
+    <string name="preview_document">Preview document</string>
+    <string name="toast_wrong_password">Wrong password!</string>
+    <string name="dialog_explorer">This document is not allowed in the exam. However if you are certain it is, ask your professor to type his password for you.</string>
     <string name="accept_documents">Accept documents?</string>
     <string name="wifi_net_name">Name of network</string>
     <string name="label_condev">Connected Devices</string>
@@ -32,6 +39,8 @@
     <string name="dialog_build_document">Build document meta-data from:</string>
     <string name="dialog_delete_all_documents">Delete all documents?</string>
     <string name="from_file">file</string>
+    <string name="channel_name">Student activity</string>
+    <string name="channel_description">Notifications for student activity during the exam.</string>
     <string name="incorrect_document">Incorrect document!</string>
     <string name="too_many_pages">Document has too many pages!</string>
     <string name="too_many_docs">Too many documents!</string>

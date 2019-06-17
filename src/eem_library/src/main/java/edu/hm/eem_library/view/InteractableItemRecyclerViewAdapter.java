@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 
+import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
@@ -38,13 +40,16 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
     }
 
     abstract class SelectableStringViewHolder extends ItemRecyclerViewAdapter.StringViewHolder {
+        final CheckBox selectedCb;
 
         SelectableStringViewHolder(View view) {
             super(view);
+            selectedCb = view.findViewById(R.id.selected);
         }
 
         private void updateState(int position){
-            setSelected(((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>)liveData).getValue().get(position).selected);
+            boolean selected = ((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>)liveData).getValue().get(position).selected;
+            setSelected(selected);
         }
 
         abstract void setSelected(boolean selected);

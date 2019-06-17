@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
@@ -15,12 +17,12 @@ import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
 public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
-    private final int colorWhiteOpaque;
+    private final int colorBlackOpaque;
     private final int colorPrimaryOpaque;
 
     DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, context, listener, content, isSelectable);
-        this.colorWhiteOpaque = context.getColor(R.color.colorWhiteOpaque);
+        this.colorBlackOpaque = context.getColor(R.color.colorBlackOpaque);
         this.colorPrimaryOpaque = context.getColor(R.color.colorPrimaryOpaque);
     }
 
@@ -35,11 +37,13 @@ public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAda
     class DocumentViewHolder extends SelectableStringViewHolder {
         final ImageView thumbnail;
         final TextView numberPages;
+        final ConstraintLayout item;
 
         DocumentViewHolder(View view) {
             super(view);
             thumbnail = view.findViewById(R.id.icon);
             numberPages = view.findViewById(R.id.number_of_pages);
+            item = view.findViewById(R.id.item);
         }
 
         @Override
@@ -62,6 +66,7 @@ public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAda
                     numberPages.setTextSize(36);
                 }
             } else {
+                thumbnail.setImageBitmap(ted.thumbnail);
                 switch (ted.reason){
                     case TOO_MANY_PAGES:
                         numberPages.setText(R.string.too_many_pages);
@@ -80,11 +85,12 @@ public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAda
         @Override
         void setSelected(boolean selected) {
             if(isSelectable) {
-                nameView.setBackgroundColor(selected ? colorPrimaryOpaque : colorWhiteOpaque);
+                item.setBackgroundColor(selected ? colorPrimaryOpaque : colorBlackOpaque);
+                selectedCb.setVisibility(selected ? View.VISIBLE : View.GONE);
             } else {
                 numberPages.setVisibility(selected?View.VISIBLE:View.INVISIBLE);
                 thumbnail.setImageAlpha(selected?128:255);
-                nameView.setAlpha(selected?0.5f:1);
+                item.setAlpha(selected?0.5f:1);
             }
         }
     }

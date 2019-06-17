@@ -1,6 +1,11 @@
 package edu.hm.eem_host.view;
 
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import java.io.IOException;
@@ -27,6 +34,7 @@ import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.DeviceViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
 import edu.hm.eem_host.net.HostServiceManager;
+import edu.hm.eem_library.model.ProtocolHandler;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
@@ -36,9 +44,11 @@ public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
         HotspotManager.OnHotspotEnabledListener,
         ItemListFragment.OnListFragmentPressListener{
+    private static final String CHANNEL_ID = "student_activity";
     private HotspotManager hotspotManager;
     private WifiManager wm;
     private LocationManager lm;
+    private NotificationManager nm;
     private TextView netName;
     private TextView netPw;
     private Switch swStartService;
@@ -49,11 +59,44 @@ public class LockActivity extends AppCompatActivity
     private String examName;
     private LockHandler handler;
 
-    public class LockHandler extends Handler {
+    public class LockHandler extends Handler implements ProtocolHandler {
         private LockHandler(Looper looper){
             super(looper);
         }
+
+        public void notifyStudentLeft(String name){
+            Notification.Builder builder = new Notification.Builder(LockActivity.this, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_student_black)
+                    .setContentTitle(getString(R.string.student_left))
+                    .setStyle(new Notification.BigTextStyle()
+                            .setSummaryText(name)
+                            .bigText(getString(R.string.student_left_text1) + ' ' + name + ' ' + getString(R.string.student_left_text2)))
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+            nm.notify(0, builder.build());
+        }
+
+        @Override
+        public void putToast(int resId) {
+            this.post(() -> Toast.makeText(LockActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
+        }
     }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +123,8 @@ public class LockActivity extends AppCompatActivity
         });
         wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        createNotificationChannel();
         hotspotManager = new HotspotManager(wm, this);
         model = ViewModelProviders.of(this).get(DeviceViewModel.class);
         handler = new LockHandler(Looper.getMainLooper());

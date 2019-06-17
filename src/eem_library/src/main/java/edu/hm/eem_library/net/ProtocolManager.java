@@ -10,18 +10,19 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.logging.Handler;
 
 import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.ProtocolHandler;
 
 public abstract class ProtocolManager{
     protected final Activity context;
-    private final Toast toast;
     private final LinkedList<ReceiverThread> threads;
+    protected final ProtocolHandler handler;
 
-    public ProtocolManager(Activity context) {
+    public ProtocolManager(Activity context, ProtocolHandler handler) {
         this.context = context;
-        toast = new Toast(context);
-        toast.setDuration(Toast.LENGTH_SHORT);
+        this.handler = handler;
         threads = new LinkedList<>();
     }
 
@@ -54,7 +55,7 @@ public abstract class ProtocolManager{
                 }
                 Object[] header = DataPacket.readHeader(is);
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
-                    putToast(R.string.toast_protocol_too_new);
+                    handler.putToast(R.string.toast_protocol_too_new);
                 }
                 if(handleMessage((DataPacket.Type) header[1], is, inputSocket)) {
                     try {
@@ -68,15 +69,5 @@ public abstract class ProtocolManager{
         }
 
         protected abstract boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket);
-    }
-
-    /* This method prevents the receiverThreads from flooding the application with toasts.
-     * Only one toast is shown at a time.
-     */
-    protected void putToast(@StringRes int resId){
-        if(toast.getView() == null) {
-            toast.setText(context.getString(resId));
-            toast.show();
-        }
     }
 }

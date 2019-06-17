@@ -7,13 +7,27 @@
     android:layout_margin="10dp"
     android:background="@drawable/white_border">
 
+    <CheckBox
+        android:id="@+id/selected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:buttonTint="@color/white"
+        android:checked="true"
+        android:clickable="false"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/selected"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_exam" />
 
@@ -22,6 +36,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
+        android:gravity="center_vertical"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="@color/white"
         android:textSize="24sp"

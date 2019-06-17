@@ -97,7 +97,7 @@ public class ItemListFragment extends Fragment {
                 content == ItemListContent.TEACHEREXAMDOCUMENT ||
                 content == ItemListContent.EXAMDOCUMENTEXPLORER) {
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-            int spans = (int) (metrics.widthPixels / metrics.density / 200);
+            int spans = (int) (metrics.widthPixels / metrics.density / 180);
             recyclerView.setLayoutManager(new GridLayoutManager(context, spans));
         } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));

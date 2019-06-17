@@ -81,7 +81,10 @@ public class StudentExam {
                         name = (String) yamlConstructors.get(Tag.STR).construct(vnode);
                         break;
                     case "hash":
-                        hash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
+                        if(((String)yamlConstructors.get(Tag.STR).construct(vnode)).equals("null"))
+                            hash = null;
+                        else
+                            hash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
                         break;
                     case "pages":
                         pages = (int) yamlConstructors.get(Tag.INT).construct(vnode);

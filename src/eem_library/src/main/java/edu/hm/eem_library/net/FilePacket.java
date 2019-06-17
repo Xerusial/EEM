@@ -63,7 +63,7 @@ public class FilePacket extends DataPacket {
             long size = ByteBuffer.wrap(sizeBytes).getLong();
             BoundedInputStream bis = new BoundedInputStream(is, size);
             exam = (TeacherExam) factory.extract(bis);
-            bis.close();
+            //Do not close bis, as this will close the socket!
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -25,7 +25,9 @@
             android:elevation="0dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            app:srcCompat="@android:drawable/ic_menu_add" />
+            app:srcCompat="@android:drawable/ic_menu_add"
+            tools:layout_editor_absoluteX="109dp"
+            tools:layout_editor_absoluteY="16dp" />
 
         <ImageButton
             android:id="@+id/bt_del_doc"
@@ -35,7 +37,9 @@
             android:contentDescription="@string/del"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+            app:srcCompat="@android:drawable/ic_menu_delete"
+            tools:layout_editor_absoluteX="161dp"
+            tools:layout_editor_absoluteY="16dp" />
 
     </android.widget.Toolbar>
 

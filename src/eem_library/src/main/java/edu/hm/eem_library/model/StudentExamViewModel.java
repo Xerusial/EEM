@@ -3,10 +3,12 @@ package edu.hm.eem_library.model;
 import android.app.Application;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 
 public class StudentExamViewModel extends ExamViewModel<StudentExam> {
+    public TeacherExam teacherExam;
 
     public StudentExamViewModel(Application application) {
         super(application);
@@ -31,6 +33,7 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
 
     private static final int CODE_ACCEPTED = 0;
     private static final int CODE_REJECTED_TOO_MANY_DOCS = -1;
+    private static final int CODE_REJECTED_TOO_MANY_PAGES = -2;
     /**
      * Checks the current selected Examlist against a give list from a teacher.
      *
@@ -39,6 +42,7 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
      */
     public boolean checkExam(TeacherExam exam) {
         boolean ret = true;
+        teacherExam = exam;
         LinkedList<ExamDocument> teacherlist = exam.getAllowedDocuments();
         // Empty list means all allowed!
         if (teacherlist.size() != 0) {
@@ -53,7 +57,7 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
                 if (hash != null) {
                     for (Meta meta : metas) {
                         // if hash matches, set document to allowed
-                        if (hash.equals(meta.hash)) {
+                        if (Arrays.equals(hash, meta.hash)) {
                             meta.pages = CODE_ACCEPTED;
                             break;
                         }
@@ -74,6 +78,8 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
                     } else if (m.pages <= cachedPages.getFirst()) {
                         m.pages = CODE_ACCEPTED;
                         cachedPages.removeFirst();
+                    } else {
+                        m.pages = CODE_REJECTED_TOO_MANY_PAGES;
                     }
                     //All after this will be hash specified
                 } else break;
@@ -82,13 +88,12 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
             for (Meta m : metas) {
                 if (m.pages != CODE_ACCEPTED) {
                     //Select all documents, that were accepted
-                    getLivedata().toggleSelected(m.index);
                     if(m.pages == CODE_REJECTED_TOO_MANY_DOCS){
                         getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.TOO_MANY_DOCS);
-                    } else if(m.hash!=null)
-                        getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.HASH_DOES_NOT_MATCH);
-                     else
+                    } else if(m.pages == CODE_REJECTED_TOO_MANY_PAGES)
                         getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.TOO_MANY_PAGES);
+                    else
+                        getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.HASH_DOES_NOT_MATCH);
                     ret = false;
                 }
             }

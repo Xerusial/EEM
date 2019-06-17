@@ -7,5 +7,7 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="colorWhiteOpaque">#CCFFFFFF</color>
-    <color name="colorPrimaryOpaque">#80009384</color>
+    <color name="colorBlackOpaque">#80000000</color>
+    <color name="colorPrimaryOpaque">#B3009384</color>
+    <color name="ic_launcher_background">#26A69A</color>
 </resources>

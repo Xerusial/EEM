@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -14,8 +15,8 @@ import edu.hm.eem_library.model.SelectableSortableMapLiveData;
 import edu.hm.eem_library.model.SortableItem;
 
 public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
-    private final int colorPrimary;
-    private final int colorPrimaryLight;
+    final int colorPrimary;
+    final int colorPrimaryLight;
 
     NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, context, listener, content, isSelectable);
@@ -31,13 +32,13 @@ public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdap
         return new NameTabViewHolder(v);
     }
 
-    class NameTabViewHolder extends SelectableStringViewHolder{
+    class NameTabViewHolder extends SelectableStringViewHolder {
         final CardView item;
 
         NameTabViewHolder(View view) {
             super(view);
             item = view.findViewById(R.id.card_item);
-            switch (content){
+            switch (content) {
                 case EXAM:
                     icon.setImageResource(R.drawable.ic_exam);
                     break;
@@ -51,9 +52,8 @@ public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdap
 
         @Override
         void setSelected(boolean selected) {
-            {
-                item.setCardBackgroundColor(selected ? colorPrimary : colorPrimaryLight);
-            }
+            item.setCardBackgroundColor(selected ? colorPrimary : colorPrimaryLight);
+            selectedCb.setVisibility(selected ? View.VISIBLE : View.GONE);
         }
     }
 }

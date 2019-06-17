@@ -14,14 +14,15 @@ public final class HASHTOOLBOX {
 
     public static byte[] genMD5(InputStream is) throws IOException {
         try {
-            // Create MessageDigest instance for SHA256
+            // Create MessageDigest instance for MD5
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] bytes = new byte[4096];
             int read = 0;
-            while ((is.read(bytes)) != -1) {
+            while ((read = is.read(bytes)) > 0) {
                 md.update(bytes, 0, read);
             }
-            return md.digest();
+            byte[] md5 = md.digest();
+            return md5;
         } catch (NoSuchAlgorithmException e){
             e.printStackTrace();
             System.exit(1);

@@ -3,6 +3,8 @@ package edu.hm.eem_host.net;
 import android.app.Activity;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +12,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import edu.hm.eem_host.R;
 import edu.hm.eem_host.view.LockActivity;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
@@ -28,16 +31,14 @@ public class HostProtocolManager extends ProtocolManager {
     private final ServerSocket serverSocket;
     private SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData;
     private Thread serverThread;
-    private LockActivity.LockHandler handler;
     private final String exam;
 
     public HostProtocolManager(Activity context, ServerSocket serverSocket, SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData, LockActivity.LockHandler handler, String exam) {
-        super(context);
+        super(context, handler);
         this.serverSocket = serverSocket;
         this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();
         this.liveData = liveData;
-        this.handler = handler;
         this.exam = exam;
     }
 
@@ -60,7 +61,7 @@ public class HostProtocolManager extends ProtocolManager {
 
     public void sendLightHouse(int index){
         ClientDevice device = liveData.getValue().get(index).item;
-        SignalPacket lightHouseSig = new SignalPacket(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_OFF: SignalPacket.Signal.LIGHTHOUSE_ON);
+        SignalPacket lightHouseSig = new SignalPacket(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF);
         DataPacket.SenderThread thread = new DataPacket.SenderThread(device.socket, lightHouseSig);
         thread.start();
     }
@@ -73,6 +74,7 @@ public class HostProtocolManager extends ProtocolManager {
 
     private class HostReceiverThread extends ProtocolManager.ReceiverThread {
         private String name;
+        private boolean loggedIn = false;
         public HostReceiverThread(Socket inputSocket) {
             super(inputSocket);
         }
@@ -80,14 +82,15 @@ public class HostProtocolManager extends ProtocolManager {
         @Override
         protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
             boolean terminate = false;
-            switch (type) {
-                case LOGIN:
+            if(!loggedIn) {
+                if (type == DataPacket.Type.LOGIN) {
                     name = LoginPacket.readData(is);
-                    if(name!=null) {
+                    if (name != null) {
                         DataPacket dataPacket;
                         if (liveData.contains(name)) {
                             dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
                         } else {
+                            loggedIn = true;
                             liveData.add(name, new SelectableSortableItem<>(name, new ClientDevice(socket)), true);
                             dataPacket = new FilePacket(context.getFilesDir(), exam);
                         }
@@ -96,19 +99,23 @@ public class HostProtocolManager extends ProtocolManager {
                     } else {
                         terminate = true;
                     }
-                    break;
-                case SIGNAL:
-                    SignalPacket.Signal signal = SignalPacket.readData(is);
-                    switch (signal){
-                        case LOGOFF:
-                            liveData.remove(name, true);
-                            terminate = true;
-                            break;
-                        case ALL_DOC_ACCEPTED:
-                            liveData.toggleSelected(name);
-                    }
-                    break;
-
+                }
+            }else {
+                switch (type) {
+                    case SIGNAL:
+                        SignalPacket.Signal signal = SignalPacket.readData(is);
+                        switch (signal){
+                            case LOGOFF:
+                                liveData.remove(name, true);
+                                ((LockActivity.LockHandler)handler).notifyStudentLeft(name);
+                                terminate = true;
+                                break;
+                            case ALL_DOC_ACCEPTED:
+                                liveData.toggleSelected(name);
+                                break;
+                        }
+                        break;
+                }
             }
             return terminate;
         }

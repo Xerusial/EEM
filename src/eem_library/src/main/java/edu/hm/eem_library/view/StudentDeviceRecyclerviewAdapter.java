@@ -51,6 +51,13 @@ public class StudentDeviceRecyclerviewAdapter extends NameTabRecyclerViewAdapter
             listener.onListFragmentPress(position);
         }
 
+
+        @Override
+        void setSelected(boolean selected) {
+            item.setCardBackgroundColor(selected ? colorPrimary : colorPrimaryLight);
+            selectedCb.setChecked(selected);
+        }
+
         @Override
         void setInteractions() {
             view.setOnClickListener(v -> lighthouse());

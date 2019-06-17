@@ -2,7 +2,6 @@ package edu.hm.eem_library.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
@@ -72,10 +71,10 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         try {
             int numberOfPages, width = context.getResources().getDisplayMetrics().widthPixels/2;
             Bitmap thumbnail = Bitmap.createBitmap(width,(int)sqrt(2)*width, Bitmap.Config.ARGB_8888);
-            PdfRenderer renderer = new PdfRenderer(fileDescriptor);
+            PdfRenderer renderer = new PdfRenderer(context,fileDescriptor);
             numberOfPages = renderer.getPageCount();
             PdfRenderer.Page page = renderer.openPage(0);
-            page.render(thumbnail, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            page.render(thumbnail);
             page.close();
             byte[] hash = HASHTOOLBOX.genMD5(new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor));
             renderer.close();
