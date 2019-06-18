@@ -28,35 +28,13 @@ import edu.hm.eem_library.net.SignalPacket;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class HostProtocolManager extends ProtocolManager {
-    private final ServerSocket serverSocket;
     private SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData;
-    private Thread serverThread;
     private final String exam;
 
-    public HostProtocolManager(Activity context, ServerSocket serverSocket, SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData, LockActivity.LockHandler handler, String exam) {
+    public HostProtocolManager(Activity context, SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData, LockActivity.LockHandler handler, String exam) {
         super(context, handler);
-        this.serverSocket = serverSocket;
-        this.serverThread = new Thread(new ServerThread());
-        this.serverThread.start();
         this.liveData = liveData;
         this.exam = exam;
-    }
-
-    private class ServerThread implements Runnable {
-
-        public void run() {
-            Socket socket;
-            ReceiverThread receiverThread;
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    socket = serverSocket.accept();
-                    receiverThread = new HostReceiverThread(socket);
-                    receiverThread.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     public void sendLightHouse(int index){
@@ -68,11 +46,20 @@ public class HostProtocolManager extends ProtocolManager {
 
     @Override
     public void quit() {
-        serverThread.interrupt();
+        for(SelectableSortableItem<ClientDevice> device : liveData.getValue()){
+            SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
+            DataPacket.SenderThread thread = new DataPacket.SenderThread(device.item.socket, termSig);
+            thread.start();
+        }
         super.quit();
     }
 
-    private class HostReceiverThread extends ProtocolManager.ReceiverThread {
+    public void genReceiverThread(Socket socket){
+        ReceiverThread receiverThread = new HostProtocolManager.HostReceiverThread(socket);
+        receiverThread.start();
+    }
+
+    class HostReceiverThread extends ProtocolManager.ReceiverThread {
         private String name;
         private boolean loggedIn = false;
         public HostReceiverThread(Socket inputSocket) {
@@ -91,7 +78,7 @@ public class HostProtocolManager extends ProtocolManager {
                             dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
                         } else {
                             loggedIn = true;
-                            liveData.add(name, new SelectableSortableItem<>(name, new ClientDevice(socket)), true);
+                            liveData.add(new SelectableSortableItem<>(name, new ClientDevice(socket)), true);
                             dataPacket = new FilePacket(context.getFilesDir(), exam);
                         }
                         DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);

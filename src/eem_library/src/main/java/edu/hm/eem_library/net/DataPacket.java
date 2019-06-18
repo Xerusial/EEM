@@ -91,8 +91,10 @@ public abstract class DataPacket {
         public void run() {
             super.run();
             try {
-                OutputStream os = socket.getOutputStream();
-                dp.sendData(os);
+                if(!socket.isClosed()) {
+                    OutputStream os = socket.getOutputStream();
+                    dp.sendData(os);
+                }
                 //Do not close outputstream, as this will close the socket entirely
             } catch (IOException e) {
                 e.printStackTrace();

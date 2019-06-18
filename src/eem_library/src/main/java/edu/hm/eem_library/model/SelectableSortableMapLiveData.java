@@ -52,6 +52,7 @@ public class SelectableSortableMapLiveData<V,T extends SelectableSortableItem<V>
         for(SelectableSortableItem<V> item : backingMap.values())
             item.selected = false;
         selectionCounter = 0;
+        notifyObserversMeta();
     }
 
     @Nullable
@@ -61,7 +62,7 @@ public class SelectableSortableMapLiveData<V,T extends SelectableSortableItem<V>
             removed = new ArrayList<>(selectionCounter);
             for (SelectableSortableItem<V> item : backingMap.values()){
                 if(item.selected) {
-                    removed.add(backingMap.remove(item.sortableKey));
+                    removed.add(backingMap.remove(item.getSortableKey()));
                 }
             }
             selectionCounter = 0;

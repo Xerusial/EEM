@@ -1,9 +1,6 @@
 package edu.hm.eem_client.net;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.AsyncTask;
-import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +15,9 @@ import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
+/** The client side version of {@link ProtocolManager}
+ *
+ */
 public class ClientProtocolManager extends ProtocolManager {
     private Socket socket = null;
     private final String name;
@@ -25,43 +25,40 @@ public class ClientProtocolManager extends ProtocolManager {
     public ClientProtocolManager(Activity context, InetAddress host, int port, String name, LockedActivity.LockedHandler handler) {
         super(context, handler);
         this.name = name;
-        PrepTask task = new PrepTask();
-        task.execute(new Pair<>(host, port));
-    }
-
-    //use asynctask only to resolve the socket!!!
-    @SuppressLint("StaticFieldLeak")
-    private class PrepTask extends AsyncTask<Pair<InetAddress, Integer>, Void, Socket> {
-        @Override
-        protected Socket doInBackground(Pair<InetAddress, Integer>... pairs) {
-            Socket ret = null;
-            try {
-                ret = new Socket(pairs[0].first, pairs[0].second);
-            } catch (IOException e) {
-                e.printStackTrace();
-                ((LockedActivity.LockedHandler)handler).gracefulShutdown("Connection was refused!");
-                ret = null;
+        //Needs to be in new thread as networking is not allowed in UI thread
+        Thread openSocketThread = new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    prep(new Socket(host, port));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    handler.gracefulShutdown("Connection was refused!");
+                }
             }
-            return ret;
-        }
-
-        @Override
-        protected void onPostExecute(Socket socket) {
-            super.onPostExecute(socket);
-            if(socket!=null)
-                prep(socket);
-        }
+        };
+        openSocketThread.start();
     }
 
-    private void prep(Socket resolvedSocket){
-        socket = resolvedSocket;
+    /** Tasks to be done after the socket is open
+     *
+     * @param openedSocket The socket that has been opened
+     */
+    private void prep(Socket openedSocket){
+        socket = openedSocket;
+        //Start the socket receiver thread
         ReceiverThread receiverThread = new ClientReceiverThread(socket);
         receiverThread.start();
+        //Send the login packet to the host
         LoginPacket login = new LoginPacket(name);
         DataPacket.SenderThread senderThread = new DataPacket.SenderThread(socket, login);
         senderThread.start();
     }
 
+    /** Method to be called, if rejected documents are post-allowed by the professors password
+     *
+     */
     public void allDocumentsAccepted(){
         SignalPacket successSig = new SignalPacket(SignalPacket.Signal.ALL_DOC_ACCEPTED);
         DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, successSig);
@@ -70,6 +67,7 @@ public class ClientProtocolManager extends ProtocolManager {
 
     @Override
     public void quit(){
+        //Order left 2 right
         if(socket!=null) {
             SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
             DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);
@@ -106,6 +104,10 @@ public class ClientProtocolManager extends ProtocolManager {
                             break;
                         case LIGHTHOUSE_OFF:
                             handler.postLighthouse(false);
+                            break;
+                        case  LOGOFF:
+                            handler.gracefulShutdown("Terminate from host!");
+                            terminate = true;
                             break;
                     }
                     break;

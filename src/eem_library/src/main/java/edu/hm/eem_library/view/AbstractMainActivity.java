@@ -66,7 +66,7 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
 
     @Override
     public void onListFragmentPress(int index){
-        startSubApplication(model.getLivedata().getValue().get(index).sortableKey, ActionType.ACTION_LOCK);
+        startSubApplication(model.getLivedata().getValue().get(index).getSortableKey(), ActionType.ACTION_LOCK);
     }
 
     private void showNameDialog(){

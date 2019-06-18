@@ -63,7 +63,7 @@ public final class WIFIANDLOCATIONCHECKER {
         }
     }
 
-    private static <T extends AppCompatActivity> void showWifiOrLocationDialog(@NonNull final T apl, @Nullable WifiManager wm, @Nullable LocationManager lm) {
+    private static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void showWifiOrLocationDialog(@NonNull final T apl, @Nullable WifiManager wm, @Nullable LocationManager lm) {
         final boolean wifi;
         if (lm != null)
             wifi = false;
@@ -78,28 +78,22 @@ public final class WIFIANDLOCATIONCHECKER {
         else
             builder.setMessage(apl.getString(R.string.alert_location_for_scan));
 
-        builder.setPositiveButton(apl.getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent;
-                int request;
-                if (wifi) {
-                    intent = new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS);
-                    request = WIFI_REQUEST;
-                }
-                else {
-                    intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    request = LOCATION_REQUEST;
-                }
-                apl.startActivityForResult(intent, request);
+        builder.setPositiveButton(apl.getString(android.R.string.ok), (dialog, which) -> {
+            Intent intent;
+            int request;
+            if (wifi) {
+                intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                request = WIFI_REQUEST;
             }
+            else {
+                intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                request = LOCATION_REQUEST;
+            }
+            apl.startActivityForResult(intent, request);
         });
-        builder.setNegativeButton(apl.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                apl.finish();
-            }
+        builder.setNegativeButton(apl.getString(android.R.string.cancel), (dialog, which) -> {
+            dialog.cancel();
+            apl.onNotEnabled();
         });
         builder.show();
     }

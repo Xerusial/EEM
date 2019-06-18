@@ -25,21 +25,21 @@ public class SortableMapLiveData<V, T extends SortableItem<V>> extends MutableLi
     void refreshData(@NonNull Set<T> set){
         backingMap.clear();
         for (T item : set) {
-            backingMap.put(item.sortableKey, item);
+            backingMap.put(item.getSortableKey(), item);
         }
     }
 
-    public boolean add(String sortableKey, T item, boolean post){
-        boolean ret = !backingMap.containsKey(sortableKey);
+    public boolean add(T item, boolean post){
+        boolean ret = !backingMap.containsKey(item.getSortableKey());
         if (ret) {
-            put(sortableKey,item);
+            put(item);
             if(notificationNeeded) notifyObservers(post);
         }
         return ret;
     }
 
-    private void put(String sortableKey, T item){
-        backingMap.put(sortableKey, item);
+    private void put(T item){
+        backingMap.put(item.getSortableKey(), item);
     }
 
     public T remove(String sortableKey, boolean post){

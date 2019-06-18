@@ -1,5 +1,6 @@
 package edu.hm.eem_client.view;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 
 import androidx.annotation.Nullable;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import java.net.InetAddress;
 import java.util.List;
+import java.util.Objects;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_client.net.ClientProtocolManager;
@@ -32,16 +34,14 @@ import edu.hm.eem_library.model.StudentExamViewModel;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.view.AbstractMainActivity;
 
-public class LockedActivity extends AppCompatActivity {
+public class LockedActivity extends AppCompatActivity implements DocumentExplorerFragment.OnDocumentsAcceptedListener {
     private ClientProtocolManager pm;
-    private LockedHandler handler;
     private ImageView lightHouse;
-    private String examName;
-    private String profName;
     private StudentExamViewModel model;
     private ReaderFragment reader;
+    private NavController navController;
 
-    public class LockedHandler extends Handler implements ProtocolHandler, DocumentExplorerFragment.OnDocumentsAcceptedListener {
+    public class LockedHandler extends Handler implements ProtocolHandler {
         private LockedHandler(Looper looper) {
             super(looper);
         }
@@ -67,11 +67,6 @@ public class LockedActivity extends AppCompatActivity {
         public void putToast(int resId) {
             this.post(() -> Toast.makeText(LockedActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
         }
-
-        @Override
-        public void onDocumentsAccepted() {
-            pm.allDocumentsAccepted();
-        }
     }
 
     @Override
@@ -81,17 +76,17 @@ public class LockedActivity extends AppCompatActivity {
         Intent intent = getIntent();
         InetAddress host = (InetAddress) intent.getSerializableExtra(ScanActivity.ADDRESS_FIELD);
         int port = intent.getIntExtra(ScanActivity.PORT_FIELD, 0);
-        profName = intent.getStringExtra(ScanActivity.PROF_FIELD);
-        examName = intent.getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
+        String profName = intent.getStringExtra(ScanActivity.PROF_FIELD);
+        String examName = intent.getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         model = ViewModelProviders.of(this).get(StudentExamViewModel.class);
         model.openExam(examName);
-        NavController navController = Navigation.findNavController(LockedActivity.this, R.id.nav_host);
+        navController = Navigation.findNavController(LockedActivity.this, R.id.nav_host);
         Bundle startArgs = new Bundle();
         startArgs.putString(AbstractMainActivity.EXAMNAME_FIELD, examName);
         startArgs.putString(ScanActivity.PROF_FIELD, profName);
         navController.setGraph(R.navigation.lockedactivity_nav, startArgs);
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host);
-        FragmentManager navHostManager = navHostFragment.getChildFragmentManager();
+        FragmentManager navHostManager = Objects.requireNonNull(navHostFragment).getChildFragmentManager();
         FragmentManager.OnBackStackChangedListener listener = () -> {
                 List<Fragment> frags = navHostManager.getFragments();
                 if(!frags.isEmpty()) {
@@ -109,18 +104,34 @@ public class LockedActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString(getString(R.string.preferences_username), "User@" + android.os.Build.MODEL);
         lightHouse = findViewById(R.id.lighthouse);
-        handler = new LockedHandler(Looper.getMainLooper());
+        LockedHandler handler = new LockedHandler(Looper.getMainLooper());
         pm = new ClientProtocolManager(this, host, port, name, handler);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(navController.getCurrentDestination().getId() == R.id.documentExplorerFragment)
+            showExitDialog();
+        else
+            super.onBackPressed();
+    }
+
+    private void showExitDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_exit_student)
+                .setPositiveButton(android.R.string.yes, (dialog, id) -> finish())
+                .setNegativeButton(android.R.string.no, (dialog, id) -> dialog.cancel());
+        builder.show();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(reader!=null){
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
-                reader.turnPageAsync(true);
+                reader.turnPage(true);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
-                reader.turnPageAsync(false);
+                reader.turnPage(false);
                 return true;
             }
         }
@@ -137,5 +148,10 @@ public class LockedActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         finish();
+    }
+
+    @Override
+    public void onDocumentsAccepted() {
+        pm.allDocumentsAccepted();
     }
 }

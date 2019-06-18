@@ -12,8 +12,6 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProviders;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_library.model.ExamDocument;
-import edu.hm.eem_library.model.StudentExamViewModel;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.model.TeacherExamViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
@@ -36,7 +34,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         svButton = findViewById(R.id.bt_save);
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
-        addButton.setOnClickListener(v -> showNameDialog());
+        addButton.setOnClickListener(v -> showSourceDialog());
         ((CheckBox)findViewById(R.id.showPass)).setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked) pwField.setTransformationMethod(null);
             else pwField.setTransformationMethod(new PasswordTransformationMethod());
@@ -90,7 +88,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         super.onClick(v);
     }
 
-    private void showNameDialog(){
+    private void showSourceDialog(){
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_build_document));
@@ -112,7 +110,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                         return;
                     }
                     ThumbnailedExamDocument doc = ThumbnailedExamDocument.getInstance(getApplicationContext(), pages);
-                    model.getLivedata().add(doc.item.getName(), doc, false);
+                    model.getLivedata().add(doc, false);
                     break;
             }
         });

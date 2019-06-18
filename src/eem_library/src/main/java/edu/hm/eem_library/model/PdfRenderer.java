@@ -2,53 +2,33 @@ package edu.hm.eem_library.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.ParcelFileDescriptor;
 
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.PdfiumCore;
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
+import java.io.File;
 import java.io.IOException;
 
-/** Wrapper class for {@link PdfiumCore} to make it behave similar to {@link android.graphics.pdf.PdfRenderer}.
- * {@link android.graphics.pdf.PdfRenderer} does not work correctly on Devices with API lower
- * than Oreo.
+/** Wrapper class for {@link PDDocument}
  */
 public class PdfRenderer {
-    private final PdfiumCore pdfiumCore;
-    private final PdfDocument pdfDocument;
+    private final PDFRenderer renderer;
+    private final PDDocument pdDocument;
 
-    public PdfRenderer(Context context, ParcelFileDescriptor fd) throws IOException {
-        this.pdfiumCore = new PdfiumCore(context);
-        this.pdfDocument = pdfiumCore.newDocument(fd);
+    public PdfRenderer(Context context, File file) throws IOException {
+        this.pdDocument = PDDocument.load(file);
+        renderer = new PDFRenderer(pdDocument);
     }
 
-    public void close(){
-        pdfiumCore.closeDocument(pdfDocument);
+    public void close() throws IOException{
+        pdDocument.close();
     }
 
     public int getPageCount(){
-        return pdfiumCore.getPageCount(pdfDocument);
+        return pdDocument.getNumberOfPages();
     }
 
-    public Page openPage(int pageNum){
-        return new Page(pageNum);
-    }
-
-    public class Page {
-        private final int pageNum;
-
-        private Page(int pageNum) {
-            pdfiumCore.openPage(pdfDocument, pageNum);
-            this.pageNum = pageNum;
-        }
-
-        public void render(Bitmap bitmap){
-            pdfiumCore.openPage(pdfDocument, pageNum);
-            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0, bitmap.getWidth(), bitmap.getHeight());
-        }
-
-        public void close(){
-
-        }
+    public Bitmap renderPage(int pageNum) throws IOException{
+        return renderer.renderImage(pageNum, 1, Bitmap.Config.RGB_565);
     }
 }

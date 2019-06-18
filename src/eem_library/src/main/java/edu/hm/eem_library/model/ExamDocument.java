@@ -41,27 +41,6 @@ public class ExamDocument{
         this.hash = hash;
     }
 
-    void incrName(){
-        String[] parts = name.split(" ");
-        int preEndIndex = parts.length-1;
-        int num;
-        try {
-            num = Integer.parseInt(parts[preEndIndex]);
-            num++;
-        } catch (NumberFormatException e){
-            num = 1;
-            preEndIndex = parts.length;
-        }
-        name = "";
-        StringBuilder builder = new StringBuilder(parts[0] + ' ');
-        for(int i = 1; i<preEndIndex; i++){
-            builder.append(parts[i]);
-            builder.append(' ');
-        }
-        builder.append(num);
-        name = builder.toString();
-    }
-
     // Getters needed for SnakeYAML
     public String getName() {
         return name;

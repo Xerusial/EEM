@@ -51,7 +51,7 @@ public abstract class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemR
         }
 
         void initializeFromLiveData(int position){
-            nameView.setText(liveData.getValue().get(position).sortableKey);
+            nameView.setText(liveData.getValue().get(position).getSortableKey());
         }
 
         @NonNull

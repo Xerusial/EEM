@@ -1,15 +1,11 @@
 package edu.hm.eem_client.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.ParcelFileDescriptor;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +14,8 @@ import android.widget.ImageView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Objects;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_library.model.PdfRenderer;
@@ -29,13 +25,10 @@ import edu.hm.eem_library.model.PdfRenderer;
  */
 public class ReaderFragment extends Fragment {
 
-    private String path;
     private FloatingActionButton pageForward, pageBackward;
-    private ImageView readerPage;
     private PdfRenderer renderer = null;
     private int pageCount, currentPage;
-    private Bitmap pageBitmap;
-    private Handler handler;
+    private ImageView readerPage;
 
     public ReaderFragment() {
         // Required empty public constructor
@@ -43,7 +36,7 @@ public class ReaderFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_reader, container, false);
@@ -57,16 +50,12 @@ public class ReaderFragment extends Fragment {
             pageForward.hide();
             pageBackward.hide();
         }
-        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-        pageBitmap = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888);
-        readerPage.setImageBitmap(pageBitmap);
         renderPage();
         enableButton(pageBackward, false);
-        handler = new Handler(Looper.getMainLooper());
         return view;
     }
 
-    private void turnPage(boolean forward) {
+    void turnPage(boolean forward) {
         boolean endNotReached = currentPage != pageCount;
         boolean beginningNotReached = currentPage != 0;
         if (forward && endNotReached) {
@@ -83,39 +72,30 @@ public class ReaderFragment extends Fragment {
 
     }
 
-    void turnPageAsync(boolean forward){
-        handler.post(()-> turnPage(forward));
-    }
-
     private void enableButton(FloatingActionButton b, boolean enable) {
         b.setEnabled(enable);
         b.setAlpha(enable ? 1.0f : 0.5f);
     }
 
-    private boolean renderPage() {
-        boolean ret = false;
+    private void renderPage() {
         if (renderer != null) {
-            PdfRenderer.Page page = renderer.openPage(currentPage);
-            page.render(pageBitmap);
-            page.close();
-            ret = true;
+            try {
+                readerPage.setImageBitmap(renderer.renderPage(currentPage));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return ret;
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        path = getArguments().getString(DocumentExplorerFragment.EXAMDOCUMENT_FIELD);
+        String path = Objects.requireNonNull(getArguments()).getString(DocumentExplorerFragment.EXAMDOCUMENT_FIELD);
         File file = new File(path);
-        ParcelFileDescriptor fileDescriptor = null;
         try {
-            fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-            renderer = new PdfRenderer(context,fileDescriptor);
+            renderer = new PdfRenderer(context,file);
             currentPage = 0;
             pageCount = renderer.getPageCount()-1;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -124,6 +104,12 @@ public class ReaderFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        if (renderer != null) renderer.close();
+        if (renderer != null) {
+            try {
+                renderer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

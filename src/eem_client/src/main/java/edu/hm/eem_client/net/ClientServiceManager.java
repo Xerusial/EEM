@@ -81,7 +81,7 @@ public class ClientServiceManager extends ServiceManager {
         @Override
         public void serviceFound(DNSSDService browser, int flags, int ifIndex, String serviceName, String regType, String domain) {
             NsdService service = new NsdService(flags, ifIndex, serviceName, regType, domain);
-            selectableSortableMapLiveData.add(serviceName, new SelectableSortableItem<>(serviceName, service), true);
+            selectableSortableMapLiveData.add(new SelectableSortableItem<>(serviceName, service), true);
         }
 
         @Override

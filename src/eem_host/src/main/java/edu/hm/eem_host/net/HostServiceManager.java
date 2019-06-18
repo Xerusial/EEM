@@ -10,19 +10,44 @@ import com.github.druk.dnssd.DNSSDRegistration;
 import com.github.druk.dnssd.DNSSDService;
 import com.github.druk.dnssd.RegisterListener;
 
+import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 
+import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.ServiceManager;
 
 public class HostServiceManager extends ServiceManager implements RegisterListener {
     private final String profName;
     private final DNSSD dnssd;
     private DNSSDService service = null;
+    private Thread serverThread;
+    private ServerSocket serverSocket;
+    private HostProtocolManager protocolManager;
 
-    public HostServiceManager(Activity apl, ServerSocket serverSocket, String profName) {
+    private class ServerThread implements Runnable {
+
+        public void run() {
+            Socket socket;
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    socket = serverSocket.accept();
+                    protocolManager.genReceiverThread(socket);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public HostServiceManager(Activity apl, ServerSocket serverSocket, String profName, HostProtocolManager protocolManager) {
         dnssd = new DNSSDEmbedded(apl);
         this.profName = profName;
+        this.serverSocket = serverSocket;
+        this.protocolManager = protocolManager;
         createService(serverSocket.getLocalPort());
+        this.serverThread = new Thread(new ServerThread());
+        this.serverThread.start();
     }
 
     private void createService(int port) {
@@ -49,6 +74,7 @@ public class HostServiceManager extends ServiceManager implements RegisterListen
         if(service!=null) {
             service.stop();
             service = null;
+            serverThread.interrupt();
         }
     }
 }

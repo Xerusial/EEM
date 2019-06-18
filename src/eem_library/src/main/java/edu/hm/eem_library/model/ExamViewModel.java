@@ -21,10 +21,9 @@ public abstract class ExamViewModel<T extends StudentExam> extends FilebackedIte
         }
 
         @Override
-        public boolean add(String sortableKey, ThumbnailedExamDocument container, boolean post) {
-            while(!super.add(sortableKey, container, post)){
-                container.item.incrName();
-                sortableKey = container.item.getName();
+        public boolean add(ThumbnailedExamDocument container, boolean post) {
+            while(!super.add(container, post)){
+                container.incrKey();
             }
             return true;
         }

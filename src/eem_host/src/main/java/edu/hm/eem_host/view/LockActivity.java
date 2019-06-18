@@ -1,8 +1,10 @@
 package edu.hm.eem_host.view;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -21,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,17 +50,20 @@ public class LockActivity extends AppCompatActivity
     private WifiManager wm;
     private LocationManager lm;
     private NotificationManager nm;
-    private TextView netName;
-    private TextView netPw;
-    private Switch swStartService;
-    private CheckBox cbUseHotspot;
-    private HostProtocolManager hostProtocolManager;
-    private HostServiceManager hostServiceManager;
+    private TextView netName, netPw, wifiText;
+    private Switch swStartService, swUseHotspot;
+    private HostProtocolManager hostProtocolManager = null;
+    private HostServiceManager hostServiceManager = null;
     private DeviceViewModel model;
     private String examName;
     private LockHandler handler;
 
+    private enum ProtocolTerminationReason{
+        EXIT, START_SERVICE, HOTSPOT_ON, HOTSPOT_OFF
+    }
+
     public class LockHandler extends Handler implements ProtocolHandler {
+        private int id = 0;
         private LockHandler(Looper looper){
             super(looper);
         }
@@ -72,7 +76,7 @@ public class LockActivity extends AppCompatActivity
                             .setSummaryText(name)
                             .bigText(getString(R.string.student_left_text1) + ' ' + name + ' ' + getString(R.string.student_left_text2)))
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-            nm.notify(0, builder.build());
+            nm.notify(++id, builder.build());
         }
 
         @Override
@@ -105,22 +109,9 @@ public class LockActivity extends AppCompatActivity
         examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
+        wifiText = findViewById(R.id.wifi);
         swStartService = findViewById(R.id.sw_start_service);
-        cbUseHotspot = findViewById(R.id.cb_use_hotspot);
-        swStartService.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            boolean useHotspot = cbUseHotspot.isChecked();
-            if (isChecked) {
-                if (useHotspot)
-                    WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
-                else
-                    WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
-            } else {
-                quitService();
-                quitProtocol();
-                if (useHotspot) hotspotManager.turnOffHotspot();
-                checkboxSetEnabled(true);
-            }
-        });
+        swUseHotspot = findViewById(R.id.sw_use_hotspot);
         wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
@@ -129,56 +120,143 @@ public class LockActivity extends AppCompatActivity
         model = ViewModelProviders.of(this).get(DeviceViewModel.class);
         handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
+        swStartService.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            quitService();
+            if (isChecked) {
+                if(!model.getLivedata().isEmpty()) {
+                    showExitDialog(ProtocolTerminationReason.START_SERVICE);
+                } else {
+                    prepareService();
+                }
+            } else {
+                switchSetEnabled(swUseHotspot, true);
+            }
+        });
+        swUseHotspot.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            if(model.getLivedata().isEmpty())
+                changeHotSpot(isChecked);
+            else
+                showExitDialog(isChecked?ProtocolTerminationReason.HOTSPOT_ON:ProtocolTerminationReason.HOTSPOT_OFF);
+        }));
     }
 
-    private void checkboxSetEnabled(boolean enable) {
-        cbUseHotspot.setEnabled(enable);
-        cbUseHotspot.setAlpha(enable ? 1.0f : 0.5f);
+    private void changeHotSpot(boolean enable){
+        quitProtocol();
+        quitService();
+        if(enable){
+            WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
+            switchSetEnabled(swStartService, false);
+        } else {
+            hotspotManager.turnOffHotspot();
+        }
     }
 
-    private void startService() {
+    private void prepareService(){
+        quitProtocol();
+        if (!swUseHotspot.isChecked())
+            WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
+        else
+            onWifiEnabled();
+    }
+
+    private void switchSetEnabled(Switch sw, boolean enable) {
+        sw.setEnabled(enable);
+        sw.setAlpha(enable ? 1.0f : 0.5f);
+        if(sw == swUseHotspot)
+            wifiText.setAlpha(enable ? 1.0f : 0.5f);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        hotspotManager.turnOffHotspot();
+        quitProtocol();
+        quitService();
+    }
+
+    private void quitProtocol() {
+        if(hostProtocolManager!=null) {
+            hostProtocolManager.quit();
+            hostProtocolManager = null;
+            model.getLivedata().clean(true);
+        }
+    }
+
+    private void quitService() {
+        if(hostServiceManager!=null) {
+            hostServiceManager.quit();
+            hostServiceManager = null;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!model.getLivedata().isEmpty())
+            showExitDialog(ProtocolTerminationReason.EXIT);
+        else
+            super.onBackPressed();
+    }
+
+    private void showExitDialog(ProtocolTerminationReason reason){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_exit_teacher)
+                .setPositiveButton(android.R.string.yes, (dialog, id) -> {
+                    switch (reason){
+                        case EXIT:
+                            super.onBackPressed();
+                            break;
+                        case START_SERVICE:
+                            prepareService();
+                            break;
+                        case HOTSPOT_ON:
+                            changeHotSpot(true);
+                            break;
+                        case HOTSPOT_OFF:
+                            changeHotSpot(false);
+                            break;
+                    }
+                })
+                .setNegativeButton(android.R.string.no, (dialog, id) -> {
+                    if(reason==ProtocolTerminationReason.START_SERVICE)
+                        swStartService.setChecked(false);
+                    dialog.cancel();
+                });
+        builder.show();
+    }
+
+    @Override
+    public void onWifiEnabled() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
         try {
             ServerSocket serverSocket = new ServerSocket(0);
-            hostServiceManager = new HostServiceManager(this, serverSocket, profName);
-            hostProtocolManager = new HostProtocolManager(LockActivity.this, serverSocket, model.getLivedata(), handler, examName);
+            hostProtocolManager = new HostProtocolManager(LockActivity.this, model.getLivedata(), handler, examName);
+            hostServiceManager = new HostServiceManager(this, serverSocket, profName, hostProtocolManager);
+            switchSetEnabled(swUseHotspot,false);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void quitProtocol() {
-        hostProtocolManager.quit();
-    }
-
-    private void quitService() {
-        hostServiceManager.quit();
-    }
-
-    @Override
-    public void onWifiEnabled() {
-        startService();
-        checkboxSetEnabled(false);
-    }
-
     @Override
     public void onLocationEnabled() {
         hotspotManager.turnOnHotspot();
-        checkboxSetEnabled(false);
     }
 
     @Override
     public void onNotEnabled() {
+        swUseHotspot.setChecked(false);
         swStartService.setChecked(false);
     }
 
     @Override
     public void OnHotspotEnabled(boolean enabled, @Nullable WifiConfiguration wifiConfiguration) {
         if (enabled) {
-            netName.setText(wifiConfiguration.SSID);
-            netPw.setText(wifiConfiguration.preSharedKey);
-            startService();
+            if(wifiConfiguration != null) {
+                netName.setText(wifiConfiguration.SSID);
+                netPw.setText(wifiConfiguration.preSharedKey);
+                switchSetEnabled(swStartService, true);
+            }
         } else {
             netName.setText(getString(R.string.blank));
             netPw.setText(getString(R.string.blank));
@@ -186,15 +264,12 @@ public class LockActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case WIFIANDLOCATIONCHECKER.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    WIFIANDLOCATIONCHECKER.checkLocation(this, lm, false);
-                else finish();
-                break;
-            }
+    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults) {
+        if (requestCode == WIFIANDLOCATIONCHECKER.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                WIFIANDLOCATIONCHECKER.checkLocation(this, lm, true);
+            else onNotEnabled();
         }
     }
 

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +61,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         super.onAttach(context);
         model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
         if(context instanceof OnDocumentsAcceptedListener){
-            listener = (OnDocumentsAcceptedListener) context; //TODO check warums nicht funktioniert...
+            listener = (OnDocumentsAcceptedListener) context;
         }
     }
 
