@@ -69,7 +69,7 @@ public class StudentExam {
             MappingNode mnode = (MappingNode) child;
             List<NodeTuple> list = mnode.getValue();
             String name = null;
-            byte[] hash = null;
+            byte[] hash = null, nonAnnotatedHash = null;
             int pages = 0;
             String path = null;
             for(NodeTuple nt : list) {
@@ -86,6 +86,12 @@ public class StudentExam {
                         else
                             hash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
                         break;
+                    case "nonAnnotatedHash":
+                        if(((String)yamlConstructors.get(Tag.STR).construct(vnode)).equals("null"))
+                            nonAnnotatedHash = null;
+                        else
+                            nonAnnotatedHash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
+                        break;
                     case "pages":
                         pages = (int) yamlConstructors.get(Tag.INT).construct(vnode);
                         break;
@@ -94,7 +100,7 @@ public class StudentExam {
                         if(path.equals("null")) path = null;
                 }
             }
-            allowedDocuments.add(new ExamDocument(name, hash, pages, path));
+            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, path));
         }
     }
 

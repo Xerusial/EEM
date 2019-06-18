@@ -24,6 +24,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -50,6 +52,7 @@ public abstract class AbstractExamEditorActivity extends AppCompatActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PDFBoxResourceLoader.init(getApplicationContext());
         examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
     }
 
