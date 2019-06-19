@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.annotation.Nullable;
 
+import java.io.File;
 import java.util.Set;
 
 public abstract class ExamViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamViewModel.ExamDocumentLiveData> {
@@ -35,14 +36,14 @@ public abstract class ExamViewModel<T extends StudentExam> extends FilebackedIte
     }
 
     public void openExam(String name) {
-        current = (T) factory.get(examDir,name);
+        current = (T) factory.get(new File(examDir.getPath() + File.separator + name));
         currentName = name;
         this.livedata = new ExamDocumentLiveData(current.toLiveDataSet(getApplication()), true);
     }
 
     public void closeExam(){
         current.documentsFromLivedata(livedata.backingMap.values());
-        factory.writeExamToFile(current, examDir, currentName);
+        factory.writeExamToFile(current, new File(examDir + File.separator + currentName));
     }
 
     public T getCurrent() {

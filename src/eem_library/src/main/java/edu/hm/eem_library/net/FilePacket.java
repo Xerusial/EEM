@@ -28,8 +28,9 @@ public class FilePacket extends DataPacket {
     private static final ExamFactory factory = new ExamFactory(ExamFactory.ExamType.TEACHER);
     public FilePacket(File filesdir, String exam) {
         super(Type.EXAMFILE);
-        File examDir = new File(filesdir.getPath() + File.separator + EXAMDIR);
-        factory.createSendableVersion(filesdir,examDir, exam);
+        File examFile = new File(filesdir.getPath() + File.separator + EXAMDIR + File.separator + exam);
+        File sendableExamFile = new File(filesdir.getPath() + File.separator + FilePacket.FILENAME);
+        factory.createSendableVersion(examFile, sendableExamFile);
         this.f = new File(filesdir.getPath() + File.separator + FILENAME);
     }
 

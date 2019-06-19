@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.view.DocumentPickerActivity;
@@ -31,16 +33,18 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         reason = RejectionReason.NONE;
     }
 
-    static ThumbnailedExamDocument getInstance(Context context, ExamDocument doc) {
-        if(doc.getUriString() == null){
-            return new ThumbnailedExamDocument(doc.getName(), doc, null, false);
-        } else {
-            try {
-                Uri uri = Uri.parse(doc.getUriString());
-                ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-                return getThumb(context, fileDescriptor, doc);
-            } catch (FileNotFoundException e){
-                return new ThumbnailedExamDocument(doc.getName(), doc, null, true);
+    static void loadInstances(Context context, TreeSet<ThumbnailedExamDocument> outSet, LinkedList<ExamDocument> inList) {
+        for (ExamDocument doc : inList) {
+            if (doc.getUriString() == null) {
+                outSet.add(new ThumbnailedExamDocument(doc.getName(), doc, null, false));
+            } else {
+                try {
+                    Uri uri = Uri.parse(doc.getUriString());
+                    ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+                    outSet.add(getThumb(context, fileDescriptor, doc));
+                } catch (FileNotFoundException e) {
+                    outSet.add(new ThumbnailedExamDocument(doc.getName(), doc, null, true));
+                }
             }
         }
     }
@@ -51,16 +55,19 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         return new ThumbnailedExamDocument(name, doc, null, false);
     }
 
+    @Nullable
     public static ThumbnailedExamDocument getInstance(DocumentPickerActivity context, Uri uri)
     {
+        ThumbnailedExamDocument thDoc;
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
             ExamDocument doc = new ExamDocument(context.getNameFromUri(uri), uri.toString());
-            return getThumb(context, fileDescriptor, doc);
+            thDoc = getThumb(context, fileDescriptor, doc);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return null;
+            thDoc = null;
         }
+        return thDoc;
     }
 
     private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc){

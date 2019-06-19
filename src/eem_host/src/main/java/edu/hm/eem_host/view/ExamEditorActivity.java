@@ -52,7 +52,6 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 docUISetEnabled(true);
             }
         });
-        allDocAllowedField.setChecked(model.getLivedata().isEmpty());
         toolbar = findViewById(R.id.toolbar);
     }
 

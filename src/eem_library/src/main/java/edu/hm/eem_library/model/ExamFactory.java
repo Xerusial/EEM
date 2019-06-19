@@ -11,8 +11,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import edu.hm.eem_library.net.FilePacket;
-
 public class ExamFactory {
     public enum ExamType {
         STUDENT, TEACHER
@@ -31,8 +29,7 @@ public class ExamFactory {
     }
 
     @Nullable
-    StudentExam get(File examDir, String name) {
-        File in = new File(examDir.getPath() + File.separator + name);
+    StudentExam get(File in) {
         StudentExam retval = null;
         try {
             FileInputStream fis = new FileInputStream(in);
@@ -54,8 +51,7 @@ public class ExamFactory {
         return yaml.load(is);
     }
 
-    <T extends StudentExam> void writeExamToFile(T exam, File examDir, String name) {
-        File out = new File(examDir.getPath() + File.separator + name);
+    public <T extends StudentExam> void writeExamToFile(T exam, File out) {
         try {
             FileWriter fw = new FileWriter(out);
             yaml.dump(exam, fw);
@@ -67,11 +63,11 @@ public class ExamFactory {
         }
     }
 
-    public <T extends StudentExam> void createSendableVersion(File mainDir, File examDir, String name){
-        T exam = (T) get(examDir, name);
+    public <T extends StudentExam> void createSendableVersion(File in, File out){
+        T exam = (T) get(in);
         for(ExamDocument doc : exam.getAllowedDocuments()){
             doc.removeUriString();
         }
-        writeExamToFile(exam, mainDir, FilePacket.FILENAME);
+        writeExamToFile(exam, out);
     }
 }

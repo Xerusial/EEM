@@ -1,6 +1,7 @@
 package edu.hm.eem_library.model;
 
 import android.app.Application;
+import android.content.Context;
 
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -49,12 +50,10 @@ public class StudentExam {
      *
      * @return output set
      */
-    TreeSet<ThumbnailedExamDocument> toLiveDataSet(Application apl){
+    TreeSet<ThumbnailedExamDocument> toLiveDataSet(Context context){
         TreeSet<ThumbnailedExamDocument> treeSet = new TreeSet<>();
         if(allowedDocuments!=null) {
-            for (ExamDocument doc : allowedDocuments) {
-                treeSet.add(ThumbnailedExamDocument.getInstance(apl.getApplicationContext(), doc));
-            }
+            ThumbnailedExamDocument.loadInstances(context, treeSet, allowedDocuments);
         }
         return treeSet;
     }
@@ -62,11 +61,9 @@ public class StudentExam {
     final void constructAllowedDocuments(SequenceNode snode, Map<Tag, Construct> yamlConstructors){
         allowedDocuments= new LinkedList<>();
         for(Node child : snode.getValue()) {
-                                    /*Map<String, String> map = (Map<String, String>) yamlConstructors.get(Tag.MAP).construct(child);
-                                    allowedDocuments.add(new ExamDocument(map.get("name"), map.get("hash"), map.get("pages")));*/
             MappingNode mnode = (MappingNode) child;
             List<NodeTuple> list = mnode.getValue();
-            String name = null, uri = null;
+            String name = null, uriString = null;
             byte[] hash = null, nonAnnotatedHash = null;
             int pages = 0;
             for(NodeTuple nt : list) {
@@ -92,13 +89,13 @@ public class StudentExam {
                     case "pages":
                         pages = (int) yamlConstructors.get(Tag.INT).construct(vnode);
                         break;
-                    case "uri":
-                        uri = (String) yamlConstructors.get(Tag.STR).construct(vnode);
-                        if(uri.equals("null")) uri = null;
+                    case "uriString":
+                        uriString = (String) yamlConstructors.get(Tag.STR).construct(vnode);
+                        if(uriString.equals("null")) uriString = null;
                         break;
                 }
             }
-            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, uri));
+            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, uriString));
         }
     }
 

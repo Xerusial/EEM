@@ -24,8 +24,10 @@ import android.widget.Toolbar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -116,43 +118,54 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                 e.printStackTrace();
             }
         }
+        model.getLivedata().clearSelection();
         askToRemoveExams();
     }
 
     private void removeSelected(){
-        model.getLivedata().removeSelected();
-        List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
-        for(UriPermission perm : list) {
-            Uri uri = perm.getUri();
-            Pair<Boolean, List<String>> entry = uriMap.get(uri.toString());
-            if(entry==null || entry.second.size()==0)
-                getContentResolver().releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if(model.getLivedata().getSelectionCount()!=0) {
+            model.getLivedata().removeSelected();
+            List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
+            for (UriPermission perm : list) {
+                Uri uri = perm.getUri();
+                Pair<Boolean, List<String>> entry = uriMap.get(uri.toString());
+                if (entry == null || entry.second.size() == 0)
+                    getContentResolver().releasePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
         }
     }
 
     private void askToRemoveExams(){
+        boolean entryFound = false;
         for(Map.Entry<String, Pair<Boolean, List<String>>> entry : uriMap.entrySet()) {
             if(!entry.getValue().first){
                 // File was deleted: get new File
                 AlertDialog.Builder builder;
                 builder = new AlertDialog.Builder(this);
                 TextView textView = new TextView(this);
-                StringBuilder sb = new StringBuilder();
-                for(String s : entry.getValue().second){
-                    sb.append(s);
-                    sb.append(' ');
+                Iterator<String> it = entry.getValue().second.iterator();
+                StringBuilder sb = new StringBuilder(it.next());
+                for(;it.hasNext();){
+                    sb.append(", ");
+                    sb.append(it.next());
                 }
-                textView.setText(getString(R.string.dialog_document_not_found, getNameFromUri(Uri.parse(entry.getKey())), sb.toString()));
+                textView.setText(getString(entry.getValue().second.size()>1?
+                        R.string.dialog_document_not_found_pl:
+                        R.string.dialog_document_not_found_sing,
+                        getNameFromUri(Uri.parse(entry.getKey())), sb.toString()));
                 builder.setCustomTitle(textView);
                 builder.setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
                     replacementUri = entry.getKey();
                     checkFileManagerPermissions();
                 });
                 builder.setNeutralButton(getString(R.string.dialog_document_not_found_bt_neutral), (dialog, which) -> {
-                    getContentResolver().releasePersistableUriPermission(Uri.parse(entry.getKey()), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    getContentResolver().releasePersistableUriPermission(Uri.parse(entry.getKey()),
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     uriMap.remove(entry.getKey());
                     for(String s : entry.getValue().second)
                         model.getLivedata().setSelected(s, false);
+                    askToRemoveExams();
                 });
                 builder.setNegativeButton(getString(R.string.dialog_document_not_found_bt_neg), (dialog, which) -> {
                     removeSelected();
@@ -160,9 +173,11 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                     finish();
                 });
                 builder.show();
+                entryFound = true;
+                break;
             }
         }
-        removeSelected();
+        if(!entryFound) removeSelected();
     }
 
     @Override
@@ -185,13 +200,16 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                                     list.set(i, newDoc);
                                 }
                             }
+                            factory.writeExamToFile(exam, container.item);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }
             }
-            uriMap.put(replacementUri, Pair.create(true, entry.second));
+            uriMap.remove(replacementUri);
+            getContentResolver().releasePersistableUriPermission(Uri.parse(replacementUri), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            uriMap.put(uri.toString(), Pair.create(true, entry.second));
         }
         askToRemoveExams();
     }
