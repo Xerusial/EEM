@@ -9,9 +9,9 @@ import java.util.Set;
 public abstract class ExamViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamViewModel.ExamDocumentLiveData> {
     private T current;
     private String currentName;
-    protected ExamFactory factory;
+    ExamFactory factory;
 
-    public ExamViewModel(Application application) {
+    ExamViewModel(Application application) {
         super(application);
     }
 
@@ -28,7 +28,7 @@ public abstract class ExamViewModel<T extends StudentExam> extends FilebackedIte
             return true;
         }
 
-        public void setRejected(int index, ThumbnailedExamDocument.RejectionReason reason){
+        void setRejected(int index, ThumbnailedExamDocument.RejectionReason reason){
             getValue().get(index).reason = reason;
             toggleSelected(index);
         }

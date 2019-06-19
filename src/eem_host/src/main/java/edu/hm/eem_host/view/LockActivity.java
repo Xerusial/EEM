@@ -74,7 +74,7 @@ public class LockActivity extends AppCompatActivity
                     .setContentTitle(getString(R.string.student_left))
                     .setStyle(new Notification.BigTextStyle()
                             .setSummaryText(name)
-                            .bigText(getString(R.string.student_left_text1) + ' ' + name + ' ' + getString(R.string.student_left_text2)))
+                            .bigText(getString(R.string.student_left_text, name)))
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE);
             nm.notify(++id, builder.build());
         }

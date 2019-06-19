@@ -12,7 +12,6 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.net.ClientDevice;
 
 public class StudentDeviceRecyclerviewAdapter extends NameTabRecyclerViewAdapter {

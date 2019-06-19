@@ -7,27 +7,30 @@ import androidx.lifecycle.ViewModelProviders;
 import android.content.ContentResolver;
 import android.content.Context;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
+import java.io.InputStream;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
@@ -35,10 +38,13 @@ import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.model.ExamListViewModel;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.StudentExam;
+import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
-public abstract class AbstractMainActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener {
+public abstract class AbstractMainActivity extends DocumentPickerActivity implements ItemListFragment.OnListFragmentPressListener {
 
     public static final String EXAMNAME_FIELD = "ExamName";
+
+    protected ExamFactory.ExamType examType;
 
     public enum ActionType {
         ACTION_EDITOR, ACTION_LOCK
@@ -47,6 +53,8 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
     private ExamListViewModel model;
     private ImageButton del_button;
     private ImageButton edit_button;
+    private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
+    private String replacementUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +65,7 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
         setActionBar(toolbar);
         model = ViewModelProviders.of(this).get(ExamListViewModel.class);
         del_button = findViewById(R.id.bt_del_exam);
-        del_button.setOnClickListener(v -> model.getLivedata().removeSelected());
+        del_button.setOnClickListener(v -> removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);
         edit_button.setOnClickListener(v -> {
             String name = model.getLivedata().getSelected().getName();
@@ -74,26 +82,118 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
             buttonSetEnabled(del_button,sel_cnt>0);
             buttonSetEnabled(edit_button,sel_cnt==1);
         });
-        //Check doc existence
-        ExamFactory factory = new ExamFactory(ExamFactory.ExamType.STUDENT);
+    }
+
+
+
+    private void buildUriMap(){
+        ExamFactory factory = new ExamFactory(examType);
         ContentResolver resolver = getContentResolver();
-        List<UriPermission> permList = resolver.getPersistedUriPermissions()
-        Map<Uri, Boolean> containsMap = new HashMap<>(permList.size());
-        for(UriPermission perm : permList){
-            containsMap.put(UriPermission.)
-        }
+        uriMap = new TreeMap<>();
         for(SelectableSortableItem<File> container : model.getLivedata().getValue()){
             try {
                 FileInputStream fis = new FileInputStream(container.item);
                 StudentExam exam = factory.extract(fis);
                 fis.close();
                 for(ExamDocument doc : exam.getAllowedDocuments()){
-                    Uri.parse(doc.getUri()).
+                    String uriString = doc.getUriString();
+                    if(uriString != null) {
+                        if(!uriMap.containsKey(uriString)) {
+                            try {
+                                Uri uri = Uri.parse(uriString);
+                                InputStream is = resolver.openInputStream(uri);
+                                Objects.requireNonNull(is).close();
+                                uriMap.put(uriString, Pair.create(true, new LinkedList<>()));
+                            } catch (FileNotFoundException e) {
+                                uriMap.put(uriString, Pair.create(false, new LinkedList<>()));
+                            }
+                        }
+                        Pair<Boolean, List<String>> entry = uriMap.get(uriString);
+                        entry.second.add(container.item.getName());
+                    }
                 }
             } catch(IOException e){
                 e.printStackTrace();
             }
         }
+        askToRemoveExams();
+    }
+
+    private void removeSelected(){
+        model.getLivedata().removeSelected();
+        List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
+        for(UriPermission perm : list) {
+            Uri uri = perm.getUri();
+            Pair<Boolean, List<String>> entry = uriMap.get(uri.toString());
+            if(entry==null || entry.second.size()==0)
+                getContentResolver().releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+    }
+
+    private void askToRemoveExams(){
+        for(Map.Entry<String, Pair<Boolean, List<String>>> entry : uriMap.entrySet()) {
+            if(!entry.getValue().first){
+                // File was deleted: get new File
+                AlertDialog.Builder builder;
+                builder = new AlertDialog.Builder(this);
+                TextView textView = new TextView(this);
+                StringBuilder sb = new StringBuilder();
+                for(String s : entry.getValue().second){
+                    sb.append(s);
+                    sb.append(' ');
+                }
+                textView.setText(getString(R.string.dialog_document_not_found, getNameFromUri(Uri.parse(entry.getKey())), sb.toString()));
+                builder.setCustomTitle(textView);
+                builder.setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
+                    replacementUri = entry.getKey();
+                    checkFileManagerPermissions();
+                });
+                builder.setNeutralButton(getString(R.string.dialog_document_not_found_bt_neutral), (dialog, which) -> {
+                    getContentResolver().releasePersistableUriPermission(Uri.parse(entry.getKey()), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    uriMap.remove(entry.getKey());
+                    for(String s : entry.getValue().second)
+                        model.getLivedata().setSelected(s, false);
+                });
+                builder.setNegativeButton(getString(R.string.dialog_document_not_found_bt_neg), (dialog, which) -> {
+                    removeSelected();
+                    dialog.cancel();
+                    finish();
+                });
+                builder.show();
+            }
+        }
+        removeSelected();
+    }
+
+    @Override
+    void handleDocument(@Nullable Uri uri) {
+        if(uri!=null) {
+            Pair<Boolean, List<String>> entry = uriMap.get(replacementUri);
+            ExamDocument newDoc = ThumbnailedExamDocument.getInstance(this, uri).item;
+            for (String s : entry.second) {
+                ExamFactory factory = new ExamFactory(examType);
+                for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {
+                    if(container.item.getName().equals(s)) {
+                        try {
+                            FileInputStream fis = new FileInputStream(container.item);
+                            StudentExam exam = factory.extract(fis);
+                            fis.close();
+                            List<ExamDocument> list = exam.getAllowedDocuments();
+                            for (int i = 0; i < list.size(); i++) {
+                                ExamDocument oldDoc = list.get(i);
+                                if (oldDoc.getUriString().equals(replacementUri)) {
+                                    list.set(i, newDoc);
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            uriMap.put(replacementUri, Pair.create(true, entry.second));
+        }
+        askToRemoveExams();
     }
 
     private void buttonSetEnabled(ImageButton button, boolean enable){
@@ -125,6 +225,12 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
         });
         builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    @Override
+    public void onResume(){
+        buildUriMap();
+        super.onResume();
     }
 
     protected abstract void startSubApplication(@Nullable String examName, ActionType action);

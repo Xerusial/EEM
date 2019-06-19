@@ -4,7 +4,7 @@ public class SortableItem<T> implements Comparable<SortableItem<T>>{
     private String sortableKey;
     public final T item;
 
-    public SortableItem(String sortableKey, T item) {
+    SortableItem(String sortableKey, T item) {
         this.sortableKey = sortableKey;
         this.item = item;
     }

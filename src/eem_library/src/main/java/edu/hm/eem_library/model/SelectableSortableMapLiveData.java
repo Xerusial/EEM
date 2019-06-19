@@ -16,9 +16,11 @@ public class SelectableSortableMapLiveData<V,T extends SelectableSortableItem<V>
         notifyObserversMeta();
     }
 
-    public void toggleSelected(String name){
-        selectionCounter += (backingMap.get(name).selected^= true) ? 1 : -1;
-        notifyObserversMeta();
+    public void setSelected(String name, boolean notify){
+        backingMap.get(name).selected = true;
+        selectionCounter++;
+        if(notify)
+            notifyObserversMeta();
     }
 
     /** Get a selected item in the map.

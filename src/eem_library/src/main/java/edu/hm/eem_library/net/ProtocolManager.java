@@ -1,16 +1,11 @@
 package edu.hm.eem_library.net;
 
 import android.app.Activity;
-import androidx.annotation.StringRes;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
-import java.util.logging.Handler;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ProtocolHandler;

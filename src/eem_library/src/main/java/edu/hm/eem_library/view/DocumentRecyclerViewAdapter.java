@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,7 +20,7 @@ public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAda
     private final int colorPrimaryOpaque;
 
     DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
-        super(liveData, context, listener, content, isSelectable);
+        super(liveData, listener, content, isSelectable);
         this.colorBlackOpaque = context.getColor(R.color.colorBlackOpaque);
         this.colorPrimaryOpaque = context.getColor(R.color.colorPrimaryOpaque);
     }

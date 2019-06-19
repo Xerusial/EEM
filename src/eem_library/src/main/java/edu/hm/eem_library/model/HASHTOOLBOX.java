@@ -66,6 +66,7 @@ final class HASHTOOLBOX {
             ids.nonAnnotatedHash = digos.getMessageDigest().digest();
             digos.close();
             nos.close();
+            ids.pages = document.getNumberOfPages();
             document.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

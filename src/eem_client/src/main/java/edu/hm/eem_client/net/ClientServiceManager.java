@@ -2,7 +2,6 @@ package edu.hm.eem_client.net;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.github.druk.dnssd.BaseListener;
 import com.github.druk.dnssd.BrowseListener;
@@ -19,7 +18,6 @@ import java.util.Map;
 
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.model.SortableItem;
 import edu.hm.eem_library.net.NsdService;
 import edu.hm.eem_library.net.ServiceManager;
 

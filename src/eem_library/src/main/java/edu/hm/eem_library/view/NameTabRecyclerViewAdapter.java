@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -12,14 +11,13 @@ import androidx.cardview.widget.CardView;
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.model.SortableItem;
 
 public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
     final int colorPrimary;
     final int colorPrimaryLight;
 
     NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
-        super(liveData, context, listener, content, isSelectable);
+        super(liveData, listener, content, isSelectable);
         this.colorPrimary = context.getColor(R.color.colorPrimary);
         this.colorPrimaryLight = context.getColor(R.color.colorPrimaryLight);
     }

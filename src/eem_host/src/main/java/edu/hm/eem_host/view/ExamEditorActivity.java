@@ -1,6 +1,7 @@
 package edu.hm.eem_host.view;
 
 import android.app.AlertDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 
 import edu.hm.eem_host.R;
@@ -93,7 +95,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_build_document));
-        View v = getLayoutInflater().inflate(R.layout.dialog_build_examdocument,null);
+        View v = getLayoutInflater().inflate(R.layout.dialog_build_examdocument, null);
         builder.setView(v);
         EditText numPages = v.findViewById(R.id.number_pages);
         RadioGroup rg = v.findViewById(R.id.rbs);
@@ -122,11 +124,14 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     }
 
     @Override
-    protected void addDocument(ThumbnailedExamDocument examDocument) {
-        if(allowAnnotations)
-            examDocument.item.removeHash();
-        else
-            examDocument.item.removeNonAnnotatedHash();
-        super.addDocument(examDocument);
+    protected void handleDocument(@Nullable Uri uri) {
+        if(uri!=null) {
+            ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(this, uri);
+            if (allowAnnotations)
+                examDocument.item.removeHash();
+            else
+                examDocument.item.removeNonAnnotatedHash();
+            model.getLivedata().add(examDocument, false);
+        }
     }
 }

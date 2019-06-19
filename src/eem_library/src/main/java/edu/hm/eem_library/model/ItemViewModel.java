@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 public abstract class ItemViewModel<T extends MutableLiveData> extends AndroidViewModel {
     protected T livedata;
 
-    protected ItemViewModel(@NonNull Application application) {
+    ItemViewModel(@NonNull Application application) {
         super(application);
     }
 

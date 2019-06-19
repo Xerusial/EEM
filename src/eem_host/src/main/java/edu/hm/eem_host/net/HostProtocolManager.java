@@ -1,31 +1,19 @@
 package edu.hm.eem_host.net;
 
 import android.app.Activity;
-import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
-
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 
-import edu.hm.eem_host.R;
 import edu.hm.eem_host.view.LockActivity;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.model.SortableItem;
-import edu.hm.eem_library.model.SortableMapLiveData;
 import edu.hm.eem_library.net.ClientDevice;
 import edu.hm.eem_library.net.DataPacket;
 import edu.hm.eem_library.net.FilePacket;
 import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class HostProtocolManager extends ProtocolManager {
     private SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData;
@@ -54,7 +42,7 @@ public class HostProtocolManager extends ProtocolManager {
         super.quit();
     }
 
-    public void genReceiverThread(Socket socket){
+    void genReceiverThread(Socket socket){
         ReceiverThread receiverThread = new HostProtocolManager.HostReceiverThread(socket);
         receiverThread.start();
     }
@@ -62,7 +50,7 @@ public class HostProtocolManager extends ProtocolManager {
     class HostReceiverThread extends ProtocolManager.ReceiverThread {
         private String name;
         private boolean loggedIn = false;
-        public HostReceiverThread(Socket inputSocket) {
+        HostReceiverThread(Socket inputSocket) {
             super(inputSocket);
         }
 
@@ -88,20 +76,18 @@ public class HostProtocolManager extends ProtocolManager {
                     }
                 }
             }else {
-                switch (type) {
-                    case SIGNAL:
-                        SignalPacket.Signal signal = SignalPacket.readData(is);
-                        switch (signal){
-                            case LOGOFF:
-                                liveData.remove(name, true);
-                                ((LockActivity.LockHandler)handler).notifyStudentLeft(name);
-                                terminate = true;
-                                break;
-                            case ALL_DOC_ACCEPTED:
-                                liveData.toggleSelected(name);
-                                break;
-                        }
-                        break;
+                if (type == DataPacket.Type.SIGNAL) {
+                    SignalPacket.Signal signal = SignalPacket.readData(is);
+                    switch (signal) {
+                        case LOGOFF:
+                            liveData.remove(name, true);
+                            ((LockActivity.LockHandler) handler).notifyStudentLeft(name);
+                            terminate = true;
+                            break;
+                        case ALL_DOC_ACCEPTED:
+                            liveData.setSelected(name, true);
+                            break;
+                    }
                 }
             }
             return terminate;

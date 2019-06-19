@@ -3,7 +3,6 @@ package edu.hm.eem_library.view;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -23,7 +22,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
     final boolean isSelectable;
 
     InteractableItemRecyclerViewAdapter(SelectableSortableMapLiveData<?, ? extends SortableItem<?>> liveData,
-                                        Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
+                                        ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, content);
         this.listener = listener;
         this.isSelectable = isSelectable;

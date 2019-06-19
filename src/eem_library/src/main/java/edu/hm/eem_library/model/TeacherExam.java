@@ -29,7 +29,6 @@ public class TeacherExam extends StudentExam{
         return Arrays.equals(passwordHash, HASHTOOLBOX.genSha256(pw,salt));
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     protected void stepTags(Node vnode, Map<Tag, Construct> yamlConstructors, String tag) {
         switch(tag){

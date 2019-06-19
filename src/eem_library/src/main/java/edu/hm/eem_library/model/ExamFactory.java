@@ -23,12 +23,10 @@ public class ExamFactory {
 
     public ExamFactory(ExamType type) {
         this.type = type;
-        switch (type) {
-            case TEACHER:
-                yaml = new Yaml(new TeacherExam.ExamConstructor());
-                break;
-            default:
-                yaml = new Yaml(new StudentExam.ExamConstructor());
+        if (type == ExamType.TEACHER) {
+            yaml = new Yaml(new TeacherExam.ExamConstructor());
+        } else {
+            yaml = new Yaml(new StudentExam.ExamConstructor());
         }
     }
 
@@ -41,13 +39,10 @@ public class ExamFactory {
             retval = extract(fis);
             fis.close();
         } catch (FileNotFoundException e) {
-            switch (type) {
-                case TEACHER:
-                    retval = new TeacherExam();
-                    break;
-                default:
-                    retval = new StudentExam();
-
+            if (type == ExamType.TEACHER) {
+                retval = new TeacherExam();
+            } else {
+                retval = new StudentExam();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,7 +70,7 @@ public class ExamFactory {
     public <T extends StudentExam> void createSendableVersion(File mainDir, File examDir, String name){
         T exam = (T) get(examDir, name);
         for(ExamDocument doc : exam.getAllowedDocuments()){
-            doc.removeUri();
+            doc.removeUriString();
         }
         writeExamToFile(exam, mainDir, FilePacket.FILENAME);
     }

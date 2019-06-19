@@ -11,9 +11,11 @@
     <string name="add">Add</string>
     <string name="name">Name</string>
     <string name="all">All</string>
+    <string name="lighthouse">Lighthouse</string>
     <string name="del">Delete</string>
     <string name="edit">Edit</string>
     <string name="save">Save</string>
+    <string name="book_page">Book page</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
     <string name="help">Help</string>
@@ -21,12 +23,11 @@
     <string name="hotspot">Hotspot</string>
     <string name="wifi">WiFi</string>
     <string name="start_service">Start service</string>
-    <string name="documents_checked">Documents are ok!</string>
+    <string name="documents_checked">Documents are OK!</string>
     <string name="blank">---</string>
     <string name="stext">Show text</string>
     <string name="student_left">Student left!</string>
-    <string name="student_left_text1">Student</string>
-    <string name="student_left_text2">has terminated his reader app!</string>
+    <string name="student_left_text">Student %s has terminated his reader app!</string>
     <string name="preview_document">Preview document</string>
     <string name="toast_wrong_password">Wrong password!</string>
     <string name="dialog_explorer">This document is not allowed in the exam. However if you are certain it is, ask your professor to type his password for you.</string>
@@ -43,6 +44,10 @@
     <string name="dialog_exit_teacher">There are still students connected. Do you REALLY want to quit the protocol?</string>
     <string name="dialog_exit_student">Do you REALLY want to exit?</string>
     <string name="allow_annotations">Allow annotations</string>
+    <string name="dialog_document_not_found">Document %s in exams %s was not found. Do you want to…</string>
+    <string name="dialog_document_not_found_bt_pos">…change the file</string>
+    <string name="dialog_document_not_found_bt_neutral">…delete the exams</string>
+    <string name="dialog_document_not_found_bt_neg">…exit the app</string>
     <string name="from_file">file</string>
     <string name="channel_name">Student activity</string>
     <string name="channel_description">Notifications for student activity during the exam.</string>

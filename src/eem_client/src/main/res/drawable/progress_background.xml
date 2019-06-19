@@ -4,7 +4,7 @@
     android:viewportWidth="35"
     android:viewportHeight="5">
   <group>
-  <uri
+  <path
       android:pathData="M4.8073,2.5A2.3073,2.3073 0,0 1,2.5 4.8073,2.3073 2.3073,0 0,1 0.1927,2.5 2.3073,2.3073 0,0 1,2.5 0.1927,2.3073 2.3073,0 0,1 4.8073,2.5Z"
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
@@ -13,7 +13,7 @@
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="round"/>
-  <uri
+  <path
       android:pathData="M14.8073,2.5A2.3073,2.3073 0,0 1,12.5 4.8073,2.3073 2.3073,0 0,1 10.1927,2.5 2.3073,2.3073 0,0 1,12.5 0.1927,2.3073 2.3073,0 0,1 14.8073,2.5Z"
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
@@ -22,7 +22,7 @@
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="round"/>
-  <uri
+  <path
       android:pathData="M24.8073,2.5A2.3073,2.3073 0,0 1,22.5 4.8073,2.3073 2.3073,0 0,1 20.1927,2.5 2.3073,2.3073 0,0 1,22.5 0.1927,2.3073 2.3073,0 0,1 24.8073,2.5Z"
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
@@ -31,7 +31,7 @@
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="round"/>
-  <uri
+  <path
       android:pathData="M30.1927,2.5A2.3073,2.3073 0,0 0,32.5 4.8073,2.3073 2.3073,0 0,0 34.8073,2.5 2.3073,2.3073 0,0 0,32.5 0.1927,2.3073 2.3073,0 0,0 30.1927,2.5Z"
       android:strokeAlpha="1"
       android:strokeLineJoin="round"

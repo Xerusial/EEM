@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/lockedactivity_nav"
-    app:startDestination="@id/documentExplorerFragment">
+    app:startDestination="@id/documentExplorerFragment"
+    tools:ignore="UnusedNavigation">
 
     <fragment
         android:id="@+id/documentExplorerFragment"

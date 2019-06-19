@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.ServiceManager;
 
 public class HostServiceManager extends ServiceManager implements RegisterListener {

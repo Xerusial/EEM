@@ -1,7 +1,6 @@
 package edu.hm.eem_library.model;
 
 import android.app.Application;
-import android.util.Log;
 
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -60,7 +59,6 @@ public class StudentExam {
         return treeSet;
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     final void constructAllowedDocuments(SequenceNode snode, Map<Tag, Construct> yamlConstructors){
         allowedDocuments= new LinkedList<>();
         for(Node child : snode.getValue()) {

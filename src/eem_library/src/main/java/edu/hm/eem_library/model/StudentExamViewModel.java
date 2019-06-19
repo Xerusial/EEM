@@ -68,7 +68,7 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
                 } else if (nonAnnotatedHash!=null){
                     for (Meta meta : metas) {
                         // if hash matches, set document to allowed
-                        if (Arrays.equals(hash, meta.nonAnnotatedHash)) {
+                        if (Arrays.equals(nonAnnotatedHash, meta.nonAnnotatedHash)) {
                             meta.pages = CODE_ACCEPTED;
                             break;
                         }

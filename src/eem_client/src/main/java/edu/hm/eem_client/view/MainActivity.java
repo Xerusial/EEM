@@ -1,15 +1,23 @@
 package edu.hm.eem_client.view;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 
 import edu.hm.eem_client.R;
+import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.AboutActivity;
 
 public class MainActivity extends AbstractMainActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        examType = ExamFactory.ExamType.STUDENT;
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

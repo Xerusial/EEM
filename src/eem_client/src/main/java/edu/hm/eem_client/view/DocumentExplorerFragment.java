@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -28,10 +30,9 @@ import edu.hm.eem_library.view.ItemListFragment;
  * A simple {@link Fragment} subclass.
  */
 public class DocumentExplorerFragment extends Fragment implements ItemListFragment.OnListFragmentPressListener {
-    public final static String EXAMDOCUMENT_FIELD = "ExamDocument";
+    final static String EXAMDOCUMENT_FIELD = "ExamDocument";
 
     private StudentExamViewModel model;
-    private Toolbar toolbar;
     private OnDocumentsAcceptedListener listener;
 
     public DocumentExplorerFragment() {
@@ -40,11 +41,11 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_document_explorer, container, false);
-        toolbar = view.findViewById(R.id.toolbar);
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
         Bundle args = getArguments();
         String examName = args.getString(AbstractMainActivity.EXAMNAME_FIELD);
         String profName = args.getString(ScanActivity.PROF_FIELD);
@@ -53,7 +54,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
         if(context instanceof OnDocumentsAcceptedListener){
@@ -69,7 +70,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
             showPwDialog(doc);
         } else {
             Bundle bundle = new Bundle();
-            String path = doc.item.getUri();
+            String path = doc.item.getUriString();
             bundle.putString(EXAMDOCUMENT_FIELD, path);
             Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
             Navigation.findNavController(getView()).navigate(R.id.action_open_reader, bundle);
@@ -79,7 +80,9 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
     private void showPwDialog(ThumbnailedExamDocument doc){
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(R.string.dialog_explorer);
+        TextView textView = new TextView(getContext());
+        textView.setText(getString(R.string.dialog_explorer));
+        builder.setCustomTitle(textView);
 
         final EditText input = new EditText(getContext());
 
@@ -101,7 +104,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         });
         builder.setNeutralButton(R.string.preview_document, ((dialog, which) -> {
             Bundle bundle = new Bundle();
-            String path = doc.item.getUri();
+            String path = doc.item.getUriString();
             bundle.putString(EXAMDOCUMENT_FIELD, path);
             Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
             Navigation.findNavController(getView()).navigate(R.id.action_open_reader, bundle);
