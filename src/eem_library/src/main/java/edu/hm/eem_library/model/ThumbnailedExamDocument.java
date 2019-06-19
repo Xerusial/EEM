@@ -2,19 +2,13 @@ package edu.hm.eem_library.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.FileChannel;
 
 import edu.hm.eem_library.R;
 
@@ -37,12 +31,12 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
     }
 
     static ThumbnailedExamDocument getInstance(Context context, ExamDocument doc) {
-        if(doc.getPath() == null){
+        if(doc.getUri() == null){
             return new ThumbnailedExamDocument(doc.getName(), doc, null, false);
         } else {
             try {
-                File file = new File(doc.getPath());
-                ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);
+                Uri uri = Uri.parse(doc.getUri());
+                ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
                 return getThumb(context, fileDescriptor, doc);
             } catch (FileNotFoundException e){
                 return new ThumbnailedExamDocument(doc.getName(), doc, null, true);
@@ -60,12 +54,8 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
     {
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-            String path = URITOOLBOX.pathFromUri(context, uri);
-            if(path!=null) {
-                ExamDocument doc = new ExamDocument(new File(path).getName(), null, null, path);
-                return getThumb(context, fileDescriptor, doc);
-            }
-            return null;
+            ExamDocument doc = new ExamDocument(uri.getLastPathSegment(), uri.toString());
+            return getThumb(context, fileDescriptor, doc);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -77,13 +67,12 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
             int numberOfPages, width = context.getResources().getDisplayMetrics().widthPixels/2;
             Bitmap thumbnail = Bitmap.createBitmap(width,(int)sqrt(2)*width, Bitmap.Config.ARGB_8888);
             PdfRenderer renderer = new PdfRenderer(context,fileDescriptor);
-            numberOfPages = renderer.getPageCount();
             PdfRenderer.Page page = renderer.openPage(0);
             page.render(thumbnail);
             page.close();
-            Pair<byte[], byte[]> hashes = HASHTOOLBOX.genMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor));
+            ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor));
             renderer.close();
-            doc.update(numberOfPages,hashes);
+            doc.update(ids);
             return new ThumbnailedExamDocument(doc.getName(), doc, thumbnail, true);
         } catch (IOException e) {
             e.printStackTrace();

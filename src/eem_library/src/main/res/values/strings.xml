@@ -42,6 +42,7 @@
     <string name="dialog_delete_all_documents">Delete all documents?</string>
     <string name="dialog_exit_teacher">There are still students connected. Do you REALLY want to quit the protocol?</string>
     <string name="dialog_exit_student">Do you REALLY want to exit?</string>
+    <string name="allow_annotations">Allow annotations</string>
     <string name="from_file">file</string>
     <string name="channel_name">Student activity</string>
     <string name="channel_description">Notifications for student activity during the exam.</string>

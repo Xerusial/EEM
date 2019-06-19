@@ -17,12 +17,13 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
 
     private class Meta implements Comparable<Meta> {
         private int index, pages;
-        private byte[] hash;
+        private byte[] hash, nonAnnotatedHash;
 
-        public Meta(int index, int pages, byte[] hash) {
+        private Meta(int index, int pages, byte[] hash, byte[] nonAnnotatedHash) {
             this.index = index;
             this.pages = pages;
             this.hash = hash;
+            this.nonAnnotatedHash = nonAnnotatedHash;
         }
 
         @Override
@@ -35,7 +36,7 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
     private static final int CODE_REJECTED_TOO_MANY_DOCS = -1;
     private static final int CODE_REJECTED_TOO_MANY_PAGES = -2;
     /**
-     * Checks the current selected Examlist against a give list from a teacher.
+     * Checks the current selected Examlist against a given list from a teacher.
      *
      * @param exam {@link TeacherExam} to check against
      * @return true if all documents were accepted
@@ -50,14 +51,24 @@ public class StudentExamViewModel extends ExamViewModel<StudentExam> {
             LinkedList<Meta> metas = new LinkedList<>();
             ArrayList<ThumbnailedExamDocument> studentlist = (ArrayList<ThumbnailedExamDocument>) this.getLivedata().getValue();
             for (int i = 0; i < studentlist.size(); i++) {
-                metas.add(new Meta(i, studentlist.get(i).item.getPages(), studentlist.get(i).item.getHash()));
+                ExamDocument doc = studentlist.get(i).item;
+                metas.add(new Meta(i, doc.getPages(), doc.getHash(), doc.getNonAnnotatedHash()));
             }
             for (ExamDocument teacherdoc : exam.getAllowedDocuments()) {
                 byte[] hash = teacherdoc.getHash();
-                if (hash != null) {
+                byte[] nonAnnotatedHash = teacherdoc.getNonAnnotatedHash();
+                if (hash != null && nonAnnotatedHash != null) {
                     for (Meta meta : metas) {
                         // if hash matches, set document to allowed
                         if (Arrays.equals(hash, meta.hash)) {
+                            meta.pages = CODE_ACCEPTED;
+                            break;
+                        }
+                    }
+                } else if (nonAnnotatedHash!=null){
+                    for (Meta meta : metas) {
+                        // if hash matches, set document to allowed
+                        if (Arrays.equals(hash, meta.nonAnnotatedHash)) {
                             meta.pages = CODE_ACCEPTED;
                             break;
                         }

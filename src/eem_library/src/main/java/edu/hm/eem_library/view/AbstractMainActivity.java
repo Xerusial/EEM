@@ -3,9 +3,14 @@ package edu.hm.eem_library.view;
 import android.app.AlertDialog;
 
 import androidx.lifecycle.ViewModelProviders;
+
+import android.content.ContentResolver;
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.UriPermission;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
@@ -16,8 +21,20 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import edu.hm.eem_library.R;
+import edu.hm.eem_library.model.ExamDocument;
+import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.model.ExamListViewModel;
+import edu.hm.eem_library.model.SelectableSortableItem;
+import edu.hm.eem_library.model.StudentExam;
 
 public abstract class AbstractMainActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener {
 
@@ -57,6 +74,26 @@ public abstract class AbstractMainActivity extends AppCompatActivity implements 
             buttonSetEnabled(del_button,sel_cnt>0);
             buttonSetEnabled(edit_button,sel_cnt==1);
         });
+        //Check doc existence
+        ExamFactory factory = new ExamFactory(ExamFactory.ExamType.STUDENT);
+        ContentResolver resolver = getContentResolver();
+        List<UriPermission> permList = resolver.getPersistedUriPermissions()
+        Map<Uri, Boolean> containsMap = new HashMap<>(permList.size());
+        for(UriPermission perm : permList){
+            containsMap.put(UriPermission.)
+        }
+        for(SelectableSortableItem<File> container : model.getLivedata().getValue()){
+            try {
+                FileInputStream fis = new FileInputStream(container.item);
+                StudentExam exam = factory.extract(fis);
+                fis.close();
+                for(ExamDocument doc : exam.getAllowedDocuments()){
+                    Uri.parse(doc.getUri()).
+                }
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     private void buttonSetEnabled(ImageButton button, boolean enable){

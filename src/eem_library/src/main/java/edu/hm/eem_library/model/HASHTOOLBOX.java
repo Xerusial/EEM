@@ -1,68 +1,75 @@
 package edu.hm.eem_library.model;
 
 import android.content.Context;
-import android.util.Pair;
 
+import com.tom_roush.pdfbox.cos.COSBase;
+import com.tom_roush.pdfbox.pdfwriter.COSWriter;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.pdmodel.PDPage;
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
-import java.io.File;
-import java.io.FileInputStream;
+import org.apache.commons.io.output.NullOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Iterator;
 
-public final class HASHTOOLBOX {
+final class HASHTOOLBOX {
     private HASHTOOLBOX(){}
 
-    public static Pair<byte[], byte[]> genMD5s(Context context, InputStream is) throws IOException {
+    static ExamDocument.Identifiers genDocMD5s(Context context, InputStream is) throws IOException {
         try {
             // Create MessageDigest instance for MD5
             MessageDigest md = MessageDigest.getInstance("MD5");
             DigestInputStream digis = new DigestInputStream(is, md);
-            byte[] md5withoutAnn = genMD5WithoutAnnotations(context, digis);
-            Pair<byte[], byte[]> ret = Pair.create(digis.getMessageDigest().digest(), md5withoutAnn);
+            ExamDocument.Identifiers ids = new ExamDocument.Identifiers();
+            genMD5WithoutAnnotations(ids, context, digis);
+            ids.hash = digis.getMessageDigest().digest();
             digis.close();
-            return ret;
+            return ids;
         } catch (NoSuchAlgorithmException e){
+            // Android does always feature MD5
             e.printStackTrace();
-            System.exit(1);
         }
         return null;
     }
 
-    private static byte[] genMD5WithoutAnnotations(Context context, InputStream is) throws IOException {
-        //For performance
-        PDFBoxResourceLoader.init(context);
-        byte[] ret;
-        PDDocument document = PDDocument.load(is);
+    private static void stripDocument(PDDocument document, COSWriter writer) throws IOException {
         Iterator<PDPage> it = document.getDocumentCatalog().getPages().iterator();
         for (; it.hasNext();) {
-            it.next().setAnnotations(null);
+            PDPage page = it.next();
+            page.setAnnotations(null);
+            writer.doWriteObject(page.getCOSObject());
+            for(COSBase base : page.getCOSObject().getValues()){
+                writer.doWriteObject(base.getCOSObject());
+            }
         }
-        File tmp = File.createTempFile("pdfchange", 0, context.getCacheDir());
-        document.save(tmp);
-        document.close();
-        FileInputStream fis = new FileInputStream(tmp);
-        MessageDigest md = null;
+        writer.close();
+    }
+
+    private static void genMD5WithoutAnnotations(ExamDocument.Identifiers ids, Context context, InputStream is) throws IOException {
+        //For performance
+        PDFBoxResourceLoader.init(context);
+        PDDocument document = PDDocument.load(is);
+        //Write to null. If you want to take a look at the output,
+        //write this to a tmp file.
+        NullOutputStream nos = new NullOutputStream();
         try {
-            md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            DigestOutputStream digos = new DigestOutputStream(nos, md);
+            stripDocument(document, new COSWriter(digos));
+            ids.nonAnnotatedHash = digos.getMessageDigest().digest();
+            digos.close();
+            nos.close();
+            document.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        byte[] bytes = new byte[4096];
-        int read = 0;
-        while ((read = fis.read(bytes)) > 0) {
-            md.update(bytes, 0, read);
-        }
-        byte[] md5 = md.digest();
-        fis.close();
-        return md5;
     }
 
     static byte[] genSha256(String pw, byte[] salt){
@@ -75,7 +82,6 @@ public final class HASHTOOLBOX {
             return md.digest(pw.getBytes());
         } catch (NoSuchAlgorithmException e){
             e.printStackTrace();
-            System.exit(1);
         }
         return null;
     }
@@ -92,7 +98,6 @@ public final class HASHTOOLBOX {
             return salt;
         } catch (NoSuchAlgorithmException e){
             e.printStackTrace();
-            System.exit(1);
         }
         return null;
     }

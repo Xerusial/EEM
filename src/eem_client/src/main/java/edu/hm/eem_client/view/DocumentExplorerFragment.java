@@ -2,7 +2,6 @@ package edu.hm.eem_client.view;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,7 +9,6 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +19,6 @@ import android.widget.Toolbar;
 import java.util.ArrayList;
 
 import edu.hm.eem_client.R;
-import edu.hm.eem_library.model.ExamDocument;
-import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.StudentExamViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractMainActivity;
@@ -73,7 +69,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
             showPwDialog(doc);
         } else {
             Bundle bundle = new Bundle();
-            String path = doc.item.getPath();
+            String path = doc.item.getUri();
             bundle.putString(EXAMDOCUMENT_FIELD, path);
             Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
             Navigation.findNavController(getView()).navigate(R.id.action_open_reader, bundle);
@@ -105,7 +101,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         });
         builder.setNeutralButton(R.string.preview_document, ((dialog, which) -> {
             Bundle bundle = new Bundle();
-            String path = doc.item.getPath();
+            String path = doc.item.getUri();
             bundle.putString(EXAMDOCUMENT_FIELD, path);
             Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
             Navigation.findNavController(getView()).navigate(R.id.action_open_reader, bundle);

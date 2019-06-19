@@ -24,17 +24,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checked="true"
             android:text="@string/from_page_number" />
 
     </RadioGroup>
 
     <EditText
         android:id="@+id/number_pages"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="@id/rbs"
-        app:layout_constraintLeft_toRightOf="@id/rbs"/>
+        app:layout_constraintLeft_toRightOf="@id/rbs"
+        app:layout_constraintRight_toRightOf="@id/allow_annotations"/>
+
+    <CheckBox
+        android:id="@+id/allow_annotations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/allow_annotations"
+        app:layout_constraintTop_toTopOf="@id/rbs"
+        app:layout_constraintLeft_toRightOf="@id/rbs" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

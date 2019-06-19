@@ -122,12 +122,17 @@ public abstract class AbstractExamEditorActivity extends AppCompatActivity imple
             // Pull that URI using resultData.getData().
             if (resultData != null) {
                 Uri uri = resultData.getData();
+                getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(getApplicationContext(), uri);
-                model.getLivedata().add(examDocument, false);
+                addDocument(examDocument);
             }
         } else {
             super.onActivityResult(requestCode, resultCode, resultData);
         }
+    }
+
+    protected void addDocument(ThumbnailedExamDocument examDocument){
+        model.getLivedata().add(examDocument, false);
     }
 }
 

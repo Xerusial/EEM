@@ -22,6 +22,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     private EditText pwField;
     private CheckBox allDocAllowedField;
     private View docList;
+    private boolean allowAnnotations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +97,11 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         builder.setView(v);
         EditText numPages = v.findViewById(R.id.number_pages);
         RadioGroup rg = v.findViewById(R.id.rbs);
+        CheckBox allowCb = v.findViewById(R.id.allow_annotations);
         builder.setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {
             switch(rg.getCheckedRadioButtonId()){
                 case R.id.rb_file:
+                    allowAnnotations = allowCb.isChecked();
                     checkFileManagerPermissions();
                     break;
                 case R.id.rb_page:
@@ -116,5 +119,14 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         });
         builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    @Override
+    protected void addDocument(ThumbnailedExamDocument examDocument) {
+        if(allowAnnotations)
+            examDocument.item.removeHash();
+        else
+            examDocument.item.removeNonAnnotatedHash();
+        super.addDocument(examDocument);
     }
 }

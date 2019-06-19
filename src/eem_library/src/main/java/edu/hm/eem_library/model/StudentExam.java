@@ -21,7 +21,7 @@ import java.util.TreeSet;
 public class StudentExam {
     private LinkedList<ExamDocument> allowedDocuments;
 
-    LinkedList<ExamDocument> getAllowedDocuments() {
+    public LinkedList<ExamDocument> getAllowedDocuments() {
         return allowedDocuments;
     }
 
@@ -68,10 +68,9 @@ public class StudentExam {
                                     allowedDocuments.add(new ExamDocument(map.get("name"), map.get("hash"), map.get("pages")));*/
             MappingNode mnode = (MappingNode) child;
             List<NodeTuple> list = mnode.getValue();
-            String name = null;
+            String name = null, uri = null;
             byte[] hash = null, nonAnnotatedHash = null;
             int pages = 0;
-            String path = null;
             for(NodeTuple nt : list) {
                 Node knode = nt.getKeyNode();
                 Node vnode = nt.getValueNode();
@@ -95,12 +94,13 @@ public class StudentExam {
                     case "pages":
                         pages = (int) yamlConstructors.get(Tag.INT).construct(vnode);
                         break;
-                    case "path":
-                        path = (String) yamlConstructors.get(Tag.STR).construct(vnode);
-                        if(path.equals("null")) path = null;
+                    case "uri":
+                        uri = (String) yamlConstructors.get(Tag.STR).construct(vnode);
+                        if(uri.equals("null")) uri = null;
+                        break;
                 }
             }
-            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, path));
+            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, uri));
         }
     }
 

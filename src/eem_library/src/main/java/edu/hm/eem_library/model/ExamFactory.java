@@ -75,7 +75,7 @@ public class ExamFactory {
     public <T extends StudentExam> void createSendableVersion(File mainDir, File examDir, String name){
         T exam = (T) get(examDir, name);
         for(ExamDocument doc : exam.getAllowedDocuments()){
-            doc.removePath();
+            doc.removeUri();
         }
         writeExamToFile(exam, mainDir, FilePacket.FILENAME);
     }
