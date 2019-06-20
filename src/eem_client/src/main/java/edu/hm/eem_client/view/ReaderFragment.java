@@ -2,6 +2,7 @@ package edu.hm.eem_client.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ public class ReaderFragment extends Fragment {
     private PdfRenderer renderer = null;
     private int pageCount, currentPage;
     private Bitmap pageBitmap;
+    private ImageView readerPage;
 
     public ReaderFragment() {
         // Required empty public constructor
@@ -46,7 +48,7 @@ public class ReaderFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_reader, container, false);
         pageForward = view.findViewById(R.id.page_forward);
         pageBackward = view.findViewById(R.id.page_backwards);
-        ImageView readerPage = view.findViewById(R.id.reader_page);
+        readerPage = view.findViewById(R.id.reader_page);
         if(pageCount>1) {
             pageForward.setOnClickListener(v -> turnPage(true));
             pageBackward.setOnClickListener(v -> turnPage(false));
@@ -88,6 +90,7 @@ public class ReaderFragment extends Fragment {
         if (renderer != null) {
             PdfRenderer.Page page = renderer.openPage(currentPage);
             page.render(pageBitmap);
+            readerPage.setImageBitmap(pageBitmap);
             page.close();
         }
     }
@@ -95,11 +98,10 @@ public class ReaderFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        String path = Objects.requireNonNull(getArguments()).getString(DocumentExplorerFragment.EXAMDOCUMENT_FIELD);
-        File file = new File(path);
+        String uriString = Objects.requireNonNull(getArguments()).getString(DocumentExplorerFragment.EXAMDOCUMENT_FIELD);
         ParcelFileDescriptor fileDescriptor;
         try {
-            fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            fileDescriptor = getContext().getContentResolver().openFileDescriptor(Uri.parse(uriString), "r");
             renderer = new PdfRenderer(context,fileDescriptor);
             currentPage = 0;
             pageCount = renderer.getPageCount()-1;

@@ -34,6 +34,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         setContentView(R.layout.activity_exam_editor);
         pwField = findViewById(R.id.pass);
         allDocAllowedField = findViewById(R.id.allDocsAllowed);
+        fileCounter = findViewById(R.id.used_files);
         svButton = findViewById(R.id.bt_save);
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
@@ -131,6 +132,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
             else
                 examDocument.item.removeNonAnnotatedHash();
             model.getLivedata().add(examDocument, false);
+            updateFileCounter();
         }
     }
 }

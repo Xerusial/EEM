@@ -51,6 +51,7 @@
     <string name="dialog_document_not_found_bt_neutral">…delete the exams</string>
     <string name="dialog_document_not_found_bt_neg">…exit the app</string>
     <string name="from_file">file</string>
+    <string name="used_files">Used files: %d/128</string>
     <string name="channel_name">Student activity</string>
     <string name="channel_description">Notifications for student activity during the exam.</string>
     <string name="incorrect_document">Incorrect document!</string>

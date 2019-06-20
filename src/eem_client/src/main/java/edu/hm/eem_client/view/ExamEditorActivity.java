@@ -18,6 +18,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         model = ViewModelProviders.of(this).get(StudentExamViewModel.class);
         model.openExam(examName);
         setContentView(R.layout.activity_exam_editor);
+        fileCounter = findViewById(R.id.used_files);
         svButton = findViewById(R.id.bt_save);
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);

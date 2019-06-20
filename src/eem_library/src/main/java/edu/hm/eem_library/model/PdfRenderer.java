@@ -6,6 +6,7 @@ import android.os.ParcelFileDescriptor;
 
 import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
+import com.shockwave.pdfium.util.Size;
 
 import java.io.IOException;
 
@@ -45,7 +46,11 @@ public class PdfRenderer {
 
         public void render(Bitmap bitmap){
             pdfiumCore.openPage(pdfDocument, pageNum);
-            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0, bitmap.getWidth(), bitmap.getHeight());
+            Size s = pdfiumCore.getPageSize(pdfDocument, pageNum);
+            float scaler = ((float)bitmap.getWidth())/s.getWidth();
+            int height = (int) (s.getHeight()*scaler);
+            int startY = bitmap.getHeight()/2-height/2;
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, startY, bitmap.getWidth(), height);
         }
 
         public void close(){

@@ -104,8 +104,8 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         });
         builder.setNeutralButton(R.string.preview_document, ((dialog, which) -> {
             Bundle bundle = new Bundle();
-            String path = doc.item.getUriString();
-            bundle.putString(EXAMDOCUMENT_FIELD, path);
+            String uriString = doc.item.getUriString();
+            bundle.putString(EXAMDOCUMENT_FIELD, uriString);
             Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
             Navigation.findNavController(getView()).navigate(R.id.action_open_reader, bundle);
         }));

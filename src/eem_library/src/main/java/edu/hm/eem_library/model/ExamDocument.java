@@ -7,8 +7,8 @@ import androidx.annotation.Nullable;
  */
 public class ExamDocument {
     private String name;
-    private byte[] hash;
-    private byte[] nonAnnotatedHash;
+    @Nullable private byte[] hash;
+    @Nullable private byte[] nonAnnotatedHash;
     private int pages;
     @Nullable private String uriString;
 
@@ -62,12 +62,22 @@ public class ExamDocument {
         this.nonAnnotatedHash = id.nonAnnotatedHash;
     }
 
+    @Override
+    public Object clone() {
+        byte[] hash = null, nonAnnotatedHash = null;
+        String uriString = null;
+        if(this.hash!=null) hash = this.hash;
+        if(this.nonAnnotatedHash!=null) nonAnnotatedHash = this.nonAnnotatedHash;
+        if(this.uriString!=null) uriString = this.uriString;
+        return new ExamDocument(name, hash, nonAnnotatedHash, pages, uriString);
+    }
+
     // Getters needed for SnakeYAML
     public String getName() {
         return name;
     }
 
-    byte[] getHash() {
+    public byte[] getHash() {
         return hash;
     }
 

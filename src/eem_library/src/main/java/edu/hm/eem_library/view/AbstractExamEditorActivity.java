@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
+import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamViewModel;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
@@ -23,6 +25,8 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     protected ImageButton delButton;
     protected Button svButton;
     protected Toolbar toolbar;
+
+    protected TextView fileCounter;
 
     protected String examName;
 
@@ -44,6 +48,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         svButton.setOnClickListener(this);
         toolbar.setTitle(examName);
         enableButton(delButton, false);
+        updateFileCounter();
     }
 
     @Override
@@ -66,7 +71,13 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         if(uri!=null) {
             ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(this, uri);
             model.getLivedata().add(examDocument, false);
+            updateFileCounter();
         }
+    }
+
+    protected final void updateFileCounter(){
+        int cnt = getContentResolver().getPersistedUriPermissions().size();
+        fileCounter.setText(getString(R.string.used_files, cnt));
     }
 }
 

@@ -67,7 +67,6 @@ public class ClientProtocolManager extends ProtocolManager {
 
     @Override
     public void quit(){
-        //Order left 2 right
         if(socket!=null) {
             SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
             DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);

@@ -31,35 +31,41 @@ public abstract class ProtocolManager{
      * The server opens one thread for each socket, the client has only got one thread.
      */
     public abstract class ReceiverThread extends Thread {
-        private Socket inputSocket;
+        private Socket socket;
 
-        public ReceiverThread(Socket inputSocket) {
-            this.inputSocket = inputSocket;
+        public ReceiverThread(Socket Socket) {
+            this.socket = Socket;
             threads.add(this);
         }
 
         @Override
         public void run() {
             InputStream is = null;
+            try {
+                is = socket.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+                interrupt();
+            }
             while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    is = inputSocket.getInputStream();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    interrupt();
-                }
                 Object[] header = DataPacket.readHeader(is);
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
                     handler.putToast(R.string.toast_protocol_too_new);
                 }
-                if(handleMessage((DataPacket.Type) header[1], is, inputSocket)) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if(handleMessage((DataPacket.Type) header[1], is, socket))
                     interrupt();
+            }
+            try {
+                if (is != null) {
+                    is.close();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 

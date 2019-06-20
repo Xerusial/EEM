@@ -125,14 +125,14 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     private void removeSelected(){
         if(model.getLivedata().getSelectionCount()!=0) {
             model.getLivedata().removeSelected();
-            List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
-            for (UriPermission perm : list) {
-                Uri uri = perm.getUri();
-                Pair<Boolean, List<String>> entry = uriMap.get(uri.toString());
-                if (entry == null || entry.second.size() == 0)
-                    getContentResolver().releasePersistableUriPermission(uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }
+        }
+        List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
+        for (UriPermission perm : list) {
+            Uri uri = perm.getUri();
+            Pair<Boolean, List<String>> entry = uriMap.get(uri.toString());
+            if (entry == null || entry.second.size() == 0)
+                getContentResolver().releasePersistableUriPermission(uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
     }
 
@@ -157,6 +157,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                 builder.setCustomTitle(textView);
                 builder.setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
                     replacementUri = entry.getKey();
+                    dialog.dismiss();
                     checkFileManagerPermissions();
                 });
                 builder.setNeutralButton(getString(R.string.dialog_document_not_found_bt_neutral), (dialog, which) -> {
@@ -165,6 +166,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                     uriMap.remove(entry.getKey());
                     for(String s : entry.getValue().second)
                         model.getLivedata().setSelected(s, false);
+                    dialog.dismiss();
                     askToRemoveExams();
                 });
                 builder.setNegativeButton(getString(R.string.dialog_document_not_found_bt_neg), (dialog, which) -> {
@@ -184,7 +186,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     void handleDocument(@Nullable Uri uri) {
         if(uri!=null) {
             Pair<Boolean, List<String>> entry = uriMap.get(replacementUri);
-            ExamDocument newDoc = ThumbnailedExamDocument.getInstance(this, uri).item;
+            ExamDocument doc = ThumbnailedExamDocument.getInstance(this, uri).item;
             for (String s : entry.second) {
                 ExamFactory factory = new ExamFactory(examType);
                 for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {
@@ -197,6 +199,11 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                             for (int i = 0; i < list.size(); i++) {
                                 ExamDocument oldDoc = list.get(i);
                                 if (oldDoc.getUriString().equals(replacementUri)) {
+                                    ExamDocument newDoc = (ExamDocument) doc.clone();
+                                    if(oldDoc.getHash()==null)
+                                        newDoc.removeHash();
+                                    else
+                                        newDoc.removeNonAnnotatedHash();
                                     list.set(i, newDoc);
                                 }
                             }

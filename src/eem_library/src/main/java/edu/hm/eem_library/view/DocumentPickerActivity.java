@@ -2,9 +2,13 @@ package edu.hm.eem_library.view;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import java.io.File;
 
 import edu.hm.eem_library.R;
 
@@ -51,7 +57,7 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         if (requestCode == READ_REQUEST_CODE) {
-            if(resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
                 // The document selected by the user won't be returned in the intent.
                 // Instead, a URI to that document will be contained in the return intent
                 // provided to this method as a parameter.
@@ -74,7 +80,24 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
 
     abstract void handleDocument(@Nullable Uri uri);
 
-    public final String getNameFromUri(Uri uri){
-        return uri.getLastPathSegment();
+    public final String getNameFromUri(Uri uri) {
+        String ret = null;
+        if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    ret = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (ret == null) {
+            String[] path = uri.getPath().split(":");
+            String[] split = path[path.length - 1].split(File.separator);
+            ret = split[split.length - 1];
+        }
+        return ret;
     }
 }
+
