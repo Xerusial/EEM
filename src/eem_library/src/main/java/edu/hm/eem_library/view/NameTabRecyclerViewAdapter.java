@@ -10,13 +10,13 @@ import androidx.cardview.widget.CardView;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
-import edu.hm.eem_library.model.SelectableSortableMapLiveData;
+import edu.hm.eem_library.model.SelectableSortableItemLiveData;
 
 public class NameTabRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
     final int colorPrimary;
     final int colorPrimaryLight;
 
-    NameTabRecyclerViewAdapter(SelectableSortableMapLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
+    NameTabRecyclerViewAdapter(SelectableSortableItemLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, listener, content, isSelectable);
         this.colorPrimary = context.getColor(R.color.colorPrimary);
         this.colorPrimaryLight = context.getColor(R.color.colorPrimaryLight);

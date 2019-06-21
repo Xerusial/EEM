@@ -15,8 +15,10 @@ import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
-/** The client side version of {@link ProtocolManager}
- *
+/**
+ * The client side version of {@link ProtocolManager}
+ * it hosts a receiver thread for the sockets inputstream as well as some convenience
+ * functions for sending data on the outputstream.
  */
 public class ClientProtocolManager extends ProtocolManager {
     private Socket socket = null;
@@ -26,7 +28,7 @@ public class ClientProtocolManager extends ProtocolManager {
         super(context, handler);
         this.name = name;
         //Needs to be in new thread as networking is not allowed in UI thread
-        Thread openSocketThread = new Thread(){
+        Thread openSocketThread = new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -41,11 +43,12 @@ public class ClientProtocolManager extends ProtocolManager {
         openSocketThread.start();
     }
 
-    /** Tasks to be done after the socket is open
+    /**
+     * Tasks to be done after the socket is open
      *
      * @param openedSocket The socket that has been opened
      */
-    private void prep(Socket openedSocket){
+    private void prep(Socket openedSocket) {
         socket = openedSocket;
         //Start the socket receiver thread
         ReceiverThread receiverThread = new ClientReceiverThread(socket);
@@ -56,18 +59,21 @@ public class ClientProtocolManager extends ProtocolManager {
         senderThread.start();
     }
 
-    /** Method to be called, if rejected documents are post-allowed by the professors password
-     *
+    /**
+     * Method to be called, if rejected documents are post-allowed by the professors password
      */
-    public void allDocumentsAccepted(){
+    public void allDocumentsAccepted() {
         SignalPacket successSig = new SignalPacket(SignalPacket.Signal.ALL_DOC_ACCEPTED);
         DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, successSig);
         thread.start();
     }
 
+    /**
+     * Method in to be called, when the communication needs to be terminated
+     */
     @Override
-    public void quit(){
-        if(socket!=null) {
+    public void quit() {
+        if (socket != null) {
             SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
             DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);
             thread.start();
@@ -75,6 +81,11 @@ public class ClientProtocolManager extends ProtocolManager {
         super.quit();
     }
 
+    /**
+     * The extension of the {@link ProtocolManager}'s receiverthread. It dispatches the incoming
+     * packets for the client app. Note: calls from this thread, that affect the UI have to be
+     * posted to the UIs main looper. This is done using the {@link android.os.Handler} class.
+     */
     private class ClientReceiverThread extends ReceiverThread {
         ClientReceiverThread(Socket inputSocket) {
             super(inputSocket);
@@ -87,13 +98,13 @@ public class ClientProtocolManager extends ProtocolManager {
             switch (type) {
                 case EXAMFILE:
                     TeacherExam exam = FilePacket.readData(is);
-                    if(handler.receiveExam(exam)){
+                    if (handler.receiveExam(exam)) {
                         allDocumentsAccepted();
                     }
                     break;
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
-                    switch (signal){
+                    switch (signal) {
                         case INVALID_LOGIN:
                             handler.putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
                             handler.gracefulShutdown(null);
@@ -104,7 +115,7 @@ public class ClientProtocolManager extends ProtocolManager {
                         case LIGHTHOUSE_OFF:
                             handler.postLighthouse(false);
                             break;
-                        case  LOGOFF:
+                        case LOGOFF:
                             handler.gracefulShutdown("Terminate from host!");
                             terminate = true;
                             break;

@@ -29,15 +29,15 @@ import java.util.Objects;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_client.net.ClientProtocolManager;
-import edu.hm.eem_library.model.ProtocolHandler;
-import edu.hm.eem_library.model.StudentExamViewModel;
+import edu.hm.eem_library.net.ProtocolHandler;
+import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.view.AbstractMainActivity;
 
 public class LockedActivity extends AppCompatActivity implements DocumentExplorerFragment.OnDocumentsAcceptedListener {
     private ClientProtocolManager pm;
     private ImageView lightHouse;
-    private StudentExamViewModel model;
+    private StudentExamDocumentItemViewModel model;
     private ReaderFragment reader;
     private NavController navController;
 
@@ -78,7 +78,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         int port = intent.getIntExtra(ScanActivity.PORT_FIELD, 0);
         String profName = intent.getStringExtra(ScanActivity.PROF_FIELD);
         String examName = intent.getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
-        model = ViewModelProviders.of(this).get(StudentExamViewModel.class);
+        model = ViewModelProviders.of(this).get(StudentExamDocumentItemViewModel.class);
         model.openExam(examName);
         navController = Navigation.findNavController(LockedActivity.this, R.id.nav_host);
         Bundle startArgs = new Bundle();

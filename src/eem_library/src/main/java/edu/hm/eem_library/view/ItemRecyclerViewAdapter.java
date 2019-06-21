@@ -9,17 +9,17 @@ import android.widget.TextView;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SortableItem;
-import edu.hm.eem_library.model.SortableMapLiveData;
+import edu.hm.eem_library.model.SortableItemLiveData;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link String}.
  */
 public abstract class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerViewAdapter.StringViewHolder>{
 
-    final SortableMapLiveData<?, ? extends SortableItem<?>> liveData;
+    final SortableItemLiveData<?, ? extends SortableItem<?>> liveData;
     final ItemListContent content;
 
-    ItemRecyclerViewAdapter(SortableMapLiveData<?, ? extends SortableItem<?>> liveData, ItemListContent content) {
+    ItemRecyclerViewAdapter(SortableItemLiveData<?, ? extends SortableItem<?>> liveData, ItemListContent content) {
         this.liveData = liveData;
         this.content = content;
     }

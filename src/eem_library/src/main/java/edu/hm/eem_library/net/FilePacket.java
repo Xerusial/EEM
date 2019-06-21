@@ -18,7 +18,7 @@ import edu.hm.eem_library.model.TeacherExam;
 import static java.lang.System.exit;
 
 public class FilePacket extends DataPacket {
-    /*  File Packet: TODO!!!
+    /*  File Packet:
         [8 Bytes: Size]
         [Size Bytes: File]
      */

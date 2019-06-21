@@ -7,17 +7,17 @@ import androidx.annotation.Nullable;
 import java.io.File;
 import java.util.Set;
 
-public abstract class ExamViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamViewModel.ExamDocumentLiveData> {
+public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamDocumentItemViewModel.ExamDocumentItemLiveData> {
     private T current;
     private String currentName;
     ExamFactory factory;
 
-    ExamViewModel(Application application) {
+    ExamDocumentItemViewModel(Application application) {
         super(application);
     }
 
-    public class ExamDocumentLiveData extends SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>{
-        ExamDocumentLiveData(@Nullable Set<ThumbnailedExamDocument> set, boolean notificationNeeded) {
+    public class ExamDocumentItemLiveData extends SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument> {
+        ExamDocumentItemLiveData(@Nullable Set<ThumbnailedExamDocument> set, boolean notificationNeeded) {
             super(set, notificationNeeded);
         }
 
@@ -38,7 +38,7 @@ public abstract class ExamViewModel<T extends StudentExam> extends FilebackedIte
     public void openExam(String name) {
         current = (T) factory.get(new File(examDir.getPath() + File.separator + name));
         currentName = name;
-        this.livedata = new ExamDocumentLiveData(current.toLiveDataSet(getApplication()), true);
+        this.livedata = new ExamDocumentItemLiveData(current.toLiveDataSet(getApplication()), true);
     }
 
     public void closeExam(){

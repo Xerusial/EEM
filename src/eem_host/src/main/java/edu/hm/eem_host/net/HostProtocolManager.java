@@ -7,8 +7,8 @@ import java.net.Socket;
 
 import edu.hm.eem_host.view.LockActivity;
 import edu.hm.eem_library.model.SelectableSortableItem;
-import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.net.ClientDevice;
+import edu.hm.eem_library.model.SelectableSortableItemLiveData;
+import edu.hm.eem_library.net.ClientItem;
 import edu.hm.eem_library.net.DataPacket;
 import edu.hm.eem_library.net.FilePacket;
 import edu.hm.eem_library.net.LoginPacket;
@@ -16,17 +16,17 @@ import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
 public class HostProtocolManager extends ProtocolManager {
-    private SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData;
+    private SelectableSortableItemLiveData<ClientItem, SelectableSortableItem<ClientItem>> liveData;
     private final String exam;
 
-    public HostProtocolManager(Activity context, SelectableSortableMapLiveData<ClientDevice, SelectableSortableItem<ClientDevice>> liveData, LockActivity.LockHandler handler, String exam) {
+    public HostProtocolManager(Activity context, SelectableSortableItemLiveData<ClientItem, SelectableSortableItem<ClientItem>> liveData, LockActivity.LockHandler handler, String exam) {
         super(context, handler);
         this.liveData = liveData;
         this.exam = exam;
     }
 
     public void sendLightHouse(int index){
-        ClientDevice device = liveData.getValue().get(index).item;
+        ClientItem device = liveData.getValue().get(index).item;
         SignalPacket lightHouseSig = new SignalPacket(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF);
         DataPacket.SenderThread thread = new DataPacket.SenderThread(device.socket, lightHouseSig);
         thread.start();
@@ -34,7 +34,7 @@ public class HostProtocolManager extends ProtocolManager {
 
     @Override
     public void quit() {
-        for(SelectableSortableItem<ClientDevice> device : liveData.getValue()){
+        for(SelectableSortableItem<ClientItem> device : liveData.getValue()){
             SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
             DataPacket.SenderThread thread = new DataPacket.SenderThread(device.item.socket, termSig);
             thread.start();
@@ -66,7 +66,7 @@ public class HostProtocolManager extends ProtocolManager {
                             dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
                         } else {
                             loggedIn = true;
-                            liveData.add(new SelectableSortableItem<>(name, new ClientDevice(socket)), true);
+                            liveData.add(new SelectableSortableItem<>(name, new ClientItem(socket)), true);
                             dataPacket = new FilePacket(context.getFilesDir(), exam);
                         }
                         DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);

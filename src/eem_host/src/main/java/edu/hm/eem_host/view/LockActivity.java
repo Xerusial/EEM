@@ -32,10 +32,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_library.model.DeviceViewModel;
+import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
 import edu.hm.eem_host.net.HostServiceManager;
-import edu.hm.eem_library.model.ProtocolHandler;
+import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
@@ -54,7 +54,7 @@ public class LockActivity extends AppCompatActivity
     private Switch swStartService, swUseHotspot;
     private HostProtocolManager hostProtocolManager = null;
     private HostServiceManager hostServiceManager = null;
-    private DeviceViewModel model;
+    private ClientItemViewModel model;
     private String examName;
     private LockHandler handler;
 
@@ -117,7 +117,7 @@ public class LockActivity extends AppCompatActivity
         nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
         createNotificationChannel();
         hotspotManager = new HotspotManager(wm, this);
-        model = ViewModelProviders.of(this).get(DeviceViewModel.class);
+        model = ViewModelProviders.of(this).get(ClientItemViewModel.class);
         handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
         swStartService.setOnCheckedChangeListener((buttonView, isChecked) -> {

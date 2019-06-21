@@ -24,7 +24,6 @@ import android.widget.Toolbar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -37,7 +36,7 @@ import java.util.TreeMap;
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.ExamFactory;
-import edu.hm.eem_library.model.ExamListViewModel;
+import edu.hm.eem_library.model.ExamItemViewModel;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
@@ -52,7 +51,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         ACTION_EDITOR, ACTION_LOCK
     }
 
-    private ExamListViewModel model;
+    private ExamItemViewModel model;
     private ImageButton del_button;
     private ImageButton edit_button;
     private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
@@ -65,7 +64,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.burger_popup);
         setActionBar(toolbar);
-        model = ViewModelProviders.of(this).get(ExamListViewModel.class);
+        model = ViewModelProviders.of(this).get(ExamItemViewModel.class);
         del_button = findViewById(R.id.bt_del_exam);
         del_button.setOnClickListener(v -> removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);

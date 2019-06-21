@@ -13,13 +13,13 @@ import android.widget.Toolbar;
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import edu.hm.eem_library.R;
-import edu.hm.eem_library.model.ExamViewModel;
+import edu.hm.eem_library.model.ExamDocumentItemViewModel;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
 public abstract class AbstractExamEditorActivity extends DocumentPickerActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener {
 
-    protected ExamViewModel<? extends StudentExam> model;
+    protected ExamDocumentItemViewModel<? extends StudentExam> model;
 
     protected ImageButton addButton;
     protected ImageButton delButton;

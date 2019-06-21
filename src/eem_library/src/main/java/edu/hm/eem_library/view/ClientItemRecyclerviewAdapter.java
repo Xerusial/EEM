@@ -11,13 +11,13 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
-import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.net.ClientDevice;
+import edu.hm.eem_library.model.SelectableSortableItemLiveData;
+import edu.hm.eem_library.net.ClientItem;
 
-public class StudentDeviceRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
+public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
 
 
-    StudentDeviceRecyclerviewAdapter(SelectableSortableMapLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content) {
+    ClientItemRecyclerviewAdapter(SelectableSortableItemLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content) {
         super(liveData, context, listener, content, false);
     }
 
@@ -40,7 +40,7 @@ public class StudentDeviceRecyclerviewAdapter extends NameTabRecyclerViewAdapter
 
         private void lighthouse(){
             int position = getAdapterPosition();
-            ClientDevice device = (ClientDevice) liveData.getValue().get(position).item;
+            ClientItem device = (ClientItem) liveData.getValue().get(position).item;
             constraintSet.clone(layout);
             if(device.lighthoused ^= true)
                 constraintSet.connect(R.id.card_item, ConstraintSet.LEFT, R.id.lighthouse, ConstraintSet.RIGHT);

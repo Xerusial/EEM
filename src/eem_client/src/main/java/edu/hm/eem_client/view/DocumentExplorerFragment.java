@@ -21,7 +21,7 @@ import android.widget.Toolbar;
 import java.util.ArrayList;
 
 import edu.hm.eem_client.R;
-import edu.hm.eem_library.model.StudentExamViewModel;
+import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
@@ -32,7 +32,7 @@ import edu.hm.eem_library.view.ItemListFragment;
 public class DocumentExplorerFragment extends Fragment implements ItemListFragment.OnListFragmentPressListener {
     final static String EXAMDOCUMENT_FIELD = "ExamDocument";
 
-    private StudentExamViewModel model;
+    private StudentExamDocumentItemViewModel model;
     private OnDocumentsAcceptedListener listener;
 
     public DocumentExplorerFragment() {
@@ -56,7 +56,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
+        model = ViewModelProviders.of(getActivity()).get(StudentExamDocumentItemViewModel.class);
         if(context instanceof OnDocumentsAcceptedListener){
             listener = (OnDocumentsAcceptedListener) context;
         }

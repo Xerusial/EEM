@@ -1,6 +1,5 @@
 package edu.hm.eem_library.model;
 
-import android.app.Application;
 import android.content.Context;
 
 import org.yaml.snakeyaml.constructor.Construct;
@@ -34,7 +33,7 @@ public class StudentExam {
         this.allowedDocuments = new LinkedList<>();
     }
 
-    /** updates allowedDocuments from a {@link SelectableSortableMapLiveData} values instance
+    /** updates allowedDocuments from a {@link SelectableSortableItemLiveData} values instance
      *
      * @param docs new values for allowedDocuments
      */
@@ -46,7 +45,7 @@ public class StudentExam {
     }
 
     /** Turns allowedDocuments into a {@link TreeSet} by using the documents
-     * name as key. This is used to construct {@link SortableMapLiveData} objects.
+     * name as key. This is used to construct {@link SortableItemLiveData} objects.
      *
      * @return output set
      */

@@ -4,10 +4,10 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class SelectableSortableMapLiveData<V,T extends SelectableSortableItem<V>> extends SortableMapLiveData<V, T> {
+public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
     private int selectionCounter;
 
-    SelectableSortableMapLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
+    SelectableSortableItemLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
         super(set, notificationNeeded);
     }
 

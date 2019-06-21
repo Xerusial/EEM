@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import edu.hm.eem_host.R;
 import edu.hm.eem_library.model.TeacherExam;
-import edu.hm.eem_library.model.TeacherExamViewModel;
+import edu.hm.eem_library.model.TeacherExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
 
@@ -29,7 +29,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        model = ViewModelProviders.of(this).get(TeacherExamViewModel.class);
+        model = ViewModelProviders.of(this).get(TeacherExamDocumentItemViewModel.class);
         model.openExam(examName);
         setContentView(R.layout.activity_exam_editor);
         pwField = findViewById(R.id.pass);

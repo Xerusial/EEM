@@ -12,14 +12,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
-import edu.hm.eem_library.model.SelectableSortableMapLiveData;
+import edu.hm.eem_library.model.SelectableSortableItemLiveData;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
-public class DocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
+public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
     private final int colorBlackOpaque;
     private final int colorPrimaryOpaque;
 
-    DocumentRecyclerViewAdapter(SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
+    ExamDocumentRecyclerViewAdapter(SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, listener, content, isSelectable);
         this.colorBlackOpaque = context.getColor(R.color.colorBlackOpaque);
         this.colorPrimaryOpaque = context.getColor(R.color.colorPrimaryOpaque);

@@ -21,15 +21,15 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import edu.hm.eem_library.R;
-import edu.hm.eem_library.model.DeviceViewModel;
+import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_library.model.ExamDocument;
-import edu.hm.eem_library.model.HostViewModel;
+import edu.hm.eem_library.model.HostItemViewModel;
 import edu.hm.eem_library.model.SelectableSortableItem;
-import edu.hm.eem_library.model.SelectableSortableMapLiveData;
-import edu.hm.eem_library.model.ExamListViewModel;
+import edu.hm.eem_library.model.SelectableSortableItemLiveData;
+import edu.hm.eem_library.model.ExamItemViewModel;
 import edu.hm.eem_library.model.ItemViewModel;
-import edu.hm.eem_library.model.StudentExamViewModel;
-import edu.hm.eem_library.model.TeacherExamViewModel;
+import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
+import edu.hm.eem_library.model.TeacherExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
 enum ItemListContent {
@@ -106,25 +106,25 @@ public class ItemListFragment extends Fragment {
         TextView tw = view.findViewById(R.id.empty_list_text);
         switch (content){
             case EXAM:
-                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content, true);
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content, true);
                 tw.setText(R.string.placeholder_exam);
                 break;
             case STUDENTEXAMDOCUMENT:
                 //falltrough
             case TEACHEREXAMDOCUMENT:
-                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, true);
+                adapter = new ExamDocumentRecyclerViewAdapter((SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, true);
                 tw.setText(R.string.placeholder_document);
                 break;
             case HOST:
-                adapter = new NameTabRecyclerViewAdapter((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content, false);
+                adapter = new NameTabRecyclerViewAdapter((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content, false);
                 tw.setText(R.string.placeholder_host);
                 break;
             case DEVICE:
-                adapter = new StudentDeviceRecyclerviewAdapter((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content);
+                adapter = new ClientItemRecyclerviewAdapter((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) model.getLivedata(), context, listener, content);
                 tw.setText(R.string.placeholder_device);
                 break;
             case EXAMDOCUMENTEXPLORER:
-                adapter = new DocumentRecyclerViewAdapter((SelectableSortableMapLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, false);
+                adapter = new ExamDocumentRecyclerViewAdapter((SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, false);
                 break;
         }
         recyclerView.setAdapter(adapter);
@@ -137,22 +137,22 @@ public class ItemListFragment extends Fragment {
         super.onAttach(context);
         switch (content) {
             case EXAM:
-                model = ViewModelProviders.of(getActivity()).get(ExamListViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(ExamItemViewModel.class);
                 break;
             case STUDENTEXAMDOCUMENT:
-                model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(StudentExamDocumentItemViewModel.class);
                 break;
             case TEACHEREXAMDOCUMENT:
-                model = ViewModelProviders.of(getActivity()).get(TeacherExamViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(TeacherExamDocumentItemViewModel.class);
                 break;
             case HOST:
-                model = ViewModelProviders.of(getActivity()).get(HostViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(HostItemViewModel.class);
                 break;
             case DEVICE:
-                model = ViewModelProviders.of(getActivity()).get(DeviceViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(ClientItemViewModel.class);
                 break;
             case EXAMDOCUMENTEXPLORER:
-                model = ViewModelProviders.of(getActivity()).get(StudentExamViewModel.class);
+                model = ViewModelProviders.of(getActivity()).get(StudentExamDocumentItemViewModel.class);
                 break;
         }
     }

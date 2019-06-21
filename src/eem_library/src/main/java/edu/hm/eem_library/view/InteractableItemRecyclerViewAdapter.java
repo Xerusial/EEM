@@ -9,7 +9,7 @@ import android.widget.CheckBox;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
-import edu.hm.eem_library.model.SelectableSortableMapLiveData;
+import edu.hm.eem_library.model.SelectableSortableItemLiveData;
 import edu.hm.eem_library.model.SortableItem;
 
 /**
@@ -21,7 +21,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
     final ItemListFragment.OnListFragmentPressListener listener;
     final boolean isSelectable;
 
-    InteractableItemRecyclerViewAdapter(SelectableSortableMapLiveData<?, ? extends SortableItem<?>> liveData,
+    InteractableItemRecyclerViewAdapter(SelectableSortableItemLiveData<?, ? extends SortableItem<?>> liveData,
                                         ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, content);
         this.listener = listener;
@@ -35,7 +35,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        ((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>)liveData).clearSelection();
+        ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>)liveData).clearSelection();
     }
 
     abstract class SelectableStringViewHolder extends ItemRecyclerViewAdapter.StringViewHolder {
@@ -47,7 +47,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
         }
 
         private void updateState(int position){
-            boolean selected = ((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>)liveData).getValue().get(position).selected;
+            boolean selected = ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>)liveData).getValue().get(position).selected;
             setSelected(selected);
         }
 
@@ -61,7 +61,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
             });
             if(isSelectable) {
                 view.setOnLongClickListener(v -> {
-                    ((SelectableSortableMapLiveData<?, SelectableSortableItem<?>>) liveData).toggleSelected(getAdapterPosition());
+                    ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) liveData).toggleSelected(getAdapterPosition());
                     return true;
                 });
             }

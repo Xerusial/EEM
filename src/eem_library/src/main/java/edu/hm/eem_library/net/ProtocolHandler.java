@@ -1,4 +1,4 @@
-package edu.hm.eem_library.model;
+package edu.hm.eem_library.net;
 
 import androidx.annotation.StringRes;
 

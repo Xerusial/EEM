@@ -7,10 +7,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 
-public class StudentExamViewModel extends ExamViewModel<StudentExam> {
+public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<StudentExam> {
     public TeacherExam teacherExam;
 
-    public StudentExamViewModel(Application application) {
+    public StudentExamDocumentItemViewModel(Application application) {
         super(application);
         factory = new ExamFactory(ExamFactory.ExamType.STUDENT);
     }

@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import edu.hm.eem_library.R;
-import edu.hm.eem_library.model.ProtocolHandler;
 
 public abstract class ProtocolManager{
     protected final Activity context;

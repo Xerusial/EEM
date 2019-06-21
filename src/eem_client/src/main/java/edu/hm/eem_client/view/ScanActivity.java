@@ -20,7 +20,7 @@ import com.github.druk.dnssd.DNSSDService;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_library.net.NsdService;
-import edu.hm.eem_library.model.HostViewModel;
+import edu.hm.eem_library.model.HostItemViewModel;
 import edu.hm.eem_client.net.ClientServiceManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
@@ -31,7 +31,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     public static final String PORT_FIELD = "Port";
     private ConnectivityManager cm;
     private ClientServiceManager clientServiceManager;
-    private HostViewModel model;
+    private HostItemViewModel model;
     private Switch sw;
     private ImageView progressBg;
     private ImageView progress;
@@ -47,7 +47,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         cm = (ConnectivityManager) getApplicationContext().getSystemService( Context.CONNECTIVITY_SERVICE);
         sw = findViewById(R.id.sw_scan_services);
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> sw.setChecked(progress(scanNetwork(isChecked))));
-        model = ViewModelProviders.of(this).get(HostViewModel.class);
+        model = ViewModelProviders.of(this).get(HostItemViewModel.class);
         clientServiceManager = new ClientServiceManager(getApplicationContext(), model.getLivedata(), this);
         progressBg = findViewById(R.id.progress_background);
         progress = findViewById(R.id.progress);

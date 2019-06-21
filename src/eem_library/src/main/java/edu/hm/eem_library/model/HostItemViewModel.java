@@ -5,10 +5,10 @@ import androidx.annotation.NonNull;
 
 import edu.hm.eem_library.net.NsdService;
 
-public class HostViewModel extends ItemViewModel<SelectableSortableMapLiveData<NsdService, SelectableSortableItem<NsdService>>> {
-    public HostViewModel(@NonNull Application application) {
+public class HostItemViewModel extends ItemViewModel<SelectableSortableItemLiveData<NsdService, SelectableSortableItem<NsdService>>> {
+    public HostItemViewModel(@NonNull Application application) {
         super(application);
-        this.livedata = new SelectableSortableMapLiveData<>(null, true);
+        this.livedata = new SelectableSortableItemLiveData<>(null, true);
     }
 
     public NsdService get(int index){

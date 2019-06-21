@@ -9,18 +9,18 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class ExamListViewModel extends FilebackedItemViewModel<ExamListViewModel.ExamListLiveData> {
+public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel.ExamItemLiveData> {
 
-    public ExamListViewModel(Application application) {
+    public ExamItemViewModel(Application application) {
         super(application);
-        this.livedata = new ExamListLiveData();
+        this.livedata = new ExamItemLiveData();
     }
 
-    public class ExamListLiveData extends SelectableSortableMapLiveData<File, SelectableSortableItem<File>> {
+    public class ExamItemLiveData extends SelectableSortableItemLiveData<File, SelectableSortableItem<File>> {
         private final int FILEOBSERVERMASK = FileObserver.DELETE | FileObserver.CREATE;
         private final FileObserver fileObserver;
 
-        ExamListLiveData() {
+        ExamItemLiveData() {
             super(null, false);
             fileObserver = new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
                 @Override
