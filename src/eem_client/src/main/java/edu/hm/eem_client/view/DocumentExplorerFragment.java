@@ -2,9 +2,12 @@ package edu.hm.eem_client.view;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
@@ -14,10 +17,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import edu.hm.eem_client.R;
@@ -61,7 +66,6 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
             listener = (OnDocumentsAcceptedListener) context;
         }
     }
-
 
     @Override
     public void onListFragmentPress(int index) {

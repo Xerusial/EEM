@@ -21,18 +21,16 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
         private final FileObserver fileObserver;
 
         ExamItemLiveData() {
-            super(null, false);
+            super(false);
             fileObserver = new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
                 @Override
                 public void onEvent(int event, String path) {
                     // Filelist has been modified; Update self
-                    refreshData(getDir());
-                    notifyObservers(true);
+                    refreshData(getDir(), true);
                 }
             };
             fileObserver.startWatching();
-            refreshData(getDir());
-            notifyObservers(false);
+            refreshData(getDir(), false);
         }
 
         private Set<SelectableSortableItem<File>> getDir(){

@@ -2,7 +2,6 @@ package edu.hm.eem_library.model;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -42,20 +41,18 @@ public class SortableItemLiveData<V, T extends SortableItem<V>> extends MutableL
     final SortedMap<String,T> backingMap;
     final boolean notificationNeeded;
 
-    SortableItemLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
+    SortableItemLiveData(boolean notificationNeeded) {
         this.notificationNeeded = notificationNeeded;
         backingMap = new TreeMap<>();
-        if(set != null) {
-            refreshData(set);
-        }
         if(notificationNeeded) notifyObservers(false);
     }
 
-    void refreshData(@NonNull Set<T> set){
+    void refreshData(@NonNull Set<T> set, boolean post){
         backingMap.clear();
         for (T item : set) {
             backingMap.put(item.getSortableKey(), item);
         }
+        notifyObservers(post);
     }
 
     public boolean add(T item, boolean post){

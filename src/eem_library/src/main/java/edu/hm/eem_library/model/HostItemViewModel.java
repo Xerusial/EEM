@@ -8,7 +8,7 @@ import edu.hm.eem_library.net.NsdService;
 public class HostItemViewModel extends ItemViewModel<SelectableSortableItemLiveData<NsdService, SelectableSortableItem<NsdService>>> {
     public HostItemViewModel(@NonNull Application application) {
         super(application);
-        this.livedata = new SelectableSortableItemLiveData<>(null, true);
+        this.livedata = new SelectableSortableItemLiveData<>(true);
     }
 
     public NsdService get(int index){

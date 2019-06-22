@@ -16,30 +16,41 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:title="ExamTitle">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
         <ImageButton
             android:id="@+id/bt_add_doc"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:background="@null"
             android:contentDescription="@string/add"
-            android:elevation="0dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            app:srcCompat="@android:drawable/ic_menu_add"
-            tools:layout_editor_absoluteX="109dp"
-            tools:layout_editor_absoluteY="16dp" />
+            android:minHeight="?attr/actionBarSize"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_add" />
 
         <ImageButton
             android:id="@+id/bt_del_doc"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@null"
             android:contentDescription="@string/del"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:minHeight="?attr/actionBarSize"
+            android:padding="10dp"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/bt_add_doc"
             app:srcCompat="@android:drawable/ic_menu_delete"
-            tools:layout_editor_absoluteX="161dp"
-            tools:layout_editor_absoluteY="16dp" />
+            app:layout_constraintDimensionRatio="1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </android.widget.Toolbar>
 
@@ -64,6 +75,30 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/used_files"
         tools:layout="@layout/fragment_itemlist" />
+
+    <ImageView
+        android:id="@+id/progress_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/search_running"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/used_files"
+        app:srcCompat="@drawable/progress_background" />
+
+    <ImageView
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/search_running"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/progress_background"
+        app:layout_constraintLeft_toLeftOf="@id/progress_background"
+        app:layout_constraintRight_toRightOf="@id/progress_background"
+        app:layout_constraintTop_toTopOf="@id/progress_background"
+        app:srcCompat="@drawable/progress_anim" />
 
     <Button
         android:id="@+id/bt_save"

@@ -2,13 +2,15 @@ package edu.hm.eem_library.model;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
 public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
     private int selectionCounter;
 
-    SelectableSortableItemLiveData(@Nullable Set<T> set, boolean notificationNeeded) {
-        super(set, notificationNeeded);
+    SelectableSortableItemLiveData(boolean notificationNeeded) {
+        super(notificationNeeded);
     }
 
     public void toggleSelected(int index) {
@@ -62,10 +64,14 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
         ArrayList<T> removed = null;
         if(selectionCounter>0) {
             removed = new ArrayList<>(selectionCounter);
+            LinkedList<String> removedKeyList = new LinkedList<>();
             for (SelectableSortableItem<V> item : backingMap.values()){
                 if(item.selected) {
-                    removed.add(backingMap.remove(item.getSortableKey()));
+                    removedKeyList.add(item.getSortableKey());
                 }
+            }
+            for (String s : removedKeyList){
+                removed.add(backingMap.remove(s));
             }
             selectionCounter = 0;
             if(notificationNeeded) notifyObservers(false);

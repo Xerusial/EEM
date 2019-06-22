@@ -7,6 +7,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -23,14 +24,13 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
 
     private EditText pwField;
     private CheckBox allDocAllowedField;
-    private View docList;
     private boolean allowAnnotations;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         model = ViewModelProviders.of(this).get(TeacherExamDocumentItemViewModel.class);
-        model.openExam(examName);
         setContentView(R.layout.activity_exam_editor);
         pwField = findViewById(R.id.pass);
         allDocAllowedField = findViewById(R.id.allDocsAllowed);
@@ -38,6 +38,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         svButton = findViewById(R.id.bt_save);
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
+        progressBar = findViewById(R.id.progress);
         addButton.setOnClickListener(v -> showSourceDialog());
         ((CheckBox)findViewById(R.id.showPass)).setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked) pwField.setTransformationMethod(null);
@@ -54,6 +55,12 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
             }
         });
         toolbar = findViewById(R.id.toolbar);
+    }
+
+    @Override
+    protected void progress(boolean on, boolean hideList) {
+        progressBar.setVisibility(on?View.VISIBLE:View.GONE);
+        if(hideList) docList.setVisibility(on?View.INVISIBLE:View.VISIBLE);
     }
 
     private void docUISetEnabled(boolean enable){

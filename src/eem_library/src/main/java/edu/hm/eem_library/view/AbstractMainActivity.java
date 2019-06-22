@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.ContentResolver;
 import android.content.Context;
+
 import androidx.annotation.Nullable;
 
 import android.content.Intent;
@@ -14,6 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -74,32 +77,38 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         });
         findViewById(R.id.bt_add_exam).setOnClickListener(v -> {
             showNameDialog();
+            //show keyboard
             InputMethodManager imm = (InputMethodManager)
                     getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_IMPLICIT);
         });
         model.getLivedata().observe(this, sortableItems -> {
             int sel_cnt = model.getLivedata().getSelectionCount();
-            buttonSetEnabled(del_button,sel_cnt>0);
-            buttonSetEnabled(edit_button,sel_cnt==1);
+            buttonSetEnabled(del_button, sel_cnt > 0);
+            buttonSetEnabled(edit_button, sel_cnt == 1);
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.burger_popup, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-
-    private void buildUriMap(){
+    private void buildUriMap() {
         ExamFactory factory = new ExamFactory(examType);
         ContentResolver resolver = getContentResolver();
         uriMap = new TreeMap<>();
-        for(SelectableSortableItem<File> container : model.getLivedata().getValue()){
+        for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {
             try {
                 FileInputStream fis = new FileInputStream(container.item);
                 StudentExam exam = factory.extract(fis);
                 fis.close();
-                for(ExamDocument doc : exam.getAllowedDocuments()){
+                for (ExamDocument doc : exam.getAllowedDocuments()) {
                     String uriString = doc.getUriString();
-                    if(uriString != null) {
-                        if(!uriMap.containsKey(uriString)) {
+                    if (uriString != null) {
+                        if (!uriMap.containsKey(uriString)) {
                             try {
                                 Uri uri = Uri.parse(uriString);
                                 InputStream is = resolver.openInputStream(uri);
@@ -113,7 +122,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                         entry.second.add(container.item.getName());
                     }
                 }
-            } catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -121,8 +130,8 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         askToRemoveExams();
     }
 
-    private void removeSelected(){
-        if(model.getLivedata().getSelectionCount()!=0) {
+    private void removeSelected() {
+        if (model.getLivedata().getSelectionCount() != 0) {
             model.getLivedata().removeSelected();
         }
         List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
@@ -135,23 +144,23 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         }
     }
 
-    private void askToRemoveExams(){
+    private void askToRemoveExams() {
         boolean entryFound = false;
-        for(Map.Entry<String, Pair<Boolean, List<String>>> entry : uriMap.entrySet()) {
-            if(!entry.getValue().first){
+        for (Map.Entry<String, Pair<Boolean, List<String>>> entry : uriMap.entrySet()) {
+            if (!entry.getValue().first) {
                 // File was deleted: get new File
                 AlertDialog.Builder builder;
                 builder = new AlertDialog.Builder(this);
                 TextView textView = new TextView(this);
                 Iterator<String> it = entry.getValue().second.iterator();
                 StringBuilder sb = new StringBuilder(it.next());
-                for(;it.hasNext();){
+                for (; it.hasNext(); ) {
                     sb.append(", ");
                     sb.append(it.next());
                 }
-                textView.setText(getString(entry.getValue().second.size()>1?
-                        R.string.dialog_document_not_found_pl:
-                        R.string.dialog_document_not_found_sing,
+                textView.setText(getString(entry.getValue().second.size() > 1 ?
+                                R.string.dialog_document_not_found_pl :
+                                R.string.dialog_document_not_found_sing,
                         getNameFromUri(Uri.parse(entry.getKey())), sb.toString()));
                 builder.setCustomTitle(textView);
                 builder.setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
@@ -163,7 +172,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                     getContentResolver().releasePersistableUriPermission(Uri.parse(entry.getKey()),
                             Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     uriMap.remove(entry.getKey());
-                    for(String s : entry.getValue().second)
+                    for (String s : entry.getValue().second)
                         model.getLivedata().setSelected(s, false);
                     dialog.dismiss();
                     askToRemoveExams();
@@ -178,18 +187,18 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                 break;
             }
         }
-        if(!entryFound) removeSelected();
+        if (!entryFound) removeSelected();
     }
 
     @Override
     void handleDocument(@Nullable Uri uri) {
-        if(uri!=null) {
+        if (uri != null) {
             Pair<Boolean, List<String>> entry = uriMap.get(replacementUri);
             ExamDocument doc = ThumbnailedExamDocument.getInstance(this, uri).item;
             for (String s : entry.second) {
                 ExamFactory factory = new ExamFactory(examType);
                 for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {
-                    if(container.item.getName().equals(s)) {
+                    if (container.item.getName().equals(s)) {
                         try {
                             FileInputStream fis = new FileInputStream(container.item);
                             StudentExam exam = factory.extract(fis);
@@ -199,7 +208,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                                 ExamDocument oldDoc = list.get(i);
                                 if (oldDoc.getUriString().equals(replacementUri)) {
                                     ExamDocument newDoc = (ExamDocument) doc.clone();
-                                    if(oldDoc.getHash()==null)
+                                    if (oldDoc.getHash() == null)
                                         newDoc.removeHash();
                                     else
                                         newDoc.removeNonAnnotatedHash();
@@ -220,17 +229,17 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         askToRemoveExams();
     }
 
-    private void buttonSetEnabled(ImageButton button, boolean enable){
+    private void buttonSetEnabled(ImageButton button, boolean enable) {
         button.setEnabled(enable);
-        button.setAlpha(enable?1.0f:0.5f);
+        button.setAlpha(enable ? 1.0f : 0.5f);
     }
 
     @Override
-    public void onListFragmentPress(int index){
+    public void onListFragmentPress(int index) {
         startSubApplication(model.getLivedata().getValue().get(index).getSortableKey(), ActionType.ACTION_LOCK);
     }
 
-    private void showNameDialog(){
+    private void showNameDialog() {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.exam_name));
@@ -242,7 +251,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
 
         builder.setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {
             String text = input.getText().toString();
-            if(model.getLivedata().contains(text))
+            if (model.getLivedata().contains(text))
                 Toast.makeText(getApplicationContext(), getString(R.string.toast_exam_already_exists), Toast.LENGTH_SHORT).show();
             else startSubApplication(text, ActionType.ACTION_EDITOR);
 
@@ -252,7 +261,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         buildUriMap();
         super.onResume();
     }

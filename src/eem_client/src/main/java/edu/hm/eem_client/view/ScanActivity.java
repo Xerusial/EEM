@@ -76,14 +76,12 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
 
     private boolean progress(boolean on){
         if(on){
-            progressBg.setVisibility(View.VISIBLE);
-            progress.setVisibility(View.VISIBLE);
             progressAnim.start();
         } else {
-            progressBg.setVisibility(View.GONE);
-            progress.setVisibility(View.GONE);
             progressAnim.stop();
         }
+        progressBg.setVisibility(on?View.VISIBLE:View.GONE);
+        progress.setVisibility(on?View.VISIBLE:View.GONE);
         return on;
     }
 

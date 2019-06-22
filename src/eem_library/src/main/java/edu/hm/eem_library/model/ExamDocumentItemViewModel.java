@@ -2,10 +2,7 @@ package edu.hm.eem_library.model;
 
 import android.app.Application;
 
-import androidx.annotation.Nullable;
-
 import java.io.File;
-import java.util.Set;
 
 public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamDocumentItemViewModel.ExamDocumentItemLiveData> {
     private T current;
@@ -14,11 +11,12 @@ public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends F
 
     ExamDocumentItemViewModel(Application application) {
         super(application);
+        this.livedata = new ExamDocumentItemLiveData(true);
     }
 
     public class ExamDocumentItemLiveData extends SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument> {
-        ExamDocumentItemLiveData(@Nullable Set<ThumbnailedExamDocument> set, boolean notificationNeeded) {
-            super(set, notificationNeeded);
+        ExamDocumentItemLiveData(boolean notificationNeeded) {
+            super(notificationNeeded);
         }
 
         @Override
@@ -38,7 +36,7 @@ public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends F
     public void openExam(String name) {
         current = (T) factory.get(new File(examDir.getPath() + File.separator + name));
         currentName = name;
-        this.livedata = new ExamDocumentItemLiveData(current.toLiveDataSet(getApplication()), true);
+        this.livedata.refreshData(current.toLiveDataSet(getApplication()), true);
     }
 
     public void closeExam(){

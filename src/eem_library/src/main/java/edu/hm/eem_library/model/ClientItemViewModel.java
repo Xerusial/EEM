@@ -7,7 +7,7 @@ import edu.hm.eem_library.net.ClientItem;
 public class ClientItemViewModel extends ItemViewModel<SelectableSortableItemLiveData<ClientItem, SelectableSortableItem<ClientItem>>> {
     public ClientItemViewModel(Application application) {
         super(application);
-        this.livedata = new SelectableSortableItemLiveData<>(null, true);
+        this.livedata = new SelectableSortableItemLiveData<>(true);
     }
 
 

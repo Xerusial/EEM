@@ -13,6 +13,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,6 +25,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +43,10 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     private StudentExamDocumentItemViewModel model;
     private ReaderFragment reader;
     private NavController navController;
+    private String examName;
+    private ImageView progressBg;
+    private ImageView progress;
+    private AnimationDrawable progressAnim;
 
     public class LockedHandler extends Handler implements ProtocolHandler {
         private LockedHandler(Looper looper) {
@@ -77,9 +84,8 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         InetAddress host = (InetAddress) intent.getSerializableExtra(ScanActivity.ADDRESS_FIELD);
         int port = intent.getIntExtra(ScanActivity.PORT_FIELD, 0);
         String profName = intent.getStringExtra(ScanActivity.PROF_FIELD);
-        String examName = intent.getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
+        examName = intent.getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         model = ViewModelProviders.of(this).get(StudentExamDocumentItemViewModel.class);
-        model.openExam(examName);
         navController = Navigation.findNavController(LockedActivity.this, R.id.nav_host);
         Bundle startArgs = new Bundle();
         startArgs.putString(AbstractMainActivity.EXAMNAME_FIELD, examName);
@@ -104,8 +110,18 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString(getString(R.string.preferences_username), "User@" + android.os.Build.MODEL);
         lightHouse = findViewById(R.id.lighthouse);
+        progressBg = findViewById(R.id.progress_background);
+        progress = findViewById(R.id.progress);
+        progressAnim = (AnimationDrawable) progress.getDrawable();
         LockedHandler handler = new LockedHandler(Looper.getMainLooper());
         pm = new ClientProtocolManager(this, host, port, name, handler);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        DocumentLoader loader = new DocumentLoader(this, examName);
+        loader.execute();
     }
 
     @Override
@@ -153,5 +169,43 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     @Override
     public void onDocumentsAccepted() {
         pm.allDocumentsAccepted();
+    }
+
+    static class DocumentLoader extends AsyncTask<Void, Void, Void> {
+        private final WeakReference<LockedActivity> context;
+        private final String examName;
+
+        public DocumentLoader(LockedActivity context, String examName) {
+            this.context = new WeakReference<>(context);
+            this.examName = examName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            context.get().progress(true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            context.get().model.openExam(examName);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            context.get().progress(false);
+        }
+    }
+
+    private void progress(boolean on){
+        if(on){
+            progressAnim.start();
+        } else {
+            progressAnim.stop();
+        }
+        progressBg.setVisibility(on?View.VISIBLE:View.GONE);
+        progress.setVisibility(on?View.VISIBLE:View.GONE);
     }
 }

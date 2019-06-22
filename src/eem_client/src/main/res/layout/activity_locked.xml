@@ -24,4 +24,35 @@
         app:srcCompat="@drawable/ic_lighthouse"
         android:contentDescription="@string/lighthouse" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+    <ImageView
+        android:id="@+id/progress_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/search_running"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline"
+        app:srcCompat="@drawable/progress_background" />
+
+    <ImageView
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/search_running"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/progress_background"
+        app:layout_constraintLeft_toLeftOf="@id/progress_background"
+        app:layout_constraintRight_toRightOf="@id/progress_background"
+        app:layout_constraintTop_toTopOf="@id/progress_background"
+        app:srcCompat="@drawable/progress_anim" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
