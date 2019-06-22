@@ -2,6 +2,7 @@ package edu.hm.eem_client.view;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,11 +14,13 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
@@ -86,6 +89,12 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         builder = new AlertDialog.Builder(getContext());
         TextView textView = new TextView(getContext());
         textView.setText(getString(R.string.dialog_explorer));
+        textView.setTypeface(Typeface.DEFAULT_BOLD);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(20, 20, 20, 0);
+        textView.setPadding(20,20,20,0);
+        textView.setLayoutParams(lp);
         builder.setCustomTitle(textView);
 
         final EditText input = new EditText(getContext());

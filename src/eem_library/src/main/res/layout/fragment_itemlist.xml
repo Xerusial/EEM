@@ -29,7 +29,6 @@
         android:visibility="invisible"
         app:layoutManager="LinearLayoutManager"
         tools:context="edu.hm.eem_library.view.ItemListFragment"
-        tools:layout_editor_absoluteX="16dp"
         tools:listitem="@layout/nametab_item">
 
     </androidx.recyclerview.widget.RecyclerView>

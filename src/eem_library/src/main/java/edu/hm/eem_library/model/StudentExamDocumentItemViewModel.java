@@ -33,8 +33,7 @@ public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<
     }
 
     private static final int CODE_ACCEPTED = 0;
-    private static final int CODE_REJECTED_TOO_MANY_DOCS = -1;
-    private static final int CODE_REJECTED_TOO_MANY_PAGES = -2;
+    private static final int CODE_REJECTED_TOO_MANY_PAGES = -1;
     /**
      * Checks the current selected Examlist against a given list from a teacher.
      *
@@ -57,7 +56,7 @@ public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<
             for (ExamDocument teacherdoc : exam.getAllowedDocuments()) {
                 byte[] hash = teacherdoc.getHash();
                 byte[] nonAnnotatedHash = teacherdoc.getNonAnnotatedHash();
-                if (hash != null && nonAnnotatedHash != null) {
+                if (hash != null && nonAnnotatedHash == null) {
                     for (Meta meta : metas) {
                         // if hash matches, set document to allowed
                         if (Arrays.equals(hash, meta.hash)) {
@@ -82,29 +81,32 @@ public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<
             //Sort both in descending page number: hash qualified docs will be last in list
             Collections.sort(cachedPages, Collections.reverseOrder());
             Collections.sort(metas, Collections.reverseOrder());
-            for (Meta m : metas) {
-                if (m.pages > CODE_ACCEPTED) {
-                    if(cachedPages.isEmpty()){
-                        m.pages = CODE_REJECTED_TOO_MANY_DOCS;
-                    } else if (m.pages <= cachedPages.getFirst()) {
-                        m.pages = CODE_ACCEPTED;
-                        cachedPages.removeFirst();
-                    } else {
-                        m.pages = CODE_REJECTED_TOO_MANY_PAGES;
-                    }
-                    //All after this will be hash specified
-                } else break;
+            if(!cachedPages.isEmpty()) {
+                for (Meta m : metas) {
+                    if (m.pages > CODE_ACCEPTED) {
+                        if (m.pages <= cachedPages.getFirst()) {
+                            m.pages = CODE_ACCEPTED;
+                            cachedPages.removeFirst();
+                        } else {
+                            m.pages = CODE_REJECTED_TOO_MANY_PAGES;
+                        }
+                        //All after this will be hash specified
+                    } else break;
+                }
             }
             getLivedata().clearSelection();
+            boolean tooManyDocs = studentlist.size()>teacherlist.size();
             for (Meta m : metas) {
                 if (m.pages != CODE_ACCEPTED) {
                     //Select all documents, that were accepted
-                    if(m.pages == CODE_REJECTED_TOO_MANY_DOCS){
-                        getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.TOO_MANY_DOCS);
-                    } else if(m.pages == CODE_REJECTED_TOO_MANY_PAGES)
+                    if(m.pages == CODE_REJECTED_TOO_MANY_PAGES)
                         getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.TOO_MANY_PAGES);
                     else
-                        getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.HASH_DOES_NOT_MATCH);
+                        if(tooManyDocs){
+                            getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.TOO_MANY_DOCS);
+                        } else {
+                            getLivedata().setRejected(m.index, ThumbnailedExamDocument.RejectionReason.HASH_DOES_NOT_MATCH);
+                        }
                     ret = false;
                 }
             }

@@ -9,17 +9,21 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
@@ -162,6 +166,12 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                                 R.string.dialog_document_not_found_pl :
                                 R.string.dialog_document_not_found_sing,
                         getNameFromUri(Uri.parse(entry.getKey())), sb.toString()));
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.setMargins(20, 20, 20, 0);
+                textView.setPadding(20,20,20,0);
+                textView.setLayoutParams(lp);
                 builder.setCustomTitle(textView);
                 builder.setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
                     replacementUri = entry.getKey();
@@ -178,8 +188,10 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                     askToRemoveExams();
                 });
                 builder.setNegativeButton(getString(R.string.dialog_document_not_found_bt_neg), (dialog, which) -> {
-                    removeSelected();
                     dialog.cancel();
+                });
+                builder.setOnCancelListener(dialog -> {
+                    removeSelected();
                     finish();
                 });
                 builder.show();

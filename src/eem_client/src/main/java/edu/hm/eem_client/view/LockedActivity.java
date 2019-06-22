@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -57,8 +58,27 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             this.post(() -> lightHouse.setVisibility(on ? View.VISIBLE : View.INVISIBLE));
         }
 
-        public boolean receiveExam(TeacherExam exam) {
-            return model.checkExam(exam);
+        public void receiveExam(TeacherExam exam) {
+            //has to be posted, because observe cannot be started on background thread
+            this.post(()-> {
+                if (!model.getLivedata().isEmpty()) {
+                    if (model.checkExam(exam))
+                        pm.allDocumentsAccepted();
+                } else {
+                    Observer obs = new Observer() {
+                        @Override
+                        public void onChanged(Object o) {
+                            if (!model.getLivedata().isEmpty()) {
+                                if (model.checkExam(exam))
+                                    pm.allDocumentsAccepted();
+                                model.getLivedata().removeObserver(this);
+                            }
+                        }
+                    };
+                    model.getLivedata().observe(LockedActivity.this, obs);
+
+                }
+            });
         }
 
         public void gracefulShutdown(@Nullable String message) {

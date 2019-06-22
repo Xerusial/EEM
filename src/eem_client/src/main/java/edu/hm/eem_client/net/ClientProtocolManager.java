@@ -98,9 +98,7 @@ public class ClientProtocolManager extends ProtocolManager {
             switch (type) {
                 case EXAMFILE:
                     TeacherExam exam = FilePacket.readData(is);
-                    if (handler.receiveExam(exam)) {
-                        allDocumentsAccepted();
-                    }
+                    handler.receiveExam(exam);
                     break;
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
