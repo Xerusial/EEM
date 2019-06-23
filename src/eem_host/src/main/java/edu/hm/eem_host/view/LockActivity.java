@@ -73,14 +73,16 @@ public class LockActivity extends AppCompatActivity
         }
 
         public void notifyStudentLeft(String name){
-            Notification.Builder builder = new Notification.Builder(LockActivity.this, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_student_black)
-                    .setContentTitle(getString(R.string.student_left))
-                    .setStyle(new Notification.BigTextStyle()
-                            .setSummaryText(name)
-                            .bigText(getString(R.string.student_left_text, name)))
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-            nm.notify(++id, builder.build());
+            this.post(() -> {
+                Notification.Builder builder = new Notification.Builder(LockActivity.this, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_student_black)
+                        .setContentTitle(getString(R.string.student_left))
+                        .setStyle(new Notification.BigTextStyle()
+                                .setSummaryText(name)
+                                .bigText(getString(R.string.student_left_text, name)))
+                        .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+                nm.notify(++id, builder.build());
+            });
         }
 
         @Override
@@ -199,7 +201,6 @@ public class LockActivity extends AppCompatActivity
 
     private void switchSetEnabled(Switch sw, boolean enable) {
         sw.setEnabled(enable);
-        sw.setAlpha(enable ? 1.0f : 0.5f);
         if(sw == swUseHotspot)
             wifiText.setAlpha(enable ? 1.0f : 0.5f);
     }

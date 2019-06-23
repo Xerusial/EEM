@@ -4,9 +4,11 @@ import android.app.Activity;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import edu.hm.eem_client.R;
 import edu.hm.eem_client.view.LockedActivity;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.net.DataPacket;
@@ -34,9 +36,12 @@ public class ClientProtocolManager extends ProtocolManager {
                 super.run();
                 try {
                     prep(new Socket(host, port));
+                } catch (ConnectException e) {
+                    e.printStackTrace();
+                    handler.gracefulShutdown(true, R.string.connection_refused);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    handler.gracefulShutdown("Connection was refused!");
+                    handler.gracefulShutdown(false, 0);
                 }
             }
         };
@@ -49,6 +54,7 @@ public class ClientProtocolManager extends ProtocolManager {
      * @param openedSocket The socket that has been opened
      */
     private void prep(Socket openedSocket) {
+        ((LockedActivity.LockedHandler)handler).loadDocuments();
         socket = openedSocket;
         //Start the socket receiver thread
         ReceiverThread receiverThread = new ClientReceiverThread(socket);
@@ -110,8 +116,7 @@ public class ClientProtocolManager extends ProtocolManager {
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal) {
                         case INVALID_LOGIN:
-                            handler.putToast(edu.hm.eem_library.R.string.toast_please_change_your_username);
-                            handler.gracefulShutdown(null);
+                            handler.gracefulShutdown(true, R.string.toast_please_change_your_username);
                             break;
                         case LIGHTHOUSE_ON:
                             handler.postLighthouse(true);
@@ -120,7 +125,7 @@ public class ClientProtocolManager extends ProtocolManager {
                             handler.postLighthouse(false);
                             break;
                         case LOGOFF:
-                            handler.gracefulShutdown("Terminate from host!");
+                            handler.gracefulShutdown(true, R.string.teacher_closed);
                             terminate = true;
                             break;
                         case LOCK:

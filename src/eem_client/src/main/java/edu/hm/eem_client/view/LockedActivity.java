@@ -1,9 +1,13 @@
 package edu.hm.eem_client.view;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -20,7 +24,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import android.provider.Settings;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,6 +45,7 @@ import edu.hm.eem_library.view.AbstractMainActivity;
 
 public class LockedActivity extends AppCompatActivity implements DocumentExplorerFragment.OnDocumentsAcceptedListener {
     private ClientProtocolManager pm;
+    private NotificationManager nm;
     private ImageView lightHouse;
     private StudentExamDocumentItemViewModel model;
     private ReaderFragment reader;
@@ -49,6 +55,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     private ImageView progress;
     private AnimationDrawable progressAnim;
     private boolean locked = false;
+    private Pair<Boolean, Integer> currentNotificationFilter = Pair.create(false,0);
 
     public class LockedHandler extends Handler implements ProtocolHandler {
         private LockedHandler(Looper looper) {
@@ -82,6 +89,13 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             });
         }
 
+        public void loadDocuments(){
+            this.post(() -> {
+                DocumentLoader loader = new DocumentLoader(LockedActivity.this, examName);
+                loader.execute();
+            });
+        }
+
         public void lock(){
             this.post(() -> {
                 model.getLivedata().removeSelected();
@@ -89,12 +103,16 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             });
         }
 
-        public void gracefulShutdown(@Nullable String message) {
+        public void gracefulShutdown(boolean hasMessage, @StringRes int stringID) {
             this.post(() -> {
-                if (message != null) {
-                    Log.e(LockedActivity.this.getPackageName(), message);
+                try {
+                    if (hasMessage) {
+                        Toast.makeText(LockedActivity.this, stringID, Toast.LENGTH_SHORT).show();
+                    }
+                    finish();
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-                finish();
             });
         }
 
@@ -142,14 +160,8 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         progress = findViewById(R.id.progress);
         progressAnim = (AnimationDrawable) progress.getDrawable();
         LockedHandler handler = new LockedHandler(Looper.getMainLooper());
+        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         pm = new ClientProtocolManager(this, host, port, name, handler);
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        DocumentLoader loader = new DocumentLoader(this, examName);
-        loader.execute();
     }
 
     @Override
@@ -186,6 +198,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     protected void onStop() {
         super.onStop();
         pm.quit();
+        activateDnD(false);
     }
 
     @Override
@@ -224,6 +237,19 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             context.get().progress(false);
+            context.get().activateDnD(true);
+        }
+    }
+
+    private void activateDnD(boolean on){
+        if(on){
+            currentNotificationFilter = Pair.create(true, nm.getCurrentInterruptionFilter());
+            nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+        } else {
+            if(currentNotificationFilter.first) {
+                nm.setInterruptionFilter(currentNotificationFilter.second);
+                currentNotificationFilter = Pair.create(false, 0);
+            }
         }
     }
 

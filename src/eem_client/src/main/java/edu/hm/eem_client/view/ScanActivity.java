@@ -101,7 +101,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
 
     @Override
     protected void onPause() {
-        sw.setChecked(scanNetwork(false));
+        sw.setChecked(progress(scanNetwork(false)));
         model.getLivedata().clean(false);
         lock(false);
         super.onPause();
