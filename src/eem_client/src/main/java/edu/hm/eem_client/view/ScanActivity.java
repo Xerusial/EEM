@@ -46,7 +46,7 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         setContentView(R.layout.activity_scan);
         cm = (ConnectivityManager) getApplicationContext().getSystemService( Context.CONNECTIVITY_SERVICE);
         sw = findViewById(R.id.sw_scan_services);
-        sw.setOnCheckedChangeListener((buttonView, isChecked) -> sw.setChecked(progress(scanNetwork(isChecked))));
+        sw.setOnClickListener(v -> sw.setChecked(progress(scanNetwork(sw.isChecked()))));
         model = ViewModelProviders.of(this).get(HostItemViewModel.class);
         clientServiceManager = new ClientServiceManager(getApplicationContext(), model.getLivedata(), this);
         progressBg = findViewById(R.id.progress_background);

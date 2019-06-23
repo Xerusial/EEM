@@ -89,11 +89,11 @@ public final class WIFIANDLOCATIONCHECKER {
                 request = LOCATION_REQUEST;
             }
             apl.startActivityForResult(intent, request);
-        });
-        builder.setNegativeButton(apl.getString(android.R.string.cancel), (dialog, which) -> {
+        })
+        .setNegativeButton(apl.getString(android.R.string.cancel), (dialog, which) -> {
             dialog.cancel();
             apl.onNotEnabled();
-        });
-        builder.show();
+        })
+        .show();
     }
 }

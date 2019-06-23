@@ -94,6 +94,7 @@ public class ClientProtocolManager extends ProtocolManager {
     private class ClientReceiverThread extends ReceiverThread {
         ClientReceiverThread(Socket inputSocket) {
             super(inputSocket);
+            setName("ClientReceiverThread");
         }
 
         @Override

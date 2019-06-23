@@ -9,22 +9,17 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -63,6 +58,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     private ImageButton edit_button;
     private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
     private String replacementUri;
+    private boolean doNotRebuildUriMap = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,52 +149,42 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         for (Map.Entry<String, Pair<Boolean, List<String>>> entry : uriMap.entrySet()) {
             if (!entry.getValue().first) {
                 // File was deleted: get new File
-                AlertDialog.Builder builder;
-                builder = new AlertDialog.Builder(this);
-                TextView textView = new TextView(this);
                 Iterator<String> it = entry.getValue().second.iterator();
                 StringBuilder sb = new StringBuilder(it.next());
                 for (; it.hasNext(); ) {
                     sb.append(", ");
                     sb.append(it.next());
                 }
-                textView.setText(getString(entry.getValue().second.size() > 1 ?
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(getString(entry.getValue().second.size() > 1 ?
                                 R.string.dialog_document_not_found_pl :
                                 R.string.dialog_document_not_found_sing,
-                        getNameFromUri(Uri.parse(entry.getKey())), sb.toString()));
-                textView.setTypeface(Typeface.DEFAULT_BOLD);
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                lp.setMargins(20, 20, 20, 0);
-                textView.setPadding(20,20,20,0);
-                textView.setLayoutParams(lp);
-                builder.setCustomTitle(textView);
-                builder.setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
-                    replacementUri = entry.getKey();
-                    dialog.dismiss();
-                    checkFileManagerPermissions();
-                });
-                builder.setNeutralButton(getString(R.string.dialog_document_not_found_bt_neutral), (dialog, which) -> {
-                    getContentResolver().releasePersistableUriPermission(Uri.parse(entry.getKey()),
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    uriMap.remove(entry.getKey());
-                    for (String s : entry.getValue().second)
-                        model.getLivedata().setSelected(s, false);
-                    dialog.dismiss();
-                    askToRemoveExams();
-                });
-                builder.setNegativeButton(getString(R.string.dialog_document_not_found_bt_neg), (dialog, which) -> {
-                    dialog.cancel();
-                });
-                builder.setOnCancelListener(dialog -> {
-                    removeSelected();
-                    finish();
-                });
-                builder.show();
+                        getNameFromUri(Uri.parse(entry.getKey())), sb.toString()))
+                        .setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
+                            replacementUri = entry.getKey();
+                            dialog.dismiss();
+                            checkFileManagerPermissions();
+                        })
+                        .setNeutralButton(getString(R.string.dialog_document_not_found_bt_neutral), (dialog, which) -> {
+                            getContentResolver().releasePersistableUriPermission(Uri.parse(entry.getKey()),
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            uriMap.remove(entry.getKey());
+                            for (String s : entry.getValue().second)
+                                model.getLivedata().setSelected(s, false);
+                            dialog.dismiss();
+                            askToRemoveExams();
+                        })
+                        .setNegativeButton(getString(R.string.dialog_document_not_found_bt_neg), (dialog, which) -> dialog.cancel())
+                        .setOnCancelListener(dialog -> {
+                            removeSelected();
+                            finish();
+                        })
+                        .show();
                 entryFound = true;
                 break;
             }
         }
+        //After all Exams have been checked, remove the ones being selected in the process
         if (!entryFound) removeSelected();
     }
 
@@ -273,8 +259,19 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if(requestCode == REQUEST_CODE_READ_STORAGE){
+            doNotRebuildUriMap = true;
+        }
+        super.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    @Override
     public void onResume() {
-        buildUriMap();
+        if(doNotRebuildUriMap)
+            doNotRebuildUriMap = false;
+        else
+            buildUriMap();
         super.onResume();
     }
 

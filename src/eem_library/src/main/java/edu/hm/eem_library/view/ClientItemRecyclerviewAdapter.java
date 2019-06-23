@@ -63,6 +63,8 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
             if(device.countNotificationDrawer>0) {
                 countNotificationDrawer.setVisibility(View.VISIBLE);
                 countNotificationDrawer.setText(context.getString(R.string.notification_drawer_has_been_opened, device.countNotificationDrawer));
+            } else {
+                countNotificationDrawer.setVisibility(View.GONE);
             }
         }
 

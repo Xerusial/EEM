@@ -3,12 +3,9 @@ package edu.hm.eem_client.view;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.graphics.drawable.AnimationDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
@@ -19,13 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import edu.hm.eem_client.R;
@@ -85,8 +80,6 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
     }
 
     private void showPwDialog(ThumbnailedExamDocument doc){
-        AlertDialog.Builder builder;
-        builder = new AlertDialog.Builder(getContext());
         TextView textView = new TextView(getContext());
         textView.setText(getString(R.string.dialog_explorer));
         textView.setTypeface(Typeface.DEFAULT_BOLD);
@@ -95,14 +88,15 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         lp.setMargins(20, 20, 20, 0);
         textView.setPadding(20,20,20,0);
         textView.setLayoutParams(lp);
-        builder.setCustomTitle(textView);
 
         final EditText input = new EditText(getContext());
 
-        input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setCustomTitle(textView)
+            .setView(input)
 
-        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
             String text = input.getText().toString();
             try {
                 if (model.teacherExam.checkPW(text)) {
@@ -114,16 +108,16 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
                 e.printStackTrace();
             }
 
-        });
-        builder.setNeutralButton(R.string.preview_document, ((dialog, which) -> {
+        })
+        .setNeutralButton(R.string.preview_document, ((dialog, which) -> {
             Bundle bundle = new Bundle();
             String uriString = doc.item.getUriString();
             bundle.putString(EXAMDOCUMENT_FIELD, uriString);
             Navigation.createNavigateOnClickListener(R.id.action_open_reader, bundle);
             Navigation.findNavController(getView()).navigate(R.id.action_open_reader, bundle);
-        }));
-        builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
-        builder.show();
+        }))
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
+        .show();
     }
 
     public interface OnDocumentsAcceptedListener{

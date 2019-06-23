@@ -9,6 +9,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -125,26 +126,21 @@ public class LockActivity extends AppCompatActivity
         model = ViewModelProviders.of(this).get(ClientItemViewModel.class);
         handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
-        swStartService.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
+        swStartService.setOnClickListener(v -> {
+            if (swStartService.isChecked()) {
                 prepareService();
                 switchSetEnabled(swUseHotspot, false);
                 switchSetEnabled(swLock, true);
             } else {
                 quitService();
-                if(!swLock.isChecked()) {
-                    switchSetEnabled(swUseHotspot, true);
-                    switchSetEnabled(swLock, false);
-                }
+                switchSetEnabled(swUseHotspot, true);
+                switchSetEnabled(swLock, false);
             }
-
         });
-        swUseHotspot.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            changeHotSpot(isChecked);
-        }));
+        swUseHotspot.setOnClickListener(v -> changeHotSpot(swUseHotspot.isChecked()));
         switchSetEnabled(swLock, false);
-        swLock.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            if(isChecked) {
+        swLock.setOnClickListener(v -> {
+            if(swLock.isChecked()) {
                 if (model.getLivedata().getSelectionCount() != model.getLivedata().getValue().size())
                     showLockDialog();
                 else
@@ -155,11 +151,12 @@ public class LockActivity extends AppCompatActivity
                 else
                     showExitDialog(ProtocolTerminationReason.UNLOCK_DEVICES);
             }
-        }));
+        });
     }
 
     private void lock(boolean enable){
         if(enable) {
+            quitService();
             swStartService.setChecked(false);
             switchSetEnabled(swStartService, false);
             hostProtocolManager.sendSignal(SignalPacket.Signal.LOCK, HostProtocolManager.TO_ALL);
@@ -176,12 +173,9 @@ public class LockActivity extends AppCompatActivity
     private void showLockDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_still_unchecked_documents)
-                .setPositiveButton(R.string.string_continue, (dialog, id) -> {
-                    lock(true);
-                })
-                .setNegativeButton(android.R.string.cancel, (dialog, id) -> {
-                    dialog.cancel();
-                });
+                .setPositiveButton(R.string.string_continue, (dialog, id) -> lock(true))
+                .setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.cancel())
+                .setOnCancelListener(dialog -> swLock.setChecked(false));
         builder.show();
     }
 
@@ -285,6 +279,7 @@ public class LockActivity extends AppCompatActivity
     public void onNotEnabled() {
         swUseHotspot.setChecked(false);
         swStartService.setChecked(false);
+        swLock.setChecked(false);
     }
 
     @Override

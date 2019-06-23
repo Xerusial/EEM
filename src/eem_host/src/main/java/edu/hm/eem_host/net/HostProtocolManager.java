@@ -81,6 +81,7 @@ public class HostProtocolManager extends ProtocolManager {
                         }
                         DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);
                         sender.start();
+                        setName("HostReceiverThread@" + name);
                     } else {
                         terminate = true;
                     }

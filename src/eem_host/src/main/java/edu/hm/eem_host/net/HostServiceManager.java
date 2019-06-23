@@ -20,11 +20,15 @@ public class HostServiceManager extends ServiceManager implements RegisterListen
     private final String profName;
     private final DNSSD dnssd;
     private DNSSDService service = null;
-    private Thread serverThread;
+    private ServerThread serverThread;
     private ServerSocket serverSocket;
     private HostProtocolManager protocolManager;
 
-    private class ServerThread implements Runnable {
+    private class ServerThread extends Thread {
+
+        private ServerThread() {
+            setName("ServerThread");
+        }
 
         public void run() {
             Socket socket;
@@ -45,7 +49,7 @@ public class HostServiceManager extends ServiceManager implements RegisterListen
         this.serverSocket = serverSocket;
         this.protocolManager = protocolManager;
         createService(serverSocket.getLocalPort());
-        this.serverThread = new Thread(new ServerThread());
+        this.serverThread = new ServerThread();
         this.serverThread.start();
     }
 

@@ -22,7 +22,7 @@ import edu.hm.eem_library.R;
 public abstract class DocumentPickerActivity extends AppCompatActivity {
 
     private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-    private final int REQUEST_CODE_READ_STORAGE = 1;
+    final int REQUEST_CODE_READ_STORAGE = 1;
 
     protected final void checkFileManagerPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
