@@ -78,9 +78,9 @@ public final class WIFIANDLOCATIONCHECKER {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(apl);
         if (wifi)
-            builder.setMessage(apl.getString(R.string.alert_wifi_for_app));
+            builder.setMessage(apl.getString(R.string.dialog_wifi_for_app));
         else
-            builder.setMessage(apl.getString(R.string.alert_location_for_scan));
+            builder.setMessage(apl.getString(R.string.dialog_location_for_scan));
 
         builder.setPositiveButton(apl.getString(android.R.string.ok), (dialog, which) -> {
                     Intent intent;
