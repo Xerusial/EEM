@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/header_scan_for_exam_providers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/header_scan_for_exam_providers"
@@ -34,7 +34,7 @@
         android:text="@string/scan_for_services"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView"/>
+        app:layout_constraintTop_toBottomOf="@id/header_scan_for_exam_providers"/>
 
     <ImageView
         android:id="@+id/progress_background"

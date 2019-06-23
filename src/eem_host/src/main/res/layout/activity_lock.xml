@@ -40,52 +40,52 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/wifi"
+            android:layout_gravity="center_vertical"
             />
 
         <TextView
             android:id="@+id/wifi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:lines="2"
             android:text="@string/hotspot"
             android:textColor="@color/black" />
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/header_net_name"
+    <LinearLayout
+        android:id="@+id/hotspot_credentials"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/wifi_net_name"
+        android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sw_use_hotspot_wrapper" />
+        app:layout_constraintTop_toBottomOf="@id/sw_use_hotspot_wrapper">
 
-    <TextView
-        android:id="@+id/net_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/blank"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_net_name" />
+        <TextView
+            android:id="@+id/header_net_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wifi_net_name" />
 
-    <TextView
-        android:id="@+id/header_net_pw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/password"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/net_name" />
+        <TextView
+            android:id="@+id/net_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blank" />
 
-    <TextView
-        android:id="@+id/net_pw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/blank"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_net_pw" />
+        <TextView
+            android:id="@+id/header_net_pw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/password" />
+
+        <TextView
+            android:id="@+id/net_pw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blank" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/header_con_devices"
@@ -95,7 +95,7 @@
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/net_pw" />
+        app:layout_constraintTop_toBottomOf="@id/hotspot_credentials" />
 
     <Switch
         android:id="@+id/sw_start_service"
@@ -107,6 +107,16 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_con_devices" />
 
+    <Switch
+        android:id="@+id/sw_lock_students"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lock_student_devices"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sw_start_service" />
+
     <fragment
         android:id="@+id/student_list"
         android:name="edu.hm.eem_library.view.ItemListFragment"
@@ -115,7 +125,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sw_start_service"
+        app:layout_constraintTop_toBottomOf="@id/sw_lock_students"
         app:ListContent="DEVICE"
         tools:layout="@layout/fragment_itemlist" />
 

@@ -48,6 +48,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     private ImageView progressBg;
     private ImageView progress;
     private AnimationDrawable progressAnim;
+    private boolean locked = false;
 
     public class LockedHandler extends Handler implements ProtocolHandler {
         private LockedHandler(Looper looper) {
@@ -78,6 +79,13 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
                     model.getLivedata().observe(LockedActivity.this, obs);
 
                 }
+            });
+        }
+
+        public void lock(){
+            this.post(() -> {
+                model.getLivedata().removeSelected();
+                locked = true;
             });
         }
 
@@ -146,7 +154,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
 
     @Override
     public void onBackPressed() {
-        if(navController.getCurrentDestination().getId() == R.id.documentExplorerFragment)
+        if(locked && navController.getCurrentDestination().getId() == R.id.documentExplorerFragment)
             showExitDialog();
         else
             super.onBackPressed();
@@ -227,5 +235,13 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         }
         progressBg.setVisibility(on?View.VISIBLE:View.GONE);
         progress.setVisibility(on?View.VISIBLE:View.GONE);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(locked && !hasFocus) {
+            pm.notificationDrawerPulled();
+        }
     }
 }

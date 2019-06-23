@@ -2,8 +2,6 @@ package edu.hm.eem_library.model;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 
 public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
@@ -25,6 +23,14 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
             notifyObserversMeta();
     }
 
+    public void setAllSelected(){
+        for(T item : getValue()){
+            item.selected = true;
+            selectionCounter++;
+        }
+        notifyObserversMeta();
+    }
+
     /** Get a selected item in the map.
      *
      * @return The first item in the list, which is selected. If none is selected, returns null.
@@ -44,7 +50,7 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
     /** Notfify Observers, but only the selection has changed, so the Arraylist does not need to be
      * rebuilt.
      */
-    private void notifyObserversMeta(){
+    void notifyObserversMeta(){
         postValue(getValue());
     }
 

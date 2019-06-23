@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.net.Socket;
 
 import edu.hm.eem_host.view.LockActivity;
+import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_library.model.SelectableSortableItem;
-import edu.hm.eem_library.model.SelectableSortableItemLiveData;
 import edu.hm.eem_library.net.ClientItem;
 import edu.hm.eem_library.net.DataPacket;
 import edu.hm.eem_library.net.FilePacket;
@@ -16,29 +16,39 @@ import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
 public class HostProtocolManager extends ProtocolManager {
-    private SelectableSortableItemLiveData<ClientItem, SelectableSortableItem<ClientItem>> liveData;
+    private ClientItemViewModel.ClientItemLiveData liveData;
     private final String exam;
 
-    public HostProtocolManager(Activity context, SelectableSortableItemLiveData<ClientItem, SelectableSortableItem<ClientItem>> liveData, LockActivity.LockHandler handler, String exam) {
+    public HostProtocolManager(Activity context, ClientItemViewModel.ClientItemLiveData liveData, LockActivity.LockHandler handler, String exam) {
         super(context, handler);
         this.liveData = liveData;
         this.exam = exam;
     }
 
+    public static final int TO_ALL = -1;
+    public void sendSignal(SignalPacket.Signal signal, int index){
+        if(index>=0){
+            ClientItem device = liveData.getValue().get(index).item;
+            sendSignal(signal, device.socket);
+        } else  {
+            for(SelectableSortableItem<ClientItem> device : liveData.getValue()){
+                sendSignal(signal, device.item.socket);
+            }
+        }
+    }
+
     public void sendLightHouse(int index){
         ClientItem device = liveData.getValue().get(index).item;
-        SignalPacket lightHouseSig = new SignalPacket(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF);
-        DataPacket.SenderThread thread = new DataPacket.SenderThread(device.socket, lightHouseSig);
-        thread.start();
+        sendSignal(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF, device.socket);
+    }
+
+    public void sendLock(int index){
+        sendSignal(SignalPacket.Signal.LOCK, index);
     }
 
     @Override
     public void quit() {
-        for(SelectableSortableItem<ClientItem> device : liveData.getValue()){
-            SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
-            DataPacket.SenderThread thread = new DataPacket.SenderThread(device.item.socket, termSig);
-            thread.start();
-        }
+        sendSignal(SignalPacket.Signal.LOGOFF, TO_ALL);
         super.quit();
     }
 
@@ -86,6 +96,9 @@ public class HostProtocolManager extends ProtocolManager {
                             break;
                         case ALL_DOC_ACCEPTED:
                             liveData.setSelected(name, true);
+                            break;
+                        case NOTIFICATIONDRAWER_PULLED:
+                            liveData.incrCountNotificationDrawer(name);
                             break;
                     }
                 }

@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
 import edu.hm.eem_host.net.HostServiceManager;
 import edu.hm.eem_library.net.ProtocolHandler;
+import edu.hm.eem_library.net.SignalPacket;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
@@ -51,15 +53,16 @@ public class LockActivity extends AppCompatActivity
     private LocationManager lm;
     private NotificationManager nm;
     private TextView netName, netPw, wifiText;
-    private Switch swStartService, swUseHotspot;
+    private Switch swStartService, swUseHotspot, swLock;
     private HostProtocolManager hostProtocolManager = null;
     private HostServiceManager hostServiceManager = null;
     private ClientItemViewModel model;
     private String examName;
     private LockHandler handler;
+    private View hotspotCredentials;
 
     private enum ProtocolTerminationReason{
-        EXIT, START_SERVICE, HOTSPOT_ON, HOTSPOT_OFF
+        EXIT, UNLOCK_DEVICES
     }
 
     public class LockHandler extends Handler implements ProtocolHandler {
@@ -112,6 +115,8 @@ public class LockActivity extends AppCompatActivity
         wifiText = findViewById(R.id.wifi);
         swStartService = findViewById(R.id.sw_start_service);
         swUseHotspot = findViewById(R.id.sw_use_hotspot);
+        swLock = findViewById(R.id.sw_lock_students);
+        hotspotCredentials = findViewById(R.id.hotspot_credentials);
         wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
@@ -121,23 +126,63 @@ public class LockActivity extends AppCompatActivity
         handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
         swStartService.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            quitService();
             if (isChecked) {
-                if(!model.getLivedata().isEmpty()) {
-                    showExitDialog(ProtocolTerminationReason.START_SERVICE);
-                } else {
-                    prepareService();
-                }
+                prepareService();
+                switchSetEnabled(swUseHotspot, false);
+                switchSetEnabled(swLock, true);
             } else {
-                switchSetEnabled(swUseHotspot, true);
+                quitService();
+                if(!swLock.isChecked()) {
+                    switchSetEnabled(swUseHotspot, true);
+                    switchSetEnabled(swLock, false);
+                }
             }
+
         });
         swUseHotspot.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            if(model.getLivedata().isEmpty())
-                changeHotSpot(isChecked);
-            else
-                showExitDialog(isChecked?ProtocolTerminationReason.HOTSPOT_ON:ProtocolTerminationReason.HOTSPOT_OFF);
+            changeHotSpot(isChecked);
         }));
+        switchSetEnabled(swLock, false);
+        swLock.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            if(isChecked) {
+                if (model.getLivedata().getSelectionCount() != model.getLivedata().getValue().size())
+                    showLockDialog();
+                else
+                    lock(true);
+            } else {
+                if(model.getLivedata().isEmpty())
+                    lock(false);
+                else
+                    showExitDialog(ProtocolTerminationReason.UNLOCK_DEVICES);
+            }
+        }));
+    }
+
+    private void lock(boolean enable){
+        if(enable) {
+            swStartService.setChecked(false);
+            switchSetEnabled(swStartService, false);
+            hostProtocolManager.sendSignal(SignalPacket.Signal.LOCK, HostProtocolManager.TO_ALL);
+            model.getLivedata().setAllSelected();
+        } else {
+            quitProtocol();
+            switchSetEnabled(swStartService, true);
+            switchSetEnabled(swUseHotspot, true);
+            switchSetEnabled(swLock, false);
+        }
+        hotspotCredentials.setVisibility(enable?View.GONE:View.VISIBLE);
+    }
+
+    private void showLockDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_still_unchecked_documents)
+                .setPositiveButton(R.string.string_continue, (dialog, id) -> {
+                    lock(true);
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, id) -> {
+                    dialog.cancel();
+                });
+        builder.show();
     }
 
     private void changeHotSpot(boolean enable){
@@ -152,7 +197,6 @@ public class LockActivity extends AppCompatActivity
     }
 
     private void prepareService(){
-        quitProtocol();
         if (!swUseHotspot.isChecked())
             WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
         else
@@ -205,23 +249,17 @@ public class LockActivity extends AppCompatActivity
                         case EXIT:
                             super.onBackPressed();
                             break;
-                        case START_SERVICE:
-                            prepareService();
-                            break;
-                        case HOTSPOT_ON:
-                            changeHotSpot(true);
-                            break;
-                        case HOTSPOT_OFF:
-                            changeHotSpot(false);
+                        case UNLOCK_DEVICES:
+                            lock(false);
                             break;
                     }
                 })
-                .setNegativeButton(android.R.string.no, (dialog, id) -> {
-                    if(reason==ProtocolTerminationReason.START_SERVICE)
-                        swStartService.setChecked(false);
-                    dialog.cancel();
+                .setNegativeButton(android.R.string.no, (dialog, id) -> dialog.cancel())
+                .setOnCancelListener(dialog -> {
+                    if(reason==ProtocolTerminationReason.UNLOCK_DEVICES)
+                        swLock.setChecked(true);
                 });
-        builder.show();
+                builder.show();
     }
 
     @Override

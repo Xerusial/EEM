@@ -63,9 +63,14 @@ public class ClientProtocolManager extends ProtocolManager {
      * Method to be called, if rejected documents are post-allowed by the professors password
      */
     public void allDocumentsAccepted() {
-        SignalPacket successSig = new SignalPacket(SignalPacket.Signal.ALL_DOC_ACCEPTED);
-        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, successSig);
-        thread.start();
+        sendSignal(SignalPacket.Signal.ALL_DOC_ACCEPTED, socket);
+    }
+
+    /**
+     * Method to send the host a signal, that the notification drawer has been pulled on the device.
+     */
+    public void notificationDrawerPulled(){
+        sendSignal(SignalPacket.Signal.NOTIFICATIONDRAWER_PULLED, socket);
     }
 
     /**
@@ -116,6 +121,9 @@ public class ClientProtocolManager extends ProtocolManager {
                         case LOGOFF:
                             handler.gracefulShutdown("Terminate from host!");
                             terminate = true;
+                            break;
+                        case LOCK:
+                            handler.lock();
                             break;
                     }
                     break;

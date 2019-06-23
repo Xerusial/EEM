@@ -26,7 +26,18 @@ public abstract class ProtocolManager{
         }
     }
 
-    /* Protocol Receiver Thread
+    /** Method to send a signal packet to the specified socket
+     *
+     * @param signal type
+     * @param socket target socket
+     */
+    public final void sendSignal(SignalPacket.Signal signal, Socket socket){
+        SignalPacket signalPacket = new SignalPacket(signal);
+        DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, signalPacket);
+        thread.start();
+    }
+
+    /** Protocol Receiver Thread
      * The server opens one thread for each socket, the client has only got one thread.
      */
     public abstract class ReceiverThread extends Thread {

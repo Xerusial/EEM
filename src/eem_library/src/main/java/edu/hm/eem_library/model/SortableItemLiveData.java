@@ -27,12 +27,18 @@ import java.util.TreeMap;
  *                .->|--------------------------------|<-.
  *                |  | SelectableSortableItem         |  |
  *                |  '--------------------------------'  |
- *                |                                      |
- *  .---------------------------.        .------------------------------.
- *  | ExamDocumentItemLiveData  |        |       ExamItemLiveData       |
- *  |---------------------------|        |------------------------------|
- *  | ThumbnailedExamDocument   |        | SelectableSortableItem<File> |
- *  '---------------------------'        '------------------------------'
+ *                |                   ^                  |
+ *  .---------------------------.     |  .------------------------------.
+ *  | ExamDocumentItemLiveData  |     |  |       ExamItemLiveData       |
+ *  |---------------------------|     |  |------------------------------|
+ *  | ThumbnailedExamDocument   |     |  | SelectableSortableItem<File> |
+ *  '---------------------------'     |  '------------------------------'
+ *                                    |
+ *                 .------------------------------------.
+ *                 |         ClientItemLiveData         |
+ *                 |------------------------------------|
+ *                 | SelectableSortableItem<ClientItem> |
+ *                 '------------------------------------'
  *
  * @param <V> The real item contained in the backingmap of this livedata
  * @param <T> The SortableItem container to hold the item
