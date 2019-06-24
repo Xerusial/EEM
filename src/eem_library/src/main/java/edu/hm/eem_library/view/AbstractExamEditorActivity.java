@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocumentItemViewModel;
+import edu.hm.eem_library.model.HASHTOOLBOX;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
@@ -111,10 +112,10 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         }
     }
 
-    static class SingleDocumentLoader extends AsyncTask<Uri, Void, ThumbnailedExamDocument> {
-        private final WeakReference<AbstractExamEditorActivity> context;
+    protected static class SingleDocumentLoader extends AsyncTask<Uri, Void, ThumbnailedExamDocument> {
+        protected final WeakReference<AbstractExamEditorActivity> context;
 
-        SingleDocumentLoader(AbstractExamEditorActivity context) {
+        protected SingleDocumentLoader(AbstractExamEditorActivity context) {
             this.context = new WeakReference<>(context);
         }
 
@@ -126,7 +127,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
 
         @Override
         protected ThumbnailedExamDocument doInBackground(Uri... uris) {
-            ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(context.get(), uris[0]);
+            ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(context.get(), uris[0], HASHTOOLBOX.WhichHash.BOTH);
             return examDocument;
         }
 

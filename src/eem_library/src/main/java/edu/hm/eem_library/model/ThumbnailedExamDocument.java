@@ -41,7 +41,7 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
                 try {
                     Uri uri = Uri.parse(doc.getUriString());
                     ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-                    outSet.add(getThumb(context, fileDescriptor, doc));
+                    outSet.add(getThumb(context, fileDescriptor, doc, HASHTOOLBOX.WhichHash.fromDoc(doc)));
                 } catch (FileNotFoundException e) {
                     outSet.add(new ThumbnailedExamDocument(doc.getName(), doc, null, true));
                 }
@@ -56,13 +56,13 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
     }
 
     @Nullable
-    public static ThumbnailedExamDocument getInstance(DocumentPickerActivity context, Uri uri)
+    public static ThumbnailedExamDocument getInstance(DocumentPickerActivity context, Uri uri, HASHTOOLBOX.WhichHash which)
     {
         ThumbnailedExamDocument thDoc;
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
             ExamDocument doc = new ExamDocument(context.getNameFromUri(uri), uri.toString());
-            thDoc = getThumb(context, fileDescriptor, doc);
+            thDoc = getThumb(context, fileDescriptor, doc, which);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             thDoc = null;
@@ -70,15 +70,16 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         return thDoc;
     }
 
-    private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc){
+    private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which){
         try {
-            int width = context.getResources().getDisplayMetrics().widthPixels/2;
+            int width = (int) (context.getResources().getDisplayMetrics().density*180); // 180dp
             Bitmap thumbnail = Bitmap.createBitmap(width,(int)sqrt(2)*width, Bitmap.Config.ARGB_8888);
             PdfRenderer renderer = new PdfRenderer(context,fileDescriptor);
             PdfRenderer.Page page = renderer.openPage(0);
             page.render(thumbnail);
             page.close();
-            ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor));
+            ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor), which);
+            ids.pages = renderer.getPageCount();
             renderer.close();
             doc.update(ids);
             return new ThumbnailedExamDocument(doc.getName(), doc, thumbnail, true);

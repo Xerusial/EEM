@@ -19,17 +19,43 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Iterator;
 
-final class HASHTOOLBOX {
+public final class HASHTOOLBOX {
     private HASHTOOLBOX(){}
 
-    static ExamDocument.Identifiers genDocMD5s(Context context, InputStream is) throws IOException {
+    public  enum WhichHash{
+        NORMAL, NON_ANNOTATED, BOTH;
+
+        static WhichHash fromDoc(ExamDocument doc){
+            if(doc.getHash()==null && doc.getNonAnnotatedHash()!=null){
+                return NON_ANNOTATED;
+            } else if (doc.getHash()!=null && doc.getNonAnnotatedHash()==null){
+                return NORMAL;
+            } else {
+                return BOTH;
+            }
+        }
+    }
+
+    static ExamDocument.Identifiers genDocMD5s(Context context, InputStream is, WhichHash which) throws IOException {
         try {
             // Create MessageDigest instance for MD5
             MessageDigest md = MessageDigest.getInstance("MD5");
             DigestInputStream digis = new DigestInputStream(is, md);
             ExamDocument.Identifiers ids = new ExamDocument.Identifiers();
-            genMD5WithoutAnnotations(ids, context, digis);
-            ids.hash = digis.getMessageDigest().digest();
+            switch (which){
+                case NORMAL:
+                    //noinspection StatementWithEmptyBody
+                    while ((digis.read()) != -1);
+                    break;
+                case NON_ANNOTATED:
+                    digis.on(false); //disable hashing
+                    // fallthrough
+                case BOTH:
+                    genMD5WithoutAnnotations(ids, context, digis);
+                    break;
+            }
+            if(which!=WhichHash.NON_ANNOTATED)
+                ids.hash = digis.getMessageDigest().digest();
             digis.close();
             return ids;
         } catch (NoSuchAlgorithmException e){
@@ -66,7 +92,6 @@ final class HASHTOOLBOX {
             ids.nonAnnotatedHash = digos.getMessageDigest().digest();
             digos.close();
             nos.close();
-            ids.pages = document.getNumberOfPages();
             document.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

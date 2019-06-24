@@ -17,7 +17,8 @@
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintDimensionRatio="0.7f" />
+        app:layout_constraintDimensionRatio="0.7f"
+        android:contentDescription="@string/book_page" />
 
     <TextView
         android:id="@+id/number_of_pages"
@@ -58,7 +59,7 @@
 
         <TextView
             android:id="@+id/itemname"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
             android:lines="2"
@@ -67,8 +68,18 @@
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/selected"
+            app:layout_constraintRight_toLeftOf="@id/notes_allowed"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Itemname" />
+            tools:text="Very very very long pdf name" />
+
+        <ImageView
+            android:id="@+id/notes_allowed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_edit" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

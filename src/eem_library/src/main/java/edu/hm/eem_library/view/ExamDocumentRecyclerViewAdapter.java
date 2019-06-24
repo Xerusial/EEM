@@ -37,12 +37,14 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
         final ImageView thumbnail;
         final TextView numberPages;
         final ConstraintLayout item;
+        final ImageView notes_allowed;
 
         DocumentViewHolder(View view) {
             super(view);
             thumbnail = view.findViewById(R.id.icon);
             numberPages = view.findViewById(R.id.number_of_pages);
             item = view.findViewById(R.id.item);
+            notes_allowed = view.findViewById(R.id.notes_allowed);
         }
 
         @Override
@@ -64,6 +66,7 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
                     numberPages.setVisibility(View.VISIBLE);
                     numberPages.setTextSize(36);
                 }
+                notes_allowed.setVisibility(ted.item.getHash()==null?View.VISIBLE:View.GONE);
             } else {
                 thumbnail.setImageBitmap(ted.thumbnail);
                 switch (ted.reason){

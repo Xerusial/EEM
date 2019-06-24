@@ -39,6 +39,7 @@ import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.model.ExamItemViewModel;
+import edu.hm.eem_library.model.HASHTOOLBOX;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
@@ -192,7 +193,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     void handleDocument(@Nullable Uri uri) {
         if (uri != null) {
             Pair<Boolean, List<String>> entry = uriMap.get(replacementUri);
-            ExamDocument doc = ThumbnailedExamDocument.getInstance(this, uri).item;
+            ExamDocument doc = ThumbnailedExamDocument.getInstance(this, uri, HASHTOOLBOX.WhichHash.BOTH).item;
             for (String s : entry.second) {
                 ExamFactory factory = new ExamFactory(examType);
                 for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {

@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 
 import edu.hm.eem_host.R;
+import edu.hm.eem_library.model.HASHTOOLBOX;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.model.TeacherExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
@@ -127,16 +128,26 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 .show();
     }
 
+    static class HostSingleDocumentLoader extends SingleDocumentLoader {
+
+        HostSingleDocumentLoader(ExamEditorActivity context) {
+            super(context);
+        }
+
+        @Override
+        protected ThumbnailedExamDocument doInBackground(Uri... uris) {
+            ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(context.get(),
+                    uris[0], ((ExamEditorActivity)context.get()).allowAnnotations? HASHTOOLBOX.WhichHash.NON_ANNOTATED: HASHTOOLBOX.WhichHash.NORMAL);
+            return examDocument;
+        }
+
+    }
+
     @Override
     protected void handleDocument(@Nullable Uri uri) {
-        if (uri != null) {
-            ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(this, uri);
-            if (allowAnnotations)
-                examDocument.item.removeHash();
-            else
-                examDocument.item.removeNonAnnotatedHash();
-            model.getLivedata().add(examDocument, false);
-            updateFileCounter();
+        if(uri!=null) {
+            HostSingleDocumentLoader loader = new HostSingleDocumentLoader(this);
+            loader.execute(uri);
         }
     }
 }
