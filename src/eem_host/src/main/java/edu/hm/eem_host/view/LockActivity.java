@@ -13,26 +13,26 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
-
-import com.github.druk.dnssd.DNSSDRegistration;
-import com.github.druk.dnssd.DNSSDService;
-import com.github.druk.dnssd.RegisterListener;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -52,7 +52,7 @@ public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
         HotspotManager.OnHotspotEnabledListener,
         ItemListFragment.OnListFragmentPressListener,
-        RegisterListener{
+        NsdManager.RegistrationListener {
     private static final String CHANNEL_ID = "student_activity";
     private HotspotManager hotspotManager;
     private WifiManager wm;
@@ -69,18 +69,19 @@ public class LockActivity extends AppCompatActivity
     private CheckBox cbServiceRunning;
     private boolean locked;
 
-    private enum ProtocolTerminationReason{
+    private enum ProtocolTerminationReason {
         EXIT, UNLOCK_DEVICES
     }
 
     public class LockHandler extends Handler implements ProtocolHandler {
         private int id = 0;
-        private LockHandler(Looper looper){
+
+        private LockHandler(Looper looper) {
             super(looper);
         }
 
-        public void notifyStudentLeft(String name){
-            if(locked) {
+        public void notifyStudentLeft(String name) {
+            if (locked) {
                 this.post(() -> {
                     Notification.Builder builder = new Notification.Builder(LockActivity.this, CHANNEL_ID)
                             .setSmallIcon(R.drawable.ic_student_black)
@@ -137,7 +138,7 @@ public class LockActivity extends AppCompatActivity
         hotspotManager = new HotspotManager(wm, this);
         model = ViewModelProviders.of(this).get(ClientItemViewModel.class);
         handler = new LockHandler(Looper.getMainLooper());
-        ((Toolbar)findViewById(R.id.toolbar)).setTitle(examName);
+        ((Toolbar) findViewById(R.id.toolbar)).setTitle(examName);
         swStartService.setOnClickListener(v -> {
             if (swStartService.isChecked()) {
                 prepareService();
@@ -153,13 +154,13 @@ public class LockActivity extends AppCompatActivity
         swUseHotspot.setOnClickListener(v -> changeHotSpot(swUseHotspot.isChecked()));
         switchSetEnabled(swLock, false);
         swLock.setOnClickListener(v -> {
-            if(swLock.isChecked()) {
+            if (swLock.isChecked()) {
                 if (model.getLivedata().getSelectionCount() != model.getLivedata().getValue().size())
                     showLockDialog();
                 else
                     lock(true);
             } else {
-                if(model.getLivedata().isEmpty())
+                if (model.getLivedata().isEmpty())
                     lock(false);
                 else
                     showExitDialog(ProtocolTerminationReason.UNLOCK_DEVICES);
@@ -171,8 +172,8 @@ public class LockActivity extends AppCompatActivity
         hostServiceManager = new HostServiceManager(this, profName, hostProtocolManager);
     }
 
-    private void lock(boolean enable){
-        if(enable) {
+    private void lock(boolean enable) {
+        if (enable) {
             quitService();
             swStartService.setChecked(false);
             cbServiceRunning.setVisibility(View.GONE);
@@ -187,10 +188,10 @@ public class LockActivity extends AppCompatActivity
             switchSetEnabled(swLock, false);
             locked = false;
         }
-        hotspotCredentials.setVisibility(enable?View.GONE:View.VISIBLE);
+        hotspotCredentials.setVisibility(enable ? View.GONE : View.VISIBLE);
     }
 
-    private void showLockDialog(){
+    private void showLockDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_still_unchecked_documents)
                 .setPositiveButton(R.string.string_continue, (dialog, id) -> lock(true))
@@ -199,10 +200,10 @@ public class LockActivity extends AppCompatActivity
                 .show();
     }
 
-    private void changeHotSpot(boolean enable){
+    private void changeHotSpot(boolean enable) {
         quitProtocol();
         quitService();
-        if(enable){
+        if (enable) {
             WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
             switchSetEnabled(swStartService, false);
         } else {
@@ -210,7 +211,7 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
-    private void prepareService(){
+    private void prepareService() {
         if (!swUseHotspot.isChecked())
             WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
         else
@@ -219,7 +220,7 @@ public class LockActivity extends AppCompatActivity
 
     private void switchSetEnabled(Switch sw, boolean enable) {
         sw.setEnabled(enable);
-        if(sw == swUseHotspot)
+        if (sw == swUseHotspot)
             wifiText.setAlpha(enable ? 1.0f : 0.5f);
     }
 
@@ -232,31 +233,31 @@ public class LockActivity extends AppCompatActivity
     }
 
     private void quitProtocol() {
-        if(hostProtocolManager!=null) {
+        if (hostProtocolManager != null) {
             hostProtocolManager.quit();
             model.getLivedata().clean(true);
         }
     }
 
     private void quitService() {
-        if(hostServiceManager!=null) {
+        if (hostServiceManager != null) {
             hostServiceManager.quit();
         }
     }
 
     @Override
     public void onBackPressed() {
-        if(!model.getLivedata().isEmpty())
+        if (!model.getLivedata().isEmpty())
             showExitDialog(ProtocolTerminationReason.EXIT);
         else
             super.onBackPressed();
     }
 
-    private void showExitDialog(ProtocolTerminationReason reason){
+    private void showExitDialog(ProtocolTerminationReason reason) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_exit_teacher)
                 .setPositiveButton(android.R.string.yes, (dialog, id) -> {
-                    switch (reason){
+                    switch (reason) {
                         case EXIT:
                             super.onBackPressed();
                             break;
@@ -267,10 +268,10 @@ public class LockActivity extends AppCompatActivity
                 })
                 .setNegativeButton(android.R.string.no, (dialog, id) -> dialog.cancel())
                 .setOnCancelListener(dialog -> {
-                    if(reason==ProtocolTerminationReason.UNLOCK_DEVICES)
+                    if (reason == ProtocolTerminationReason.UNLOCK_DEVICES)
                         swLock.setChecked(true);
                 });
-                builder.show();
+        builder.show();
     }
 
     @Override
@@ -278,7 +279,7 @@ public class LockActivity extends AppCompatActivity
         try {
             ServerSocket serverSocket = new ServerSocket(0);
             hostServiceManager.init(serverSocket);
-            switchSetEnabled(swUseHotspot,false);
+            switchSetEnabled(swUseHotspot, false);
             cbServiceRunning.setVisibility(View.VISIBLE);
             cbServiceRunning.setChecked(false);
         } catch (IOException e) {
@@ -287,15 +288,24 @@ public class LockActivity extends AppCompatActivity
     }
 
     @Override
-    public void serviceRegistered(DNSSDRegistration registration, int flags, String serviceName, String regType, String domain) {
+    public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+        hostServiceManager.quit();
+        cbServiceRunning.setVisibility(View.GONE);
+        swStartService.setChecked(false);
+    }
+
+    @Override
+    public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+
+    }
+
+    @Override
+    public void onServiceRegistered(NsdServiceInfo serviceInfo) {
         cbServiceRunning.setChecked(true);
     }
 
     @Override
-    public void operationFailed(DNSSDService service, int errorCode) {
-        hostServiceManager.quit();
-        cbServiceRunning.setVisibility(View.GONE);
-        swStartService.setChecked(false);
+    public void onServiceUnregistered(NsdServiceInfo serviceInfo) {
     }
 
     @Override
@@ -314,7 +324,7 @@ public class LockActivity extends AppCompatActivity
     @Override
     public void OnHotspotEnabled(boolean enabled, @Nullable WifiConfiguration wifiConfiguration) {
         if (enabled) {
-            if(wifiConfiguration != null) {
+            if (wifiConfiguration != null) {
                 netName.setText(wifiConfiguration.SSID);
                 netPw.setText(wifiConfiguration.preSharedKey);
                 switchSetEnabled(swStartService, true);
@@ -326,7 +336,7 @@ public class LockActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == WIFIANDLOCATIONCHECKER.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -345,8 +355,8 @@ public class LockActivity extends AppCompatActivity
             case WIFIANDLOCATIONCHECKER.LOCATION_REQUEST:
                 WIFIANDLOCATIONCHECKER.checkLocation(this, lm, false);
                 break;
-                default:
-                    super.onActivityResult(requestCode, resultCode, data);
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
