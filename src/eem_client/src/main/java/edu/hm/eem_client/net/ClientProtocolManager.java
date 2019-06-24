@@ -54,7 +54,7 @@ public class ClientProtocolManager extends ProtocolManager {
      * @param openedSocket The socket that has been opened
      */
     private void prep(Socket openedSocket) {
-        ((LockedActivity.LockedHandler)handler).loadDocuments();
+        ((LockedActivity.LockedHandler) handler).loadDocuments();
         socket = openedSocket;
         //Start the socket receiver thread
         ReceiverThread receiverThread = new ClientReceiverThread(socket);
@@ -75,7 +75,7 @@ public class ClientProtocolManager extends ProtocolManager {
     /**
      * Method to send the host a signal, that the notification drawer has been pulled on the device.
      */
-    public void notificationDrawerPulled(){
+    public void notificationDrawerPulled() {
         sendSignal(SignalPacket.Signal.NOTIFICATIONDRAWER_PULLED, socket);
     }
 
@@ -93,7 +93,7 @@ public class ClientProtocolManager extends ProtocolManager {
     }
 
     /**
-     * The extension of the {@link ProtocolManager}'s receiverthread. It dispatches the incoming
+     * The extension of the {@link ProtocolManager.ReceiverThread}. It handles the incoming
      * packets for the client app. Note: calls from this thread, that affect the UI have to be
      * posted to the UIs main looper. This is done using the {@link android.os.Handler} class.
      */
@@ -103,6 +103,16 @@ public class ClientProtocolManager extends ProtocolManager {
             setName("ClientReceiverThread");
         }
 
+        /**
+         * The run method, which can be found in the {@link ProtocolManager.ReceiverThread} does
+         * the basic prepocessing like stripping the headers from the packet and decoding its type.
+         * This type is then handed to this method for further actions on the client.
+         *
+         * @param type   The type of {@link DataPacket}
+         * @param is     the inputstream from the respective socket
+         * @param socket the respective socket
+         * @return whether to terminate the receiverthread
+         */
         @Override
         protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
             boolean terminate = false;

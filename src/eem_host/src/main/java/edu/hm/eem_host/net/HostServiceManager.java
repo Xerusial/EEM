@@ -1,33 +1,33 @@
 package edu.hm.eem_host.net;
 
-import android.app.Activity;
 import android.util.Log;
 
-import com.github.druk.dnssd.DNSSD;
+import com.github.druk.dnssd.DNSSDBindable;
 import com.github.druk.dnssd.DNSSDEmbedded;
 import com.github.druk.dnssd.DNSSDException;
-import com.github.druk.dnssd.DNSSDRegistration;
 import com.github.druk.dnssd.DNSSDService;
-import com.github.druk.dnssd.RegisterListener;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import edu.hm.eem_host.view.LockActivity;
 import edu.hm.eem_library.net.ServiceManager;
 
-public class HostServiceManager extends ServiceManager implements RegisterListener {
+public class HostServiceManager extends ServiceManager {
     private final String profName;
-    private final DNSSD dnssd;
+    private DNSSDEmbedded dnssd;
     private DNSSDService service = null;
     private ServerThread serverThread;
-    private ServerSocket serverSocket;
     private HostProtocolManager protocolManager;
+    private LockActivity apl;
 
     private class ServerThread extends Thread {
+        private ServerSocket serverSocket;
 
-        private ServerThread() {
+        private ServerThread(ServerSocket serverSocket) {
             setName("ServerThread");
+            this.serverSocket = serverSocket;
         }
 
         public void run() {
@@ -40,36 +40,29 @@ public class HostServiceManager extends ServiceManager implements RegisterListen
                     e.printStackTrace();
                 }
             }
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public HostServiceManager(Activity apl, ServerSocket serverSocket, String profName, HostProtocolManager protocolManager) {
-        dnssd = new DNSSDEmbedded(apl);
+    public HostServiceManager(LockActivity apl, String profName, HostProtocolManager protocolManager) {
+        this.apl = apl;
         this.profName = profName;
-        this.serverSocket = serverSocket;
         this.protocolManager = protocolManager;
-        createService(serverSocket.getLocalPort());
-        this.serverThread = new ServerThread();
-        this.serverThread.start();
+        dnssd = new DNSSDEmbedded(apl);
     }
 
-    private void createService(int port) {
+    public void init(ServerSocket serverSocket){
+        this.serverThread = new ServerThread(serverSocket);
+        this.serverThread.start();
         try {
-            service = dnssd.register(profName, SERVICE_TYPE, port, this);
+            service = dnssd.register(profName, SERVICE_TYPE, serverSocket.getLocalPort(), apl);
         } catch (DNSSDException e) {
             Log.e("TAG", "error", e);
         }
-    }
-
-    @Override
-    public void serviceRegistered(DNSSDRegistration registration, int flags,
-                                  String serviceName, String regType, String domain) {
-        Log.i("TAG", "Register successfully ");
-    }
-
-    @Override
-    public void operationFailed(DNSSDService service, int errorCode) {
-        Log.e("TAG", "error " + errorCode);
     }
 
     @Override
@@ -77,7 +70,11 @@ public class HostServiceManager extends ServiceManager implements RegisterListen
         if(service!=null) {
             service.stop();
             service = null;
-            serverThread.interrupt();
         }
+        if(serverThread!=null) {
+            serverThread.interrupt();
+            serverThread = null;
+        }
+        dnssd.exit();
     }
 }

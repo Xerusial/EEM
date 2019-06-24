@@ -90,5 +90,9 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
         super.notifyObservers(post);
     }
 
-
+    @Override
+    public void clean(boolean post) {
+        selectionCounter = 0;
+        super.clean(post);
+    }
 }

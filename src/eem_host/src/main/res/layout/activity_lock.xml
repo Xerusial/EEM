@@ -107,6 +107,18 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_con_devices" />
 
+    <CheckBox
+        android:id="@+id/cb_service_running"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/colorPrimary"
+        android:clickable="false"
+        android:text="@string/service_runnning"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sw_start_service" />
+
     <Switch
         android:id="@+id/sw_lock_students"
         android:layout_width="wrap_content"
@@ -115,7 +127,7 @@
         android:textAlignment="textStart"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sw_start_service" />
+        app:layout_constraintTop_toBottomOf="@id/cb_service_running" />
 
     <fragment
         android:id="@+id/student_list"

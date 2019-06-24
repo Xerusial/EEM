@@ -21,14 +21,16 @@
         <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".view.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".view.LockedActivity" />
+        <activity android:name=".view.LockedActivity"
+            android:configChanges="screenSize|orientation">
+            <!-- Dont recreated activity on orientation change-->
+        </activity>
         <activity android:name=".view.ScanActivity" />
     </application>
 

@@ -1,12 +1,10 @@
 package edu.hm.eem_client.net;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.github.druk.dnssd.BaseListener;
 import com.github.druk.dnssd.BrowseListener;
-import com.github.druk.dnssd.DNSSD;
-import com.github.druk.dnssd.DNSSDEmbedded;
+import com.github.druk.dnssd.DNSSDBindable;
 import com.github.druk.dnssd.DNSSDException;
 import com.github.druk.dnssd.DNSSDService;
 import com.github.druk.dnssd.QueryListener;
@@ -23,16 +21,16 @@ import edu.hm.eem_library.net.ServiceManager;
 
 public class ClientServiceManager extends ServiceManager {
     private final SelectableSortableItemLiveData<NsdService, SelectableSortableItem<NsdService>> selectableSortableMapLiveData;
-    private final DNSSD dnssd;
+    private final DNSSDBindable dnssd;
     private final ExamBrowseListener examBrowseListener = new ExamBrowseListener();
     private final ExamResolverListener examResolverListener = new ExamResolverListener();
     private final ExamQueryListener examQueryListener = new ExamQueryListener();
     private final ServiceReadyListener serviceReadyListener;
-    private DNSSDService dnssdService = null;
+    private DNSSDService browseService = null, resolveService = null, queryService = null;
     private NsdService nsdService;
 
     public ClientServiceManager(Context context, SelectableSortableItemLiveData<NsdService, SelectableSortableItem<NsdService>> selectableSortableMapLiveData, ServiceReadyListener serviceReadyListener) {
-        this.dnssd = new DNSSDEmbedded(context);
+        this.dnssd = new DNSSDBindable(context);
         this.selectableSortableMapLiveData = selectableSortableMapLiveData;
         this.serviceReadyListener = serviceReadyListener;
     }
@@ -45,16 +43,12 @@ public class ClientServiceManager extends ServiceManager {
      */
     public void discover(boolean on) {
         if (on) {
-            Log.d("Main", "Started scanning!");
             try {
-                dnssdService = dnssd.browse(SERVICE_TYPE, examBrowseListener);
+                browseService = dnssd.browse(SERVICE_TYPE, examBrowseListener);
             } catch (DNSSDException e) {
                 e.printStackTrace();
             }
-        } else if (dnssdService != null) {
-            dnssdService.stop();
-            dnssdService = null;
-        }
+        } else quit();
     }
 
     /**
@@ -67,7 +61,7 @@ public class ClientServiceManager extends ServiceManager {
     public void resolve(NsdService nsdService) {
         this.nsdService = nsdService;
         try {
-            dnssd.resolve(nsdService.flags, nsdService.ifIndex, nsdService.serviceName, nsdService.regType, nsdService.domain, examResolverListener);
+            resolveService = dnssd.resolve(nsdService.flags, nsdService.ifIndex, nsdService.serviceName, nsdService.regType, nsdService.domain, examResolverListener);
         } catch (DNSSDException e) {
             e.printStackTrace();
         }
@@ -83,7 +77,7 @@ public class ClientServiceManager extends ServiceManager {
     private void queryRecords(String hostName) {
         try {
             //Query for record type 1: Ipv4 https://en.wikipedia.org/wiki/List_of_DNS_record_types
-            dnssd.queryRecord(0, nsdService.ifIndex, hostName, 1, 1, examQueryListener);
+            queryService = dnssd.queryRecord(0, nsdService.ifIndex, hostName, 1, 1, examQueryListener);
         } catch (DNSSDException e) {
             e.printStackTrace();
         }
@@ -94,7 +88,18 @@ public class ClientServiceManager extends ServiceManager {
      */
     @Override
     public void quit() {
-        discover(false);
+        if (browseService != null) {
+            browseService.stop();
+            browseService = null;
+        }
+        if(resolveService != null){
+            resolveService.stop();
+            resolveService = null;
+        }
+        if(queryService != null){
+            queryService.stop();
+            queryService = null;
+        }
     }
 
     /**

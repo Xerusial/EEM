@@ -24,6 +24,7 @@ public abstract class ProtocolManager{
         for(ReceiverThread thread : threads){
             thread.interrupt();
         }
+        threads.clear();
     }
 
     /** Method to send a signal packet to the specified socket
