@@ -15,6 +15,10 @@ import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.AboutActivity;
 
+/** The first activity of this application, only used to correctly branch into other activities.
+ * Main functionality is in the {@link AbstractMainActivity} in the eem_library.
+ *
+ */
 public class MainActivity extends AbstractMainActivity {
     private static final int REQUEST_ACCESS_DND = 2;
     private NotificationManager nm;
@@ -27,6 +31,11 @@ public class MainActivity extends AbstractMainActivity {
         checkDnDPermission(true);
     }
 
+    /** Branch into activities launched from the burger menu
+     *
+     * @param item which has been touched
+     * @return launchintent for item was found
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean ret = false;
@@ -48,6 +57,11 @@ public class MainActivity extends AbstractMainActivity {
         return ret;
     }
 
+    /** Starts follow-up activities from various input touchpoints in this activity.
+     *
+     * @param examName currently focused exam, may be null
+     * @param action specifies the next activity to be launched
+     */
     @Override
     protected void startSubApplication(@Nullable String examName, ActionType action) {
         Intent intent = null;
@@ -65,6 +79,11 @@ public class MainActivity extends AbstractMainActivity {
         }
     }
 
+    /** Do not disturb mode/ zen mode needs to be enabled in this app, in order to hide notifications
+     * form the student. This needs a special permission, which is checked by this function.
+     *
+     * @param firstTry first time to ask for permission or has the user already cancelled the req?
+     */
     private void checkDnDPermission(boolean firstTry){
         if(!nm.isNotificationPolicyAccessGranted()){
             if(firstTry) {

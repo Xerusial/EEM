@@ -12,6 +12,11 @@ import edu.hm.eem_client.R;
 import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
 
+/** The implemetation of the {@link AbstractExamEditorActivity} for the client side.
+ * This class is only used to change the layout and set the progress symbol to one
+ * that is optimized for E-Ink screens
+ *
+ */
 public class ExamEditorActivity extends AbstractExamEditorActivity {
 
     private ImageView progressBg;
@@ -43,6 +48,11 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         super.onClick(v);
     }
 
+    /** Setting custom progress symbol
+     *
+     * @param on Progress is running
+     * @param hideList Hide the list of documents at the same time
+     */
     @Override
     protected void progress(boolean on, boolean hideList){
         if(on){

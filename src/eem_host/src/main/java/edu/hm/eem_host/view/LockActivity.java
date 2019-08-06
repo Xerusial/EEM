@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
@@ -179,7 +178,7 @@ public class LockActivity extends AppCompatActivity
             cbServiceRunning.setVisibility(View.GONE);
             switchSetEnabled(swStartService, false);
             hostProtocolManager.sendSignal(SignalPacket.Signal.LOCK, HostProtocolManager.TO_ALL);
-            model.getLivedata().setAllSelected();
+            model.getLivedata().setSelected();
             locked = true;
         } else {
             quitProtocol();

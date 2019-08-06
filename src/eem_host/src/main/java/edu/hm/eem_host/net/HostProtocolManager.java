@@ -15,6 +15,9 @@ import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
+/** Host side {@link ProtocolManager}
+ *
+ */
 public class HostProtocolManager extends ProtocolManager {
     private ClientItemViewModel.ClientItemLiveData liveData;
     private final String exam;
@@ -26,6 +29,11 @@ public class HostProtocolManager extends ProtocolManager {
     }
 
     public static final int TO_ALL = -1;
+    /** Sending a {@link SignalPacket} using TCP to one or all clients using TO_ALL
+     *
+     * @param signal Signal code to be sent
+     * @param index receiving client: index in the livedata list
+     */
     public void sendSignal(SignalPacket.Signal signal, int index){
         if(index>=0){
             ClientItem device = liveData.getValue().get(index).item;
@@ -37,11 +45,16 @@ public class HostProtocolManager extends ProtocolManager {
         }
     }
 
+    /** Send the lighthouse signal
+     *
+     * @param index receiving client
+     */
     public void sendLightHouse(int index){
         ClientItem device = liveData.getValue().get(index).item;
         sendSignal(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF, device.socket);
     }
 
+    //TODO!!!
     public void sendLock(int index){
         sendSignal(SignalPacket.Signal.LOCK, index);
     }
@@ -52,11 +65,18 @@ public class HostProtocolManager extends ProtocolManager {
         super.quit();
     }
 
+    /** If a client connects, generate a receiver thread for it
+     *
+     * @param socket the socket for the client
+     */
     void genReceiverThread(Socket socket){
         ReceiverThread receiverThread = new HostProtocolManager.HostReceiverThread(socket);
         receiverThread.start();
     }
 
+    /** The TCP receiver thread. Used to handle incoming messages.
+     *
+     */
     class HostReceiverThread extends ProtocolManager.ReceiverThread {
         private String name;
         private boolean loggedIn = false;

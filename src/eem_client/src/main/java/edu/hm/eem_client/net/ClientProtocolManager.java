@@ -26,6 +26,14 @@ public class ClientProtocolManager extends ProtocolManager {
     private Socket socket = null;
     private final String name;
 
+    /** constructor
+     *
+     * @param context The activity context where this protocol manager is used in
+     * @param host The teacher host ip address from the detected service
+     * @param port The teacher host tcp socket port from the detected service
+     * @param name The students name
+     * @param handler A lockedhandler for various callbacks to the activity
+     */
     public ClientProtocolManager(Activity context, InetAddress host, int port, String name, LockedActivity.LockedHandler handler) {
         super(context, handler);
         this.name = name;

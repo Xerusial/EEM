@@ -30,7 +30,8 @@ import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
 
 /**
- * A simple {@link Fragment} subclass.
+ * One of the two {@link Fragment}s held by the navhost in the {@link LockedActivity}. It is used
+ * to display the selection of documents to the student.
  */
 public class DocumentExplorerFragment extends Fragment implements ItemListFragment.OnListFragmentPressListener {
     final static String EXAMDOCUMENT_FIELD = "ExamDocument";
@@ -79,6 +80,11 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         }
     }
 
+    /** A dialog which allows the teacher to accept documents that where not correctly identified
+     *  by the algorithm.
+     *
+     * @param doc The document, that was touched to be accepted
+     */
     private void showPwDialog(ThumbnailedExamDocument doc){
         TextView textView = new TextView(getContext());
         textView.setText(getString(R.string.dialog_explorer));
@@ -100,7 +106,7 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
             String text = input.getText().toString();
             try {
                 if (model.teacherExam.checkPW(text)) {
-                    model.getLivedata().clearSelection();
+                    model.getLivedata().clearSelection(doc.item.getName());
                     listener.onDocumentsAccepted();
                 } else
                     Toast.makeText(getContext(), R.string.toast_wrong_password, Toast.LENGTH_SHORT).show();
@@ -120,6 +126,9 @@ public class DocumentExplorerFragment extends Fragment implements ItemListFragme
         .show();
     }
 
+    /** Callback for whenever a document has been accepted
+     *
+     */
     public interface OnDocumentsAcceptedListener{
         void onDocumentsAccepted();
     }

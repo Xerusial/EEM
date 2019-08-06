@@ -58,6 +58,11 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
             toolbar.setTitle(examName);
     }
 
+    /** Enable DNSSD scanning for host devices in the local network.
+     *
+     * @param on / off
+     * @return scanning has been enabled
+     */
     private boolean scanNetwork(boolean on){
         boolean ret = false;
         if (on && cm != null) {
@@ -74,6 +79,11 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         return ret;
     }
 
+    /** Enable the progress bar
+     *
+     * @param on / off
+     * @return boolean pass-through
+     */
     private boolean progress(boolean on){
         if(on){
             progressAnim.start();
@@ -85,6 +95,10 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         return on;
     }
 
+    /** Interface, which is called from the recyclerview fragment in this activity
+     *
+     * @param index which item has been pressed?
+     */
     @Override
     public void onListFragmentPress(int index) {
         if(!uiLocked) {
@@ -94,6 +108,11 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         }
     }
 
+    /** Display a screen lock, so no connection attempts can be done by the user, while still trying
+     * to connect to a host.
+     *
+     * @param enable it
+     */
     private void lock(boolean enable){
         uiLocked = enable;
         uiLockView.setVisibility(enable?View.VISIBLE:View.INVISIBLE);
@@ -113,6 +132,10 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         super.onDestroy();
     }
 
+    /** Called if host IP and port have been found.
+     *
+     * @param nsdService holding IP and Port
+     */
     @Override
     public void onServiceReady(NsdService nsdService) {
         Intent intent = new Intent(this, LockedActivity.class);

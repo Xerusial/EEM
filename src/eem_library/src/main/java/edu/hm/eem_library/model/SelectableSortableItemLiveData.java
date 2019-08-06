@@ -23,7 +23,7 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
             notifyObserversMeta();
     }
 
-    public void setAllSelected(){
+    public void setSelected(){
         for(T item : getValue()){
             item.selected = true;
             selectionCounter++;
@@ -58,6 +58,12 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
         return selectionCounter;
     }
 
+    public void clearSelection(String name){
+        backingMap.get(name).selected = false;
+        selectionCounter--;
+        notifyObserversMeta();
+    }
+
     public void clearSelection() {
         for(SelectableSortableItem<V> item : backingMap.values())
             item.selected = false;
@@ -83,6 +89,12 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
             if(notificationNeeded) notifyObservers(false);
         }
         return removed;
+    }
+
+    @Override
+    public T remove(String sortableKey, boolean post) {
+        selectionCounter--;
+        return super.remove(sortableKey, post);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package edu.hm.eem_client.view;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -24,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -43,6 +41,10 @@ import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.view.AbstractMainActivity;
 
+/** This activity is the heart of the lock mode. It features a do not disturb mode, exit monitoring,
+ * a navhost and the lighthouse item.
+ *
+ */
 public class LockedActivity extends AppCompatActivity implements DocumentExplorerFragment.OnDocumentsAcceptedListener {
     private ClientProtocolManager pm;
     private NotificationManager nm;
@@ -54,18 +56,30 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     private ImageView progressBg;
     private ImageView progress;
     private AnimationDrawable progressAnim;
-    private boolean locked = false;
+    private boolean locked = false, drawerListenerOnline = true;
     private Pair<Boolean, Integer> currentNotificationFilter = Pair.create(false,0);
 
+    /** Handler for syncing network signals to actions on the main UI thread.
+     *
+     */
     public class LockedHandler extends Handler implements ProtocolHandler {
         private LockedHandler(Looper looper) {
             super(looper);
         }
 
+        /** Making the lighthouse symbol visible
+         *
+         * @param on turning it on or off
+         */
         public void postLighthouse(boolean on) {
             this.post(() -> lightHouse.setVisibility(on ? View.VISIBLE : View.INVISIBLE));
         }
 
+        /** Checking the proposed documents from the student if they are allowed.
+         *  If the file is received too early, wait for all documents to be loaded using an observer.
+         *
+         * @param exam The received examfile from network
+         */
         public void receiveExam(TeacherExam exam) {
             //has to be posted, because observe cannot be started on background thread
             this.post(()-> {
@@ -89,6 +103,9 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             });
         }
 
+        /** Start the asynctask for loading documents
+         *
+         */
         public void loadDocuments(){
             this.post(() -> {
                 DocumentLoader loader = new DocumentLoader(LockedActivity.this, examName);
@@ -96,6 +113,9 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             });
         }
 
+        /** Starting the lockmode and removing all not accepted documents in the exam from the listing.
+         *
+         */
         public void lock(){
             this.post(() -> {
                 model.getLivedata().removeSelected();
@@ -103,6 +123,11 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             });
         }
 
+        /** Callback for bad packets to close the activity.
+         *
+         * @param hasMessage Indicator for having a message to display.
+         * @param stringID Message for the reason of closing
+         */
         public void gracefulShutdown(boolean hasMessage, @StringRes int stringID) {
             this.post(() -> {
                 try {
@@ -116,8 +141,12 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             });
         }
 
+        /** Showing a toast message
+         *
+         * @param resId Message to be displayed
+         */
         @Override
-        public void putToast(int resId) {
+        public void putToast(@StringRes int resId) {
             this.post(() -> Toast.makeText(LockedActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
         }
     }
@@ -164,22 +193,36 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         pm = new ClientProtocolManager(this, host, port, name, handler);
     }
 
+    /** Intercepting backpress if it was pressed by accident
+     *
+     */
     @Override
     public void onBackPressed() {
-        if(locked && navController.getCurrentDestination().getId() == R.id.documentExplorerFragment)
+        if(locked && navController.getCurrentDestination().getId() == R.id.documentExplorerFragment) {
+            drawerListenerOnline = false;
             showExitDialog();
-        else
+        }else
             super.onBackPressed();
     }
 
+    /** Dialog to be shown on intercepted back press.
+     *
+     */
     private void showExitDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_exit_student)
                 .setPositiveButton(android.R.string.yes, (dialog, id) -> finish())
-                .setNegativeButton(android.R.string.no, (dialog, id) -> dialog.cancel());
+                .setNegativeButton(android.R.string.no, (dialog, id) -> dialog.cancel())
+                .setOnCancelListener(dialog -> drawerListenerOnline = true);
         builder.show();
     }
 
+    /** Making page turns possible using the volume rockers
+     *
+     * @param keyCode keycode of button
+     * @param event keyevent (long press, etc)
+     * @return if other key was pressed
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(reader!=null){
@@ -194,6 +237,9 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         return super.onKeyDown(keyCode,event);
     }
 
+    /** Send a logoff signal and quit DnD
+     *
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -201,17 +247,27 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         activateDnD(false);
     }
 
+    /** When the user brings another activity to foreground, make sure this one quits and sends logoff
+     *
+     */
     @Override
     protected void onPause() {
         super.onPause();
         finish();
     }
 
+    /** Documents accepted callback from the {@link DocumentExplorerFragment}
+     *
+     */
     @Override
     public void onDocumentsAccepted() {
-        pm.allDocumentsAccepted();
+        if(model.getLivedata().getSelectionCount()==0)
+            pm.allDocumentsAccepted();
     }
 
+    /** Asynctask for loading the documents, refreshing thumbnails and hashes.
+     *
+     */
     static class DocumentLoader extends AsyncTask<Void, Void, Void> {
         private final WeakReference<LockedActivity> context;
         private final String examName;
@@ -241,6 +297,10 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         }
     }
 
+    /** Method for activation and deactiviation of DnD mode
+     *
+     * @param on turn on or off
+     */
     private void activateDnD(boolean on){
         if(on){
             currentNotificationFilter = Pair.create(true, nm.getCurrentInterruptionFilter());
@@ -253,6 +313,10 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         }
     }
 
+    /** Document loader animation
+     *
+     * @param on turn on
+     */
     private void progress(boolean on){
         if(on){
             progressAnim.start();
@@ -263,10 +327,14 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         progress.setVisibility(on?View.VISIBLE:View.GONE);
     }
 
+    /** checking whether the notification drawer had been opened
+     *
+     * @param hasFocus if LockedActivity has the current focus
+     */
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if(locked && !hasFocus) {
+        if(locked && !hasFocus && drawerListenerOnline) {
             pm.notificationDrawerPulled();
         }
     }

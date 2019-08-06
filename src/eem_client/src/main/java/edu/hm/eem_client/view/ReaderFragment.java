@@ -25,8 +25,8 @@ import java.util.Objects;
 import edu.hm.eem_client.R;
 import edu.hm.eem_library.model.PdfRenderer;
 
-/**
- * A simple {@link Fragment} subclass.
+/** Fragment used to display the PDFs in the exam.
+ *
  */
 public class ReaderFragment extends Fragment {
 
@@ -64,6 +64,10 @@ public class ReaderFragment extends Fragment {
         return view;
     }
 
+    /** Turn page is either called by pressing the floating buttons or using VOL+/-.
+     *
+     * @param forward page turn direction
+     */
     void turnPage(boolean forward) {
         boolean endNotReached = currentPage != pageCount;
         boolean beginningNotReached = currentPage != 0;
@@ -81,11 +85,19 @@ public class ReaderFragment extends Fragment {
 
     }
 
+    /** Used to change the opacity of the floating buttons and enable/disable them.
+     *
+     * @param b button
+     * @param enable whether to enable or disableit
+     */
     private void enableButton(FloatingActionButton b, boolean enable) {
         b.setEnabled(enable);
         b.setAlpha(enable ? 1.0f : 0.5f);
     }
 
+    /** wrapper for multiple calls to render a page on the canvas.
+     *
+     */
     private void renderPage() {
         if (renderer != null) {
             PdfRenderer.Page page = renderer.openPage(currentPage);

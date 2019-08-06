@@ -50,7 +50,7 @@ public class PdfRenderer {
             float scaler = ((float)bitmap.getWidth())/s.getWidth();
             int height = (int) (s.getHeight()*scaler);
             int startY = bitmap.getHeight()/2-height/2;
-            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, startY, bitmap.getWidth(), height);
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, startY, bitmap.getWidth(), height, true);
         }
 
         public void close(){
