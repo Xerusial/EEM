@@ -20,8 +20,12 @@ import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.model.TeacherExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class ExamEditorActivity extends AbstractExamEditorActivity {
+
+    private static final String SHOWCASE_ID = "ExamEditorActivityHost";
 
     private EditText pwField;
     private CheckBox allDocAllowedField;
@@ -136,9 +140,8 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
 
         @Override
         protected ThumbnailedExamDocument doInBackground(Uri... uris) {
-            ThumbnailedExamDocument examDocument = ThumbnailedExamDocument.getInstance(context.get(),
+            return ThumbnailedExamDocument.getInstance(context.get(),
                     uris[0], ((ExamEditorActivity)context.get()).allowAnnotations? HASHTOOLBOX.WhichHash.NON_ANNOTATED: HASHTOOLBOX.WhichHash.NORMAL);
-            return examDocument;
         }
 
     }
@@ -149,5 +152,27 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
             HostSingleDocumentLoader loader = new HostSingleDocumentLoader(this);
             loader.execute(uri);
         }
+    }
+
+    @Override
+    protected void tutorial(){
+        ShowcaseConfig config = new ShowcaseConfig();
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(pwField,
+                getString(edu.hm.eem_library.R.string.tutorial_pass_field), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(allDocAllowedField,
+                getString(edu.hm.eem_library.R.string.tutorial_all_checkbox), getString(android.R.string.ok));
+
+        sequence.setOnItemDismissedListener((itemView, position) -> {
+            if(position==1)
+                super.tutorial();
+        });
+
+        sequence.start();
     }
 }

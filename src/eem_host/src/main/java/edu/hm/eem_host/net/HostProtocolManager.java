@@ -54,11 +54,6 @@ public class HostProtocolManager extends ProtocolManager {
         sendSignal(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF, device.socket);
     }
 
-    //TODO!!!
-    public void sendLock(int index){
-        sendSignal(SignalPacket.Signal.LOCK, index);
-    }
-
     @Override
     public void quit() {
         sendSignal(SignalPacket.Signal.LOGOFF, TO_ALL);

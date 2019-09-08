@@ -28,9 +28,6 @@ public class MainActivity extends AbstractMainActivity {
                 intent = new Intent(this, SettingsActivity.class);
                 ret = true;
                 break;
-            case R.id.menu_help:
-                ret = true;
-                break;
             case R.id.menu_about:
                 intent = new Intent(this, AboutActivity.class);
                 ret = true;

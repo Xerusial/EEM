@@ -24,8 +24,11 @@ import edu.hm.eem_library.model.HostItemViewModel;
 import edu.hm.eem_client.net.ClientServiceManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class ScanActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener, ClientServiceManager.ServiceReadyListener {
+    private static final String SHOWCASE_ID = "ScanActivity";
     public static final String PROF_FIELD = "Prof";
     public static final String ADDRESS_FIELD = "Address";
     public static final String PORT_FIELD = "Port";
@@ -54,8 +57,9 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         uiLockView = findViewById(R.id.ui_locker);
         progressAnim = (AnimationDrawable) progress.getDrawable();
         examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            toolbar.setTitle(examName);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(examName);
+        tutorial();
     }
 
     /** Enable DNSSD scanning for host devices in the local network.
@@ -149,5 +153,18 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     @Override
     public void operationFailed(DNSSDService service, int errorCode) {
         lock(false);
+    }
+
+    private void tutorial(){
+        ShowcaseConfig config = new ShowcaseConfig();
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(sw,
+                getString(edu.hm.eem_library.R.string.tutorial_scan_switch), getString(android.R.string.ok));
+
+        sequence.start();
     }
 }

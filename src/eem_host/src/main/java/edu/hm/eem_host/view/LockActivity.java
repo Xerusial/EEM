@@ -1,18 +1,22 @@
 package edu.hm.eem_host.view;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiConfiguration;
@@ -46,15 +50,18 @@ import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
 import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
         HotspotManager.OnHotspotEnabledListener,
         ItemListFragment.OnListFragmentPressListener,
         NsdManager.RegistrationListener {
+    private static final String SHOWCASE_ID = "LockActivity";
     private static final String CHANNEL_ID = "student_activity";
     private HotspotManager hotspotManager;
-    private WifiManager wm;
+    private ConnectivityManager cm;
     private LocationManager lm;
     private NotificationManager nm;
     private TextView netName, netPw, wifiText;
@@ -62,7 +69,6 @@ public class LockActivity extends AppCompatActivity
     private HostProtocolManager hostProtocolManager = null;
     private HostServiceManager hostServiceManager = null;
     private ClientItemViewModel model;
-    private String examName;
     private LockHandler handler;
     private View hotspotCredentials;
     private CheckBox cbServiceRunning;
@@ -82,10 +88,10 @@ public class LockActivity extends AppCompatActivity
         public void notifyStudentLeft(String name) {
             if (locked) {
                 this.post(() -> {
-                    Notification.Builder builder = new Notification.Builder(LockActivity.this, CHANNEL_ID)
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(LockActivity.this, CHANNEL_ID)
                             .setSmallIcon(R.drawable.ic_student_black)
                             .setContentTitle(getString(R.string.student_left))
-                            .setStyle(new Notification.BigTextStyle()
+                            .setStyle(new NotificationCompat.BigTextStyle()
                                     .setSummaryText(name)
                                     .bigText(getString(R.string.student_left_text, name)))
                             .setCategory(NotificationCompat.CATEGORY_MESSAGE);
@@ -121,7 +127,7 @@ public class LockActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock);
-        examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
+        String examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
         wifiText = findViewById(R.id.wifi);
@@ -130,9 +136,10 @@ public class LockActivity extends AppCompatActivity
         swLock = findViewById(R.id.sw_lock_students);
         hotspotCredentials = findViewById(R.id.hotspot_credentials);
         cbServiceRunning = findViewById(R.id.cb_service_running);
-        wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         createNotificationChannel();
         hotspotManager = new HotspotManager(wm, this);
         model = ViewModelProviders.of(this).get(ClientItemViewModel.class);
@@ -141,8 +148,6 @@ public class LockActivity extends AppCompatActivity
         swStartService.setOnClickListener(v -> {
             if (swStartService.isChecked()) {
                 prepareService();
-                switchSetEnabled(swUseHotspot, false);
-                switchSetEnabled(swLock, true);
             } else {
                 quitService();
                 switchSetEnabled(swUseHotspot, true);
@@ -155,7 +160,7 @@ public class LockActivity extends AppCompatActivity
         swLock.setOnClickListener(v -> {
             if (swLock.isChecked()) {
                 if (model.getLivedata().getSelectionCount() != model.getLivedata().getValue().size())
-                    showLockDialog();
+                    showDialog(R.string.dialog_still_unchecked_documents, (dialog, id) -> lock(true), dialog -> swLock.setChecked(false));
                 else
                     lock(true);
             } else {
@@ -169,6 +174,7 @@ public class LockActivity extends AppCompatActivity
         String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
         hostProtocolManager = new HostProtocolManager(this, model.getLivedata(), handler, examName);
         hostServiceManager = new HostServiceManager(this, profName, hostProtocolManager);
+        tutorial();
     }
 
     private void lock(boolean enable) {
@@ -190,29 +196,42 @@ public class LockActivity extends AppCompatActivity
         hotspotCredentials.setVisibility(enable ? View.GONE : View.VISIBLE);
     }
 
-    private void showLockDialog() {
+    private void showDialog(@StringRes int message, DialogInterface.OnClickListener click, DialogInterface.OnCancelListener cancel) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.dialog_still_unchecked_documents)
-                .setPositiveButton(R.string.string_continue, (dialog, id) -> lock(true))
+        builder.setMessage(message)
+                .setPositiveButton(R.string.string_continue, click)
                 .setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.cancel())
-                .setOnCancelListener(dialog -> swLock.setChecked(false))
+                .setOnCancelListener(cancel)
                 .show();
     }
 
     private void changeHotSpot(boolean enable) {
         quitProtocol();
         quitService();
-        if (enable) {
-            WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
-            switchSetEnabled(swStartService, false);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (enable) {
+                WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
+                switchSetEnabled(swStartService, false);
+            } else {
+                hotspotManager.turnOffHotspot();
+            }
         } else {
-            hotspotManager.turnOffHotspot();
+            if(enable) {
+                showDialog(R.string.dialog_hotspot_api23, (dialogInterface, i) -> {
+                    final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    final ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.TetherSettings");
+                    intent.setComponent(cn);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }, dialog -> swUseHotspot.setChecked(false));
+            }
         }
     }
 
     private void prepareService() {
         if (!swUseHotspot.isChecked())
-            WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, wm, true);
+            WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, cm, true);
         else
             onWifiEnabled();
     }
@@ -226,7 +245,8 @@ public class LockActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        hotspotManager.turnOffHotspot();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            hotspotManager.turnOffHotspot();
         quitProtocol();
         quitService();
     }
@@ -281,8 +301,11 @@ public class LockActivity extends AppCompatActivity
             switchSetEnabled(swUseHotspot, false);
             cbServiceRunning.setVisibility(View.VISIBLE);
             cbServiceRunning.setChecked(false);
+            switchSetEnabled(swUseHotspot, false);
+            switchSetEnabled(swLock, true);
         } catch (IOException e) {
             e.printStackTrace();
+            swStartService.setChecked(false);
         }
     }
 
@@ -300,13 +323,14 @@ public class LockActivity extends AppCompatActivity
 
     @Override
     public void onServiceRegistered(NsdServiceInfo serviceInfo) {
-        cbServiceRunning.setChecked(true);
+        handler.post(() -> cbServiceRunning.setChecked(true));
     }
 
     @Override
     public void onServiceUnregistered(NsdServiceInfo serviceInfo) {
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onLocationEnabled() {
         hotspotManager.turnOnHotspot();
@@ -349,7 +373,7 @@ public class LockActivity extends AppCompatActivity
         // Check which request we're responding to
         switch (requestCode) {
             case WIFIANDLOCATIONCHECKER.WIFI_REQUEST:
-                WIFIANDLOCATIONCHECKER.checkWifi(this, wm, false);
+                WIFIANDLOCATIONCHECKER.checkWifi(this, cm, false);
                 break;
             case WIFIANDLOCATIONCHECKER.LOCATION_REQUEST:
                 WIFIANDLOCATIONCHECKER.checkLocation(this, lm, false);
@@ -362,5 +386,27 @@ public class LockActivity extends AppCompatActivity
     @Override
     public void onListFragmentPress(int index) {
         hostProtocolManager.sendLightHouse(index);
+    }
+
+    private void tutorial(){
+        ShowcaseConfig config = new ShowcaseConfig();
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(swUseHotspot,
+                getString(edu.hm.eem_library.R.string.tutorial_hotspot_switch), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(swStartService,
+                getString(edu.hm.eem_library.R.string.tutorial_service_switch), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(findViewById(R.id.header_con_devices),
+                getString(edu.hm.eem_library.R.string.tutorial_connected_devices), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(swLock,
+                getString(edu.hm.eem_library.R.string.tutorial_lock_switch), getString(android.R.string.ok));
+
+        sequence.start();
     }
 }

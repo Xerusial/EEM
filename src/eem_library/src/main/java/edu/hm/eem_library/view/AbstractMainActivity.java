@@ -43,10 +43,13 @@ import edu.hm.eem_library.model.HASHTOOLBOX;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public abstract class AbstractMainActivity extends DocumentPickerActivity implements ItemListFragment.OnListFragmentPressListener {
 
     public static final String EXAMNAME_FIELD = "ExamName";
+    private static final String SHOWCASE_ID = "MainActivity";
 
     protected ExamFactory.ExamType examType;
 
@@ -55,8 +58,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     }
 
     private ExamItemViewModel model;
-    private ImageButton del_button;
-    private ImageButton edit_button;
+    private ImageButton add_button, del_button, edit_button;
     private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
     private String replacementUri;
     private boolean doNotRebuildUriMap = false;
@@ -76,7 +78,8 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
             String name = model.getLivedata().getSelected().getName();
             startSubApplication(name, ActionType.ACTION_EDITOR);
         });
-        findViewById(R.id.bt_add_exam).setOnClickListener(v -> {
+        add_button = findViewById(R.id.bt_add_exam);
+        add_button.setOnClickListener(v -> {
             showNameDialog();
             //show keyboard
             InputMethodManager imm = (InputMethodManager)
@@ -88,6 +91,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
             buttonSetEnabled(del_button, sel_cnt > 0);
             buttonSetEnabled(edit_button, sel_cnt == 1);
         });
+        tutorial();
     }
 
     @Override
@@ -277,4 +281,26 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     }
 
     protected abstract void startSubApplication(@Nullable String examName, ActionType action);
+
+    private void tutorial(){
+        ShowcaseConfig config = new ShowcaseConfig();
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(add_button,
+                getString(R.string.tutorial_addexam_button), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(del_button,
+                getString(R.string.tutorial_delexam_button), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(edit_button,
+                getString(R.string.tutorial_edt_button), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(findViewById(R.id.toolbar_overflow),
+                getString(R.string.tutorial_menu_button), getString(android.R.string.ok));
+
+        sequence.start();
+    }
 }

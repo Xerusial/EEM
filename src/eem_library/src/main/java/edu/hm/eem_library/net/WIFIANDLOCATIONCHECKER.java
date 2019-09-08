@@ -1,10 +1,15 @@
 package edu.hm.eem_library.net;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -32,12 +37,13 @@ public final class WIFIANDLOCATIONCHECKER {
         void onNotEnabled();
     }
 
-    public static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void checkWifi(@NonNull T apl, @NonNull WifiManager wm, boolean firstCheck) {
-        if (!wm.isWifiEnabled()) {
-            if (firstCheck) showWifiOrLocationDialog(apl, wm, null);
-            else apl.onNotEnabled();
-        } else {
+    public static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void checkWifi(@NonNull T apl, @NonNull ConnectivityManager cm, boolean firstCheck) {
+        @SuppressLint("MissingPermission") NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni != null && ni.isConnected()) {
             apl.onWifiEnabled();
+        } else {
+            if (firstCheck) showWifiOrLocationDialog(apl, cm, null);
+            else apl.onNotEnabled();
         }
     }
 
@@ -57,6 +63,7 @@ public final class WIFIANDLOCATIONCHECKER {
     @SuppressWarnings("deprecation")
     private static <T extends AppCompatActivity> boolean isLocationEnabled(@NonNull T apl, @NonNull LocationManager lm) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+
             // This is new method provided in API 28
             return lm.isLocationEnabled();
         } else {
@@ -67,11 +74,11 @@ public final class WIFIANDLOCATIONCHECKER {
         }
     }
 
-    private static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void showWifiOrLocationDialog(@NonNull final T apl, @Nullable WifiManager wm, @Nullable LocationManager lm) {
+    private static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void showWifiOrLocationDialog(@NonNull final T apl, @Nullable ConnectivityManager cm, @Nullable LocationManager lm) {
         final boolean wifi;
         if (lm != null)
             wifi = false;
-        else if (wm != null)
+        else if (cm != null)
             wifi = true;
         else
             throw new IllegalArgumentException("One of both managers musst be non null!");

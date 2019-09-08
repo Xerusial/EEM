@@ -21,10 +21,13 @@ import edu.hm.eem_library.model.ExamDocumentItemViewModel;
 import edu.hm.eem_library.model.HASHTOOLBOX;
 import edu.hm.eem_library.model.StudentExam;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public abstract class AbstractExamEditorActivity extends DocumentPickerActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener {
 
     protected ExamDocumentItemViewModel<? extends StudentExam> model;
+    private static final String SHOWCASE_ID = "ExamEditorActivity";
 
     protected ImageButton addButton;
     protected ImageButton delButton;
@@ -57,6 +60,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         updateFileCounter();
         DocumentLoader loader = new DocumentLoader(this, examName);
         loader.execute();
+        tutorial();
     }
 
     static class DocumentLoader extends AsyncTask<Void, Void, Void> {
@@ -143,6 +147,25 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     protected final void updateFileCounter(){
         int cnt = getContentResolver().getPersistedUriPermissions().size();
         fileCounter.setText(getString(R.string.used_files, cnt));
+    }
+
+    protected void tutorial(){
+        ShowcaseConfig config = new ShowcaseConfig();
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(addButton,
+                getString(R.string.tutorial_adddoc_button), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(delButton,
+                getString(R.string.tutorial_deldoc_button), getString(android.R.string.ok));
+
+        sequence.addSequenceItem(svButton,
+                getString(R.string.tutorial_sv_button), getString(android.R.string.ok));
+
+        sequence.start();
     }
 }
 
