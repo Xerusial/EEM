@@ -47,6 +47,7 @@
     <string name="lock_student_devices">Lock student devices</string>
     <string name="name">Name</string>
     <string name="notification_drawer_has_been_opened">Notification drawer has been opened %d times</string>
+    <string name="page_number">%d/%d</string>
     <string name="page_specified_document">Page specified document</string>
     <string name="password">Password</string>
     <string name="placeholder_device">List of connected student devices</string>
