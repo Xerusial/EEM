@@ -88,7 +88,7 @@
     <string name="tutorial_addexam_button">This button is used to register a new exam.</string>
     <string name="tutorial_pass_field">Here you must enter a password so you can unlock documents on the students device that the algorithm might have wrongly rejected.</string>
     <string name="tutorial_all_checkbox">Select this checkbox to allow all documents to be used.</string>
-    <string name="tutorial_adddoc_button">This button is used to add a document for usage in the exam.</string>
+    <string name="tutorial_adddoc_button">This button is used to add a document for usage in the exam. For best results, use the "docs" app to pick them.</string>
     <string name="tutorial_delexam_button">This button is used to delete highlighted exam. You may highlight an exam with a long press.</string>
     <string name="tutorial_deldoc_button">This button is used to delete highlighted document. You may highlight documents with a long press.</string>
     <string name="tutorial_edt_button">This button is used to edit a highlighted exam. You may highlight an exam with a long press.</string>

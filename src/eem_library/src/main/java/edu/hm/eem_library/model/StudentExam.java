@@ -12,10 +12,13 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+
+import edu.hm.eem_library.view.DocumentPickerActivity;
 
 public class StudentExam {
     private LinkedList<ExamDocument> allowedDocuments;
@@ -65,6 +68,7 @@ public class StudentExam {
             String name = null, uriString = null;
             byte[] hash = null, nonAnnotatedHash = null;
             int pages = 0;
+            Date hashCreationDate = null;
             for(NodeTuple nt : list) {
                 Node knode = nt.getKeyNode();
                 Node vnode = nt.getValueNode();
@@ -92,9 +96,12 @@ public class StudentExam {
                         uriString = (String) yamlConstructors.get(Tag.STR).construct(vnode);
                         if(uriString.equals("null")) uriString = null;
                         break;
+                    case "hashCreationDate":
+                        hashCreationDate = (Date) yamlConstructors.get(Tag.TIMESTAMP).construct(vnode);
+                        break;
                 }
             }
-            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, uriString));
+            allowedDocuments.add(new ExamDocument(name, hash, nonAnnotatedHash, pages, uriString, hashCreationDate));
         }
     }
 

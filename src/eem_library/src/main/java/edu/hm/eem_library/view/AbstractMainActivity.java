@@ -164,7 +164,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                 builder.setMessage(getString(entry.getValue().second.size() > 1 ?
                                 R.string.dialog_document_not_found_pl :
                                 R.string.dialog_document_not_found_sing,
-                        getNameFromUri(Uri.parse(entry.getKey())), sb.toString()))
+                        ThumbnailedExamDocument.getMetaFromUri(this, Uri.parse(entry.getKey())).name, sb.toString()))
                         .setPositiveButton(getString(R.string.dialog_document_not_found_bt_pos), (dialog, which) -> {
                             replacementUri = entry.getKey();
                             dialog.dismiss();

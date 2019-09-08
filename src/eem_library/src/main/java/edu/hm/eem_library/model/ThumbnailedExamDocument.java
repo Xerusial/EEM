@@ -1,14 +1,19 @@
 package edu.hm.eem_library.model;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.Nullable;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -41,7 +46,8 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
                 try {
                     Uri uri = Uri.parse(doc.getUriString());
                     ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-                    outSet.add(getThumb(context, fileDescriptor, doc, HASHTOOLBOX.WhichHash.fromDoc(doc)));
+                    boolean documentChanged = getMetaFromUri(context, uri).lastModifiedDate.after(doc.getHashCreationDate());
+                    outSet.add(getThumb(context, fileDescriptor, doc, HASHTOOLBOX.WhichHash.fromDoc(doc), documentChanged));
                 } catch (FileNotFoundException e) {
                     outSet.add(new ThumbnailedExamDocument(doc.getName(), doc, null, true));
                 }
@@ -56,13 +62,13 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
     }
 
     @Nullable
-    public static ThumbnailedExamDocument getInstance(DocumentPickerActivity context, Uri uri, HASHTOOLBOX.WhichHash which)
+    public static ThumbnailedExamDocument getInstance(Context context, Uri uri, HASHTOOLBOX.WhichHash which)
     {
         ThumbnailedExamDocument thDoc;
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-            ExamDocument doc = new ExamDocument(context.getNameFromUri(uri), uri.toString());
-            thDoc = getThumb(context, fileDescriptor, doc, which);
+            ExamDocument doc = new ExamDocument(getMetaFromUri(context, uri).name, uri.toString());
+            thDoc = getThumb(context, fileDescriptor, doc, which, true);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             thDoc = null;
@@ -70,7 +76,7 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         return thDoc;
     }
 
-    private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which){
+    private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which, boolean documentChanged){
         try {
             int width = (int) (context.getResources().getDisplayMetrics().density*180); // 180dp
             Bitmap thumbnail = Bitmap.createBitmap(width,(int)sqrt(2)*width, Bitmap.Config.ARGB_8888);
@@ -78,10 +84,13 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
             PdfRenderer.Page page = renderer.openPage(0);
             page.render(thumbnail);
             page.close();
-            ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor), which);
-            ids.pages = renderer.getPageCount();
+            if(documentChanged) {
+                ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor), which);
+                ids.pages = renderer.getPageCount();
+                ids.hashCreationDate = Calendar.getInstance().getTime();
+                doc.update(ids);
+            }
             renderer.close();
-            doc.update(ids);
             return new ThumbnailedExamDocument(doc.getName(), doc, thumbnail, true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,6 +98,24 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         }
     }
 
-
+   public static DocumentPickerActivity.Meta getMetaFromUri(Context context, Uri uri) {
+        DocumentPickerActivity.Meta ret = new DocumentPickerActivity.Meta();
+        String path = null;
+        if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+            // Cursor.close not needed because of Java 7 automatic resource management
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    path = cursor.getString(cursor.getColumnIndexOrThrow("_data"));
+                }
+            }
+        } else {
+            String[] split = uri.getPath().split(":");
+            path = split[split.length - 1];
+        }
+        String[] split = path.split(File.separator);
+        ret.name = split[split.length - 1];
+        ret.lastModifiedDate = new Date(new File(path).lastModified());
+        return ret;
+    }
 
 }

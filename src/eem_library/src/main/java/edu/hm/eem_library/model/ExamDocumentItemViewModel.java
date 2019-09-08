@@ -4,6 +4,8 @@ import android.app.Application;
 
 import java.io.File;
 
+import edu.hm.eem_library.view.DocumentPickerActivity;
+
 public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends FilebackedItemViewModel<ExamDocumentItemViewModel.ExamDocumentItemLiveData> {
     private T current;
     private String currentName;

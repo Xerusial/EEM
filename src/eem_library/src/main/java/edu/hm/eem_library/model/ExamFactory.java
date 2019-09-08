@@ -67,6 +67,7 @@ public class ExamFactory {
         T exam = (T) get(in);
         for(ExamDocument doc : exam.getAllowedDocuments()){
             doc.removeUriString();
+            doc.removeHashCreationDate();
         }
         writeExamToFile(exam, out);
     }
