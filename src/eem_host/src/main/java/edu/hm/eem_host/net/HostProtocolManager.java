@@ -106,7 +106,6 @@ public class HostProtocolManager extends ProtocolManager {
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal) {
                         case LOGOFF:
-                            liveData.remove(name, true);
                             ((LockActivity.LockHandler) handler).notifyStudentLeft(name);
                             terminate = true;
                             break;

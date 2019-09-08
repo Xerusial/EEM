@@ -75,7 +75,7 @@ public class LockActivity extends AppCompatActivity
     private boolean locked;
 
     private enum ProtocolTerminationReason {
-        EXIT, UNLOCK_DEVICES
+        EXIT, CHANGE_CONNECTION
     }
 
     public class LockHandler extends Handler implements ProtocolHandler {
@@ -86,18 +86,19 @@ public class LockActivity extends AppCompatActivity
         }
 
         public void notifyStudentLeft(String name) {
-            if (locked) {
                 this.post(() -> {
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(LockActivity.this, CHANNEL_ID)
-                            .setSmallIcon(R.drawable.ic_student_black)
-                            .setContentTitle(getString(R.string.student_left))
-                            .setStyle(new NotificationCompat.BigTextStyle()
-                                    .setSummaryText(name)
-                                    .bigText(getString(R.string.student_left_text, name)))
-                            .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-                    nm.notify(++id, builder.build());
+                    if (locked) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(LockActivity.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_student_black)
+                                .setContentTitle(getString(R.string.student_left, name))
+                                .setStyle(new NotificationCompat.BigTextStyle()
+                                        .bigText(getString(R.string.student_left_text, name)))
+                                .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+                        nm.notify(++id, builder.build());
+                        model.getLivedata().disconnected(name);
+                    } else
+                        model.getLivedata().remove(name,false);
                 });
-            }
         }
 
         @Override
@@ -155,7 +156,7 @@ public class LockActivity extends AppCompatActivity
                 cbServiceRunning.setVisibility(View.GONE);
             }
         });
-        swUseHotspot.setOnClickListener(v -> changeHotSpot(swUseHotspot.isChecked()));
+        swUseHotspot.setOnClickListener(v -> showExitDialog(ProtocolTerminationReason.CHANGE_CONNECTION));
         switchSetEnabled(swLock, false);
         swLock.setOnClickListener(v -> {
             if (swLock.isChecked()) {
@@ -164,10 +165,7 @@ public class LockActivity extends AppCompatActivity
                 else
                     lock(true);
             } else {
-                if (model.getLivedata().isEmpty())
-                    lock(false);
-                else
-                    showExitDialog(ProtocolTerminationReason.UNLOCK_DEVICES);
+                lock(false);
             }
         });
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -182,14 +180,14 @@ public class LockActivity extends AppCompatActivity
             quitService();
             swStartService.setChecked(false);
             cbServiceRunning.setVisibility(View.GONE);
-            switchSetEnabled(swStartService, false);
             hostProtocolManager.sendSignal(SignalPacket.Signal.LOCK, HostProtocolManager.TO_ALL);
+            switchSetEnabled(swStartService, false);
             model.getLivedata().setSelected();
             locked = true;
         } else {
-            quitProtocol();
-            switchSetEnabled(swStartService, true);
+            model.getLivedata().clearDisconnected(false);
             switchSetEnabled(swUseHotspot, true);
+            switchSetEnabled(swStartService, true);
             switchSetEnabled(swLock, false);
             locked = false;
         }
@@ -280,15 +278,15 @@ public class LockActivity extends AppCompatActivity
                         case EXIT:
                             super.onBackPressed();
                             break;
-                        case UNLOCK_DEVICES:
-                            lock(false);
+                        case CHANGE_CONNECTION:
+                            changeHotSpot(swUseHotspot.isChecked());
                             break;
                     }
                 })
                 .setNegativeButton(android.R.string.no, (dialog, id) -> dialog.cancel())
                 .setOnCancelListener(dialog -> {
-                    if (reason == ProtocolTerminationReason.UNLOCK_DEVICES)
-                        swLock.setChecked(true);
+                    if (reason == ProtocolTerminationReason.CHANGE_CONNECTION)
+                        swUseHotspot.setChecked(!swUseHotspot.isChecked());
                 });
         builder.show();
     }

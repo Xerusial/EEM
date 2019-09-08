@@ -10,4 +10,5 @@
     <color name="colorBlackOpaque">#80000000</color>
     <color name="colorPrimaryOpaque">#B3009384</color>
     <color name="ic_launcher_background">#26A69A</color>
+    <color name="disconnected">#BE0000</color>
 </resources>

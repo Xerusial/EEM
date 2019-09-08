@@ -37,6 +37,7 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
         final ConstraintLayout layout;
         final ConstraintSet constraintSet = new ConstraintSet();
         final TextView countNotificationDrawer;
+        final int disconnectedColor = context.getColor(R.color.disconnected);
         StudentDeviceViewHolder(View view) {
             super(view);
             icon.setImageResource(R.drawable.ic_student);
@@ -65,6 +66,12 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
                 countNotificationDrawer.setText(context.getString(R.string.notification_drawer_has_been_opened, device.countNotificationDrawer));
             } else {
                 countNotificationDrawer.setVisibility(View.GONE);
+            }
+            if(device.disconnected) {
+                item.setCardBackgroundColor(disconnectedColor);
+                selectedCb.setText(R.string.client_disconnected);
+            } else {
+                selectedCb.setText(R.string.documents_checked);
             }
         }
 

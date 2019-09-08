@@ -11,6 +11,7 @@
     <string name="channel_description">Notifications for student activity during the exam.</string>
     <string name="channel_name">Student activity</string>
     <string name="client_app_name">EEM Client</string>
+    <string name="client_disconnected">Client disconnected!</string>
     <string name="connection_refused">Connection was refused! Please retry!</string>
     <string name="del">Delete</string>
     <string name="dialog_build_document">Build document meta-data from:</string>
@@ -65,7 +66,7 @@
     <string name="start_service">Start service</string>
     <string name="stext">Show text</string>
     <string name="string_continue">Continue</string>
-    <string name="student_left">Student left!</string>
+    <string name="student_left">Student %s left!</string>
     <string name="student_left_text">Student %s has terminated his reader app!</string>
     <string name="teacher_closed">Teacher closed connection!</string>
     <string name="thumbnail_not_found">\u003cThumbnail not found\u003e</string>

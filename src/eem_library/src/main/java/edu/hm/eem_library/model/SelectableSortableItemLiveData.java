@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
-    private int selectionCounter;
+    int selectionCounter;
 
     SelectableSortableItemLiveData(boolean notificationNeeded) {
         super(notificationNeeded);
@@ -25,8 +25,10 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
 
     public void setSelected(){
         for(T item : getValue()){
-            item.selected = true;
-            selectionCounter++;
+            if(!item.selected) {
+                item.selected = true;
+                selectionCounter++;
+            }
         }
         notifyObserversMeta();
     }

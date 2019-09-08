@@ -3,7 +3,6 @@ package edu.hm.eem_client.view;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 
 import androidx.annotation.StringRes;
@@ -132,7 +131,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
             this.post(() -> {
                 try {
                     if (hasMessage) {
-                        Toast.makeText(LockedActivity.this, stringID, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LockedActivity.this, stringID, Toast.LENGTH_LONG).show();
                     }
                     finish();
                 } catch (Exception e){
