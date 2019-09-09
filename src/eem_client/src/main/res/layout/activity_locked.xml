@@ -6,37 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".view.LockedActivity">
 
-    <fragment
-        android:id="@+id/nav_host"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:defaultNavHost="true" />
-
     <ImageView
         android:id="@+id/lighthouse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
+        android:contentDescription="@string/lighthouse"
         android:visibility="invisible"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_lighthouse"
-        android:contentDescription="@string/lighthouse" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="?attr/actionBarSize" />
+        app:srcCompat="@drawable/ic_lighthouse" />
 
     <ImageView
         android:id="@+id/progress_background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:layout_gravity="center"
+        android:layout_marginTop="24dp"
         android:contentDescription="@string/search_running"
         android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -55,5 +41,19 @@
         app:layout_constraintRight_toRightOf="@id/progress_background"
         app:layout_constraintTop_toTopOf="@id/progress_background"
         app:srcCompat="@drawable/progress_anim" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+    <fragment
+        android:id="@+id/nav_host"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,20 +20,7 @@ import java.security.SecureRandom;
 import java.util.Iterator;
 
 public final class HASHTOOLBOX {
-    private HASHTOOLBOX(){}
-
-    public  enum WhichHash{
-        NORMAL, NON_ANNOTATED, BOTH;
-
-        static WhichHash fromDoc(ExamDocument doc){
-            if(doc.getHash()==null && doc.getNonAnnotatedHash()!=null){
-                return NON_ANNOTATED;
-            } else if (doc.getHash()!=null && doc.getNonAnnotatedHash()==null){
-                return NORMAL;
-            } else {
-                return BOTH;
-            }
-        }
+    private HASHTOOLBOX() {
     }
 
     static ExamDocument.Identifiers genDocMD5s(Context context, InputStream is, WhichHash which) throws IOException {
@@ -42,10 +29,10 @@ public final class HASHTOOLBOX {
             MessageDigest md = MessageDigest.getInstance("MD5");
             DigestInputStream digis = new DigestInputStream(is, md);
             ExamDocument.Identifiers ids = new ExamDocument.Identifiers();
-            switch (which){
+            switch (which) {
                 case NORMAL:
                     //noinspection StatementWithEmptyBody
-                    while ((digis.read()) != -1);
+                    while ((digis.read()) != -1) ;
                     break;
                 case NON_ANNOTATED:
                     digis.on(false); //disable hashing
@@ -54,11 +41,11 @@ public final class HASHTOOLBOX {
                     genMD5WithoutAnnotations(ids, context, digis);
                     break;
             }
-            if(which!=WhichHash.NON_ANNOTATED)
+            if (which != WhichHash.NON_ANNOTATED)
                 ids.hash = digis.getMessageDigest().digest();
             digis.close();
             return ids;
-        } catch (NoSuchAlgorithmException e){
+        } catch (NoSuchAlgorithmException e) {
             // Android does always feature MD5
             e.printStackTrace();
         }
@@ -67,11 +54,11 @@ public final class HASHTOOLBOX {
 
     private static void stripDocument(PDDocument document, COSWriter writer) throws IOException {
         Iterator<PDPage> it = document.getDocumentCatalog().getPages().iterator();
-        for (; it.hasNext();) {
+        for (; it.hasNext(); ) {
             PDPage page = it.next();
             page.setAnnotations(null);
             writer.doWriteObject(page.getCOSObject());
-            for(COSBase base : page.getCOSObject().getValues()){
+            for (COSBase base : page.getCOSObject().getValues()) {
                 writer.doWriteObject(base.getCOSObject());
             }
         }
@@ -98,7 +85,7 @@ public final class HASHTOOLBOX {
         }
     }
 
-    static byte[] genSha256(String pw, byte[] salt){
+    static byte[] genSha256(String pw, byte[] salt) {
         try {
             // Create MessageDigest instance for SHA256
             MessageDigest md = MessageDigest.getInstance("SHA256");
@@ -106,13 +93,13 @@ public final class HASHTOOLBOX {
             md.update(salt);
             //Get the password hash
             return md.digest(pw.getBytes());
-        } catch (NoSuchAlgorithmException e){
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    static byte[] genSalt(){
+    static byte[] genSalt() {
         try {
             //SecureRandom generator
             SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -122,9 +109,23 @@ public final class HASHTOOLBOX {
             sr.nextBytes(salt);
             //return salt
             return salt;
-        } catch (NoSuchAlgorithmException e){
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public enum WhichHash {
+        NORMAL, NON_ANNOTATED, BOTH;
+
+        static WhichHash fromDoc(ExamDocument doc) {
+            if (doc.getHash() == null && doc.getNonAnnotatedHash() != null) {
+                return NON_ANNOTATED;
+            } else if (doc.getHash() != null && doc.getNonAnnotatedHash() == null) {
+                return NORMAL;
+            } else {
+                return BOTH;
+            }
+        }
     }
 }

@@ -14,16 +14,10 @@ public class LoginPacket extends DataPacket {
         [Newline terminated String: name]
      */
     private String name;
-    public LoginPacket(String name){
+
+    public LoginPacket(String name) {
         super(Type.LOGIN);
         this.name = name;
-    }
-
-    @Override
-    protected void writeData(OutputStream os) {
-        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(os)), true);
-        out.println(name);
-        out.flush();
     }
 
     public static String readData(InputStream is) {
@@ -35,5 +29,12 @@ public class LoginPacket extends DataPacket {
             e.printStackTrace();
         }
         return ret;
+    }
+
+    @Override
+    protected void writeData(OutputStream os) {
+        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(os)), true);
+        out.println(name);
+        out.flush();
     }
 }

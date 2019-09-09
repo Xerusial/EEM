@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Objects;
 
 import edu.hm.eem_host.view.LockActivity;
 import edu.hm.eem_library.model.ClientItemViewModel;
@@ -15,12 +16,13 @@ import edu.hm.eem_library.net.LoginPacket;
 import edu.hm.eem_library.net.ProtocolManager;
 import edu.hm.eem_library.net.SignalPacket;
 
-/** Host side {@link ProtocolManager}
- *
+/**
+ * Host side {@link ProtocolManager}
  */
 public class HostProtocolManager extends ProtocolManager {
-    private ClientItemViewModel.ClientItemLiveData liveData;
+    public static final int TO_ALL = -1;
     private final String exam;
+    private ClientItemViewModel.ClientItemLiveData liveData;
 
     public HostProtocolManager(Activity context, ClientItemViewModel.ClientItemLiveData liveData, LockActivity.LockHandler handler, String exam) {
         super(context, handler);
@@ -28,30 +30,31 @@ public class HostProtocolManager extends ProtocolManager {
         this.exam = exam;
     }
 
-    public static final int TO_ALL = -1;
-    /** Sending a {@link SignalPacket} using TCP to one or all clients using TO_ALL
+    /**
+     * Sending a {@link SignalPacket} using TCP to one or all clients using TO_ALL
      *
      * @param signal Signal code to be sent
-     * @param index receiving client: index in the livedata list
+     * @param index  receiving client: index in the livedata list
      */
-    public void sendSignal(SignalPacket.Signal signal, int index){
-        if(index>=0){
-            ClientItem device = liveData.getValue().get(index).item;
+    public void sendSignal(SignalPacket.Signal signal, int index) {
+        if (index >= 0) {
+            ClientItem device = Objects.requireNonNull(liveData.getValue()).get(index).item;
             sendSignal(signal, device.socket);
-        } else  {
-            for(SelectableSortableItem<ClientItem> device : liveData.getValue()){
+        } else {
+            for (SelectableSortableItem<ClientItem> device : Objects.requireNonNull(liveData.getValue())) {
                 sendSignal(signal, device.item.socket);
             }
         }
     }
 
-    /** Send the lighthouse signal
+    /**
+     * Send the lighthouse signal
      *
      * @param index receiving client
      */
-    public void sendLightHouse(int index){
-        ClientItem device = liveData.getValue().get(index).item;
-        sendSignal(device.lighthoused? SignalPacket.Signal.LIGHTHOUSE_ON: SignalPacket.Signal.LIGHTHOUSE_OFF, device.socket);
+    public void sendLightHouse(int index) {
+        ClientItem device = Objects.requireNonNull(liveData.getValue()).get(index).item;
+        sendSignal(device.lighthoused ? SignalPacket.Signal.LIGHTHOUSE_ON : SignalPacket.Signal.LIGHTHOUSE_OFF, device.socket);
     }
 
     @Override
@@ -60,21 +63,23 @@ public class HostProtocolManager extends ProtocolManager {
         super.quit();
     }
 
-    /** If a client connects, generate a receiver thread for it
+    /**
+     * If a client connects, generate a receiver thread for it
      *
      * @param socket the socket for the client
      */
-    void genReceiverThread(Socket socket){
+    void genReceiverThread(Socket socket) {
         ReceiverThread receiverThread = new HostProtocolManager.HostReceiverThread(socket);
         receiverThread.start();
     }
 
-    /** The TCP receiver thread. Used to handle incoming messages.
-     *
+    /**
+     * The TCP receiver thread. Used to handle incoming messages.
      */
     class HostReceiverThread extends ProtocolManager.ReceiverThread {
         private String name;
         private boolean loggedIn = false;
+
         HostReceiverThread(Socket inputSocket) {
             super(inputSocket);
         }
@@ -82,7 +87,7 @@ public class HostProtocolManager extends ProtocolManager {
         @Override
         protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
             boolean terminate = false;
-            if(!loggedIn) {
+            if (!loggedIn) {
                 if (type == DataPacket.Type.LOGIN) {
                     name = LoginPacket.readData(is);
                     if (name != null) {
@@ -101,7 +106,7 @@ public class HostProtocolManager extends ProtocolManager {
                         terminate = true;
                     }
                 }
-            }else {
+            } else {
                 if (type == DataPacket.Type.SIGNAL) {
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal) {

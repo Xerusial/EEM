@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.util.Objects;
+
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.SelectableSortableItemLiveData;
@@ -50,8 +52,8 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
         @Override
         void initializeFromLiveData(int position) {
             super.initializeFromLiveData(position);
-            ThumbnailedExamDocument ted = (ThumbnailedExamDocument) liveData.getValue().get(position);
-            if(isSelectable) {
+            ThumbnailedExamDocument ted = (ThumbnailedExamDocument) Objects.requireNonNull(liveData.getValue()).get(position);
+            if (isSelectable) {
                 if (ted.hasThumbnail) {
                     if (ted.thumbnail != null) {
                         thumbnail.setImageBitmap(ted.thumbnail);
@@ -66,10 +68,10 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
                     numberPages.setVisibility(View.VISIBLE);
                     numberPages.setTextSize(36);
                 }
-                notes_allowed.setVisibility(ted.item.getHash()==null?View.VISIBLE:View.GONE);
+                notes_allowed.setVisibility(ted.item.getHash() == null ? View.VISIBLE : View.GONE);
             } else {
                 thumbnail.setImageBitmap(ted.thumbnail);
-                switch (ted.reason){
+                switch (ted.reason) {
                     case TOO_MANY_PAGES:
                         numberPages.setText(R.string.too_many_pages);
                         break;
@@ -86,13 +88,13 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
 
         @Override
         void setSelected(boolean selected) {
-            if(isSelectable) {
+            if (isSelectable) {
                 item.setBackgroundColor(selected ? colorPrimaryOpaque : colorBlackOpaque);
                 selectedCb.setVisibility(selected ? View.VISIBLE : View.GONE);
             } else {
-                numberPages.setVisibility(selected?View.VISIBLE:View.INVISIBLE);
-                thumbnail.setImageAlpha(selected?128:255);
-                item.setAlpha(selected?0.5f:1);
+                numberPages.setVisibility(selected ? View.VISIBLE : View.INVISIBLE);
+                thumbnail.setImageAlpha(selected ? 128 : 255);
+                item.setAlpha(selected ? 0.5f : 1);
             }
         }
     }

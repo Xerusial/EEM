@@ -12,8 +12,8 @@ import androidx.annotation.Nullable;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_library.model.ExamFactory;
-import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.AboutActivity;
+import edu.hm.eem_library.view.AbstractMainActivity;
 
 /**
  * The first activity of this application, only used to correctly branch into other activities.

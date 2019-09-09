@@ -9,11 +9,12 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
-/** Class, which represents a school exam and includes a list of the allowed books to be used.
- *
+/**
+ * Class, which represents a school exam and includes a list of the allowed books to be used.
  */
-public class TeacherExam extends StudentExam{
+public class TeacherExam extends StudentExam {
     private byte[] salt;
     private byte[] passwordHash;
 
@@ -22,21 +23,21 @@ public class TeacherExam extends StudentExam{
     }
 
     public void setPassword(String pw) {
-        this.passwordHash = HASHTOOLBOX.genSha256(pw,salt);
+        this.passwordHash = HASHTOOLBOX.genSha256(pw, salt);
     }
 
     public boolean checkPW(String pw) {
-        return Arrays.equals(passwordHash, HASHTOOLBOX.genSha256(pw,salt));
+        return Arrays.equals(passwordHash, HASHTOOLBOX.genSha256(pw, salt));
     }
 
     @Override
     protected void stepTags(Node vnode, Map<Tag, Construct> yamlConstructors, String tag) {
-        switch(tag){
+        switch (tag) {
             case "salt":
-                salt = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
+                salt = (byte[]) Objects.requireNonNull(yamlConstructors.get(Tag.BINARY)).construct(vnode);
                 break;
             case "passwordHash":
-                passwordHash = (byte[]) yamlConstructors.get(Tag.BINARY).construct(vnode);
+                passwordHash = (byte[]) Objects.requireNonNull(yamlConstructors.get(Tag.BINARY)).construct(vnode);
                 break;
             case "allowedDocuments":
                 constructAllowedDocuments((SequenceNode) vnode, yamlConstructors);
@@ -47,7 +48,8 @@ public class TeacherExam extends StudentExam{
         super.stepTags(vnode, yamlConstructors, tag);
     }
 
-    /** Custom YAML constructor to be used with SnakeYAML. Turns an {@link TeacherExam} YAML node into
+    /**
+     * Custom YAML constructor to be used with SnakeYAML. Turns an {@link TeacherExam} YAML node into
      * an actual TeacherExam object.
      */
     static class ExamConstructor extends Constructor {

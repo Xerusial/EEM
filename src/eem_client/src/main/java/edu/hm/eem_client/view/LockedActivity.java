@@ -4,17 +4,6 @@ import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
-
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
@@ -28,6 +17,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.List;
@@ -35,9 +34,9 @@ import java.util.Objects;
 
 import edu.hm.eem_client.R;
 import edu.hm.eem_client.net.ClientProtocolManager;
-import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.model.TeacherExam;
+import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.view.AbstractMainActivity;
 
 /**
@@ -57,102 +56,6 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     private AnimationDrawable progressAnim;
     private boolean locked = false, drawerListenerOnline = true;
     private Pair<Boolean, Integer> currentNotificationFilter = Pair.create(false, 0);
-
-    /**
-     * Handler for syncing network signals to actions on the main UI thread.
-     */
-    public class LockedHandler extends Handler implements ProtocolHandler {
-        private LockedHandler(Looper looper) {
-            super(looper);
-        }
-
-        /**
-         * Making the lighthouse symbol visible
-         *
-         * @param on turning it on or off
-         */
-        public void postLighthouse(boolean on) {
-            this.post(() -> lightHouse.setVisibility(on ? View.VISIBLE : View.INVISIBLE));
-        }
-
-        /**
-         * Checking the proposed documents from the student if they are allowed.
-         * If the file is received too early, wait for all documents to be loaded using an observer.
-         *
-         * @param exam The received examfile from network
-         */
-        public void receiveExam(TeacherExam exam) {
-            //has to be posted, because observe cannot be started on background thread
-            this.post(() -> {
-                if (!model.getLivedata().isEmpty()) {
-                    if (model.checkExam(exam))
-                        pm.allDocumentsAccepted();
-                } else {
-                    Observer obs = new Observer() {
-                        @Override
-                        public void onChanged(Object o) {
-                            if (!model.getLivedata().isEmpty()) {
-                                if (model.checkExam(exam))
-                                    pm.allDocumentsAccepted();
-                                model.getLivedata().removeObserver(this);
-                            }
-                        }
-                    };
-                    model.getLivedata().observe(LockedActivity.this, obs);
-
-                }
-            });
-        }
-
-        /**
-         * Start the asynctask for loading documents
-         */
-        public void loadDocuments() {
-            this.post(() -> {
-                DocumentLoader loader = new DocumentLoader(LockedActivity.this, examName);
-                loader.execute();
-            });
-        }
-
-        /**
-         * Starting the lockmode and removing all not accepted documents in the exam from the listing.
-         */
-        public void lock() {
-            this.post(() -> {
-                model.getLivedata().removeSelected();
-                locked = true;
-            });
-        }
-
-        /**
-         * Callback for bad packets to close the activity.
-         *
-         * @param hasMessage Indicator for having a message to display.
-         * @param stringID   Message for the reason of closing
-         */
-        public void gracefulShutdown(boolean hasMessage, @StringRes int stringID) {
-            this.post(() -> {
-                try {
-                    if (hasMessage) {
-                        Toast.makeText(LockedActivity.this, stringID, Toast.LENGTH_LONG).show();
-                    }
-                    finish();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-
-        /**
-         * Showing a toast message
-         *
-         * @param resId Message to be displayed
-         */
-        @Override
-        public void putToast(@StringRes int resId) {
-            this.post(() -> Toast.makeText(LockedActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
-        }
-    }
 
     /**
      * Init views, get args, get viewmodel for list, init navhost, set up managers
@@ -275,38 +178,6 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     }
 
     /**
-     * Asynctask for loading the documents, refreshing thumbnails and hashes.
-     */
-    static class DocumentLoader extends AsyncTask<Void, Void, Void> {
-        private final WeakReference<LockedActivity> context;
-        private final String examName;
-
-        DocumentLoader(LockedActivity context, String examName) {
-            this.context = new WeakReference<>(context);
-            this.examName = examName;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            context.get().progress(true);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            context.get().model.openExam(examName);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            context.get().progress(false);
-            context.get().activateDnD(true);
-        }
-    }
-
-    /**
      * Method for activation and deactiviation of DnD mode
      *
      * @param on turn on or off
@@ -348,6 +219,134 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         super.onWindowFocusChanged(hasFocus);
         if (locked && !hasFocus && drawerListenerOnline) {
             pm.notificationDrawerPulled();
+        }
+    }
+
+    /**
+     * Asynctask for loading the documents, refreshing thumbnails and hashes.
+     */
+    static class DocumentLoader extends AsyncTask<Void, Void, Void> {
+        private final WeakReference<LockedActivity> context;
+        private final String examName;
+
+        DocumentLoader(LockedActivity context, String examName) {
+            this.context = new WeakReference<>(context);
+            this.examName = examName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            context.get().progress(true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            context.get().model.openExam(examName);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            context.get().progress(false);
+            context.get().activateDnD(true);
+        }
+    }
+
+    /**
+     * Handler for syncing network signals to actions on the main UI thread.
+     */
+    public class LockedHandler extends Handler implements ProtocolHandler {
+        private LockedHandler(Looper looper) {
+            super(looper);
+        }
+
+        /**
+         * Making the lighthouse symbol visible
+         *
+         * @param on turning it on or off
+         */
+        public void postLighthouse(boolean on) {
+            this.post(() -> lightHouse.setVisibility(on ? View.VISIBLE : View.INVISIBLE));
+        }
+
+        /**
+         * Checking the proposed documents from the student if they are allowed.
+         * If the file is received too early, wait for all documents to be loaded using an observer.
+         *
+         * @param exam The received examfile from network
+         */
+        public void receiveExam(TeacherExam exam) {
+            //has to be posted, because observe cannot be started on background thread
+            this.post(() -> {
+                if (!model.getLivedata().isEmpty()) {
+                    if (model.checkExam(exam))
+                        pm.allDocumentsAccepted();
+                } else {
+                    Observer obs = new Observer() {
+                        @Override
+                        public void onChanged(Object o) {
+                            if (!model.getLivedata().isEmpty()) {
+                                if (model.checkExam(exam))
+                                    pm.allDocumentsAccepted();
+                                model.getLivedata().removeObserver(this);
+                            }
+                        }
+                    };
+                    model.getLivedata().observe(LockedActivity.this, obs);
+
+                }
+            });
+        }
+
+        /**
+         * Start the asynctask for loading documents
+         */
+        public void loadDocuments() {
+            this.post(() -> {
+                DocumentLoader loader = new DocumentLoader(LockedActivity.this, examName);
+                loader.execute();
+            });
+        }
+
+        /**
+         * Starting the lockmode and removing all not accepted documents in the exam from the listing.
+         */
+        public void lock() {
+            this.post(() -> {
+                model.getLivedata().removeSelected();
+                locked = true;
+            });
+        }
+
+        /**
+         * Callback for bad packets to close the activity.
+         *
+         * @param hasMessage Indicator for having a message to display.
+         * @param stringID   Message for the reason of closing
+         */
+        public void gracefulShutdown(boolean hasMessage, @StringRes int stringID) {
+            this.post(() -> {
+                try {
+                    if (hasMessage) {
+                        Toast.makeText(LockedActivity.this, stringID, Toast.LENGTH_LONG).show();
+                    }
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        /**
+         * Showing a toast message
+         *
+         * @param resId Message to be displayed
+         */
+        @Override
+        public void putToast(@StringRes int resId) {
+            this.post(() -> Toast.makeText(LockedActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
         }
     }
 }

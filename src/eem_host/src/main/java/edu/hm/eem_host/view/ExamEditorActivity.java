@@ -1,5 +1,6 @@
 package edu.hm.eem_host.view;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
@@ -102,7 +103,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     }
 
     private void showSourceDialog() {
-        View v = getLayoutInflater().inflate(R.layout.dialog_build_examdocument, null);
+        @SuppressLint("InflateParams") View v = getLayoutInflater().inflate(R.layout.dialog_build_examdocument, null);
         EditText numPages = v.findViewById(R.id.number_pages);
         RadioGroup rg = v.findViewById(R.id.rbs);
         CheckBox allowCb = v.findViewById(R.id.allow_annotations);
@@ -132,30 +133,16 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 .show();
     }
 
-    static class HostSingleDocumentLoader extends SingleDocumentLoader {
-
-        HostSingleDocumentLoader(ExamEditorActivity context) {
-            super(context);
-        }
-
-        @Override
-        protected ThumbnailedExamDocument doInBackground(Uri... uris) {
-            return ThumbnailedExamDocument.getInstance(context.get(),
-                    uris[0], ((ExamEditorActivity)context.get()).allowAnnotations? HASHTOOLBOX.WhichHash.NON_ANNOTATED: HASHTOOLBOX.WhichHash.NORMAL);
-        }
-
-    }
-
     @Override
     protected void handleDocument(@Nullable Uri uri) {
-        if(uri!=null) {
+        if (uri != null) {
             HostSingleDocumentLoader loader = new HostSingleDocumentLoader(this);
             loader.execute(uri);
         }
     }
 
     @Override
-    protected void tutorial(){
+    protected void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
@@ -169,10 +156,24 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 getString(edu.hm.eem_library.R.string.tutorial_all_checkbox), getString(android.R.string.ok));
 
         sequence.setOnItemDismissedListener((itemView, position) -> {
-            if(position==1)
+            if (position == 1)
                 super.tutorial();
         });
 
         sequence.start();
+    }
+
+    static class HostSingleDocumentLoader extends SingleDocumentLoader {
+
+        HostSingleDocumentLoader(ExamEditorActivity context) {
+            super(context);
+        }
+
+        @Override
+        protected ThumbnailedExamDocument doInBackground(Uri... uris) {
+            return ThumbnailedExamDocument.getInstance(context.get(),
+                    uris[0], ((ExamEditorActivity) context.get()).allowAnnotations ? HASHTOOLBOX.WhichHash.NON_ANNOTATED : HASHTOOLBOX.WhichHash.NORMAL);
+        }
+
     }
 }

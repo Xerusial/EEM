@@ -1,8 +1,8 @@
 package edu.hm.eem_library.model;
 
-public class SortableItem<T> implements Comparable<SortableItem<T>>{
-    private String sortableKey;
+public class SortableItem<T> implements Comparable<SortableItem<T>> {
     public final T item;
+    private String sortableKey;
 
     SortableItem(String sortableKey, T item) {
         this.sortableKey = sortableKey;
@@ -13,20 +13,20 @@ public class SortableItem<T> implements Comparable<SortableItem<T>>{
         return sortableKey;
     }
 
-    void incrKey(){
+    void incrKey() {
         String[] parts = sortableKey.split(" ");
-        int preEndIndex = parts.length-1;
+        int preEndIndex = parts.length - 1;
         int num;
         try {
             num = Integer.parseInt(parts[preEndIndex]);
             num++;
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             num = 1;
             preEndIndex = parts.length;
         }
         sortableKey = "";
         StringBuilder builder = new StringBuilder(parts[0] + ' ');
-        for(int i = 1; i<preEndIndex; i++){
+        for (int i = 1; i < preEndIndex; i++) {
             builder.append(parts[i]);
             builder.append(' ');
         }

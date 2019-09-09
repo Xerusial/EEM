@@ -1,10 +1,12 @@
 package edu.hm.eem_library.model;
+
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Objects;
 
-public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
+public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
     int selectionCounter;
 
     SelectableSortableItemLiveData(boolean notificationNeeded) {
@@ -12,20 +14,20 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
     }
 
     public void toggleSelected(int index) {
-        selectionCounter += (getValue().get(index).selected^=true) ? 1 : -1;
+        selectionCounter += (Objects.requireNonNull(getValue()).get(index).selected ^= true) ? 1 : -1;
         notifyObserversMeta();
     }
 
-    public void setSelected(String name, boolean notify){
-        backingMap.get(name).selected = true;
+    public void setSelected(String name, boolean notify) {
+        Objects.requireNonNull(backingMap.get(name)).selected = true;
         selectionCounter++;
-        if(notify)
+        if (notify)
             notifyObserversMeta();
     }
 
-    public void setSelected(){
-        for(T item : getValue()){
-            if(!item.selected) {
+    public void setSelected() {
+        for (T item : Objects.requireNonNull(getValue())) {
+            if (!item.selected) {
                 item.selected = true;
                 selectionCounter++;
             }
@@ -33,15 +35,16 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
         notifyObserversMeta();
     }
 
-    /** Get a selected item in the map.
+    /**
+     * Get a selected item in the map.
      *
      * @return The first item in the list, which is selected. If none is selected, returns null.
      */
     @Nullable
-    public V getSelected(){
+    public V getSelected() {
         V ret = null;
-        for(SelectableSortableItem<V> item : backingMap.values()){
-            if(item.selected){
+        for (SelectableSortableItem<V> item : backingMap.values()) {
+            if (item.selected) {
                 ret = item.item;
                 break;
             }
@@ -49,46 +52,47 @@ public class SelectableSortableItemLiveData<V,T extends SelectableSortableItem<V
         return ret;
     }
 
-    /** Notfify Observers, but only the selection has changed, so the Arraylist does not need to be
+    /**
+     * Notfify Observers, but only the selection has changed, so the Arraylist does not need to be
      * rebuilt.
      */
-    void notifyObserversMeta(){
+    void notifyObserversMeta() {
         postValue(getValue());
     }
 
-    public int getSelectionCount(){
+    public int getSelectionCount() {
         return selectionCounter;
     }
 
-    public void clearSelection(String name){
-        backingMap.get(name).selected = false;
+    public void clearSelection(String name) {
+        Objects.requireNonNull(backingMap.get(name)).selected = false;
         selectionCounter--;
         notifyObserversMeta();
     }
 
     public void clearSelection() {
-        for(SelectableSortableItem<V> item : backingMap.values())
+        for (SelectableSortableItem<V> item : backingMap.values())
             item.selected = false;
         selectionCounter = 0;
         notifyObserversMeta();
     }
 
     @Nullable
-    public ArrayList<T> removeSelected(){
+    public ArrayList<T> removeSelected() {
         ArrayList<T> removed = null;
-        if(selectionCounter>0) {
+        if (selectionCounter > 0) {
             removed = new ArrayList<>(selectionCounter);
             LinkedList<String> removedKeyList = new LinkedList<>();
-            for (SelectableSortableItem<V> item : backingMap.values()){
-                if(item.selected) {
+            for (SelectableSortableItem<V> item : backingMap.values()) {
+                if (item.selected) {
                     removedKeyList.add(item.getSortableKey());
                 }
             }
-            for (String s : removedKeyList){
+            for (String s : removedKeyList) {
                 removed.add(backingMap.remove(s));
             }
             selectionCounter = 0;
-            if(notificationNeeded) notifyObservers(false);
+            if (notificationNeeded) notifyObservers(false);
         }
         return removed;
     }

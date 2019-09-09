@@ -4,37 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ScanActivity"
-    android:animateLayoutChanges="true">
-
-    <android.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <TextView
-        android:id="@+id/header_scan_for_exam_providers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/header_scan_for_exam_providers"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <Switch
-        android:id="@+id/sw_scan_services"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/scan_for_services"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_scan_for_exam_providers"/>
+    android:animateLayoutChanges="true"
+    tools:context=".view.ScanActivity">
 
     <ImageView
         android:id="@+id/progress_background"
@@ -60,17 +31,23 @@
         app:layout_constraintTop_toTopOf="@id/progress_background"
         app:srcCompat="@drawable/progress_anim" />
 
-    <fragment
-        android:id="@+id/fragment"
-        android:name="edu.hm.eem_library.view.ItemListFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:ListContent="HOST"
-        app:layout_constraintTop_toBottomOf="@id/progress_background"
+    <Switch
+        android:id="@+id/sw_scan_services"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/scan_for_services"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout="@layout/fragment_itemlist" />
+        app:layout_constraintTop_toBottomOf="@id/header_scan_for_exam_providers" />
+
+    <TextView
+        android:id="@+id/header_scan_for_exam_providers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/header_scan_for_exam_providers"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <TextView
         android:id="@+id/ui_locker"
@@ -81,5 +58,28 @@
         android:text="@string/waiting_for_host_to_connect"
         android:textSize="36sp"
         android:visibility="invisible" />
+
+    <android.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <fragment
+        android:id="@+id/fragment"
+        android:name="edu.hm.eem_library.view.ItemListFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:ListContent="HOST"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress_background"
+        tools:layout="@layout/fragment_itemlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

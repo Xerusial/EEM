@@ -6,13 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import edu.hm.eem_library.R;
 
-public abstract class ProtocolManager{
+public abstract class ProtocolManager {
     protected final Activity context;
-    private final LinkedList<ReceiverThread> threads;
     protected final ProtocolHandler handler;
+    private final LinkedList<ReceiverThread> threads;
 
     public ProtocolManager(Activity context, ProtocolHandler handler) {
         this.context = context;
@@ -20,25 +21,27 @@ public abstract class ProtocolManager{
         threads = new LinkedList<>();
     }
 
-    public void quit(){
-        for(ReceiverThread thread : threads){
+    public void quit() {
+        for (ReceiverThread thread : threads) {
             thread.interrupt();
         }
         threads.clear();
     }
 
-    /** Method to send a signal packet to the specified socket
+    /**
+     * Method to send a signal packet to the specified socket
      *
      * @param signal type
      * @param socket target socket
      */
-    public final void sendSignal(SignalPacket.Signal signal, Socket socket){
+    protected final void sendSignal(SignalPacket.Signal signal, Socket socket) {
         SignalPacket signalPacket = new SignalPacket(signal);
         DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, signalPacket);
         thread.start();
     }
 
-    /** Protocol Receiver Thread
+    /**
+     * Protocol Receiver Thread
      * The server opens one thread for each socket, the client has only got one thread.
      */
     public abstract class ReceiverThread extends Thread {
@@ -59,11 +62,11 @@ public abstract class ProtocolManager{
                 interrupt();
             }
             while (!Thread.currentThread().isInterrupted()) {
-                Object[] header = DataPacket.readHeader(is);
+                Object[] header = DataPacket.readHeader(Objects.requireNonNull(is));
                 if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
                     handler.putToast(R.string.toast_protocol_too_new);
                 }
-                if(handleMessage((DataPacket.Type) header[1], is, socket))
+                if (handleMessage((DataPacket.Type) header[1], is, socket))
                     interrupt();
             }
             try {

@@ -2,10 +2,12 @@ package edu.hm.eem_library.model;
 
 import android.app.Application;
 import android.os.FileObserver;
+
 import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -18,11 +20,11 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
 
     public class ExamItemLiveData extends SelectableSortableItemLiveData<File, SelectableSortableItem<File>> {
         private final int FILEOBSERVERMASK = FileObserver.DELETE | FileObserver.CREATE;
-        private final FileObserver fileObserver;
 
         ExamItemLiveData() {
             super(false);
-            fileObserver = new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
+            // Filelist has been modified; Update self
+            FileObserver fileObserver = new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
                 @Override
                 public void onEvent(int event, String path) {
                     // Filelist has been modified; Update self
@@ -33,9 +35,9 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
             refreshData(getDir(), false);
         }
 
-        private Set<SelectableSortableItem<File>> getDir(){
+        private Set<SelectableSortableItem<File>> getDir() {
             Set<SelectableSortableItem<File>> ret = new TreeSet<>();
-            for(File f: examDir.listFiles()){
+            for (File f : examDir.listFiles()) {
                 ret.add(new SelectableSortableItem<>(f.getName(), f));
             }
             return ret;
@@ -45,7 +47,7 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
         @Override
         public ArrayList<SelectableSortableItem<File>> removeSelected() {
             ArrayList<SelectableSortableItem<File>> ret = super.removeSelected();
-            for (SelectableSortableItem<File> s: ret){
+            for (SelectableSortableItem<File> s : Objects.requireNonNull(ret)) {
                 //noinspection ResultOfMethodCallIgnored
                 s.item.delete();
             }

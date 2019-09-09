@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import java.util.Objects;
+
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_library.model.SelectableSortableItem;
@@ -38,6 +40,7 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
         final ConstraintSet constraintSet = new ConstraintSet();
         final TextView countNotificationDrawer;
         final int disconnectedColor = context.getColor(R.color.disconnected);
+
         StudentDeviceViewHolder(View view) {
             super(view);
             icon.setImageResource(R.drawable.ic_student);
@@ -45,7 +48,7 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
             countNotificationDrawer = view.findViewById(R.id.count_notification_drawer);
         }
 
-        private void lighthouse(){
+        private void lighthouse() {
             int position = getAdapterPosition();
             ((ClientItemViewModel.ClientItemLiveData) liveData).lighthouse(position);
             listener.onListFragmentPress(position);
@@ -54,20 +57,20 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
         @Override
         void initializeFromLiveData(int position) {
             super.initializeFromLiveData(position);
-            ClientItem device = (ClientItem) liveData.getValue().get(position).item;
+            ClientItem device = (ClientItem) Objects.requireNonNull(liveData.getValue()).get(position).item;
             constraintSet.clone(layout);
-            if(device.lighthoused)
+            if (device.lighthoused)
                 constraintSet.connect(R.id.card_item, ConstraintSet.LEFT, R.id.lighthouse, ConstraintSet.RIGHT);
             else
                 constraintSet.connect(R.id.card_item, ConstraintSet.LEFT, R.id.itemlayout, ConstraintSet.LEFT);
             constraintSet.applyTo(layout);
-            if(device.countNotificationDrawer>0) {
+            if (device.countNotificationDrawer > 0) {
                 countNotificationDrawer.setVisibility(View.VISIBLE);
                 countNotificationDrawer.setText(context.getString(R.string.notification_drawer_has_been_opened, device.countNotificationDrawer));
             } else {
                 countNotificationDrawer.setVisibility(View.GONE);
             }
-            if(device.disconnected) {
+            if (device.disconnected) {
                 item.setCardBackgroundColor(disconnectedColor);
                 selectedCb.setText(R.string.client_disconnected);
             } else {

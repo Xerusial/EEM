@@ -4,6 +4,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -11,10 +12,6 @@ public class HotspotManager {
     private final WifiManager wifiManager;
     private final OnHotspotEnabledListener onHotspotEnabledListener;
     private WifiManager.LocalOnlyHotspotReservation mReservation;
-
-    public interface OnHotspotEnabledListener{
-        void OnHotspotEnabled(boolean enabled, @Nullable WifiConfiguration wifiConfiguration);
-    }
 
     //call with Hotspotmanager(getApplicationContext().getSystemService(Context.WIFI_SERVICE))
     public HotspotManager(WifiManager wifiManager, OnHotspotEnabledListener onHotspotEnabledListener) {
@@ -51,5 +48,9 @@ public class HotspotManager {
             mReservation.close();
             onHotspotEnabledListener.OnHotspotEnabled(false, null);
         }
+    }
+
+    public interface OnHotspotEnabledListener {
+        void OnHotspotEnabled(boolean enabled, @Nullable WifiConfiguration wifiConfiguration);
     }
 }

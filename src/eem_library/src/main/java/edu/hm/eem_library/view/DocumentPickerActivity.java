@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.widget.Toast;
 
@@ -14,20 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.io.File;
 import java.util.Date;
+import java.util.Objects;
 
 import edu.hm.eem_library.R;
 
 public abstract class DocumentPickerActivity extends AppCompatActivity {
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     static final int REQUEST_CODE_READ_STORAGE = 1;
-
-    public static class Meta{
-        public String name;
-        public Date lastModifiedDate;
-    }
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     protected final void checkFileManagerPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -71,7 +65,7 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
                 if (resultData != null) {
                     Uri uri = resultData.getData();
                     //Attention: Persistent Uris are limited to 128 files in total per app!!!
-                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    getContentResolver().takePersistableUriPermission(Objects.requireNonNull(uri), Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     handleDocument(uri);
                 } else {
                     handleDocument(null);
@@ -85,5 +79,10 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
     }
 
     abstract void handleDocument(@Nullable Uri uri);
+
+    public static class Meta {
+        public String name;
+        public Date lastModifiedDate;
+    }
 }
 

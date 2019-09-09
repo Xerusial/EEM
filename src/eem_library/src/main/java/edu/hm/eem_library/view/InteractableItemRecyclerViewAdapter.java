@@ -1,11 +1,13 @@
 package edu.hm.eem_library.view;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.Objects;
 
 import edu.hm.eem_library.R;
 import edu.hm.eem_library.model.SelectableSortableItem;
@@ -35,7 +37,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>)liveData).clearSelection();
+        ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) liveData).clearSelection();
     }
 
     abstract class SelectableStringViewHolder extends ItemRecyclerViewAdapter.StringViewHolder {
@@ -46,20 +48,20 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
             selectedCb = view.findViewById(R.id.selected);
         }
 
-        private void updateState(int position){
-            boolean selected = ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>)liveData).getValue().get(position).selected;
+        private void updateState(int position) {
+            boolean selected = Objects.requireNonNull(((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) liveData).getValue()).get(position).selected;
             setSelected(selected);
         }
 
         abstract void setSelected(boolean selected);
 
-        void setInteractions(){
+        void setInteractions() {
             view.setOnClickListener(v -> {
                 if (null != listener) {
                     listener.onListFragmentPress(getAdapterPosition());
                 }
             });
-            if(isSelectable) {
+            if (isSelectable) {
                 view.setOnLongClickListener(v -> {
                     ((SelectableSortableItemLiveData<?, SelectableSortableItem<?>>) liveData).toggleSelected(getAdapterPosition());
                     return true;

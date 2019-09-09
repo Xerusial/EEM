@@ -1,15 +1,10 @@
 package edu.hm.eem_client.view;
 
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,12 +13,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.github.druk.dnssd.DNSSDService;
 
 import edu.hm.eem_client.R;
-import edu.hm.eem_library.net.NsdService;
-import edu.hm.eem_library.model.HostItemViewModel;
 import edu.hm.eem_client.net.ClientServiceManager;
+import edu.hm.eem_library.model.HostItemViewModel;
+import edu.hm.eem_library.net.NsdService;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
@@ -33,10 +31,10 @@ import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
  * This activity is used to scan for teacher devices and connect to them.
  */
 public class ScanActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener, ClientServiceManager.ServiceReadyListener {
-    private static final String SHOWCASE_ID = "ScanActivity";
     public static final String PROF_FIELD = "Prof";
     public static final String ADDRESS_FIELD = "Address";
     public static final String PORT_FIELD = "Port";
+    private static final String SHOWCASE_ID = "ScanActivity";
     private ConnectivityManager cm;
     private ClientServiceManager clientServiceManager;
     private HostItemViewModel model;

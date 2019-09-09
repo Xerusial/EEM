@@ -11,10 +11,10 @@ import androidx.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.TreeSet;
 
 import edu.hm.eem_library.R;
@@ -23,13 +23,10 @@ import edu.hm.eem_library.view.DocumentPickerActivity;
 import static java.lang.Math.sqrt;
 
 public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument> {
-    @Nullable public final Bitmap thumbnail;
+    @Nullable
+    public final Bitmap thumbnail;
     public final boolean hasThumbnail;
     public RejectionReason reason;
-
-    public enum RejectionReason{
-        NONE,TOO_MANY_PAGES, HASH_DOES_NOT_MATCH, TOO_MANY_DOCS
-    }
 
     private ThumbnailedExamDocument(String sortableKey, ExamDocument item, @Nullable Bitmap thumbnail, boolean hasThumbnail) {
         super(sortableKey, item);
@@ -62,8 +59,7 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
     }
 
     @Nullable
-    public static ThumbnailedExamDocument getInstance(Context context, Uri uri, HASHTOOLBOX.WhichHash which)
-    {
+    public static ThumbnailedExamDocument getInstance(Context context, Uri uri, HASHTOOLBOX.WhichHash which) {
         ThumbnailedExamDocument thDoc;
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
@@ -76,17 +72,17 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         return thDoc;
     }
 
-    private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which, boolean documentChanged){
+    private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which, boolean documentChanged) {
         try {
-            int width = (int) (context.getResources().getDisplayMetrics().density*180); // 180dp
-            Bitmap thumbnail = Bitmap.createBitmap(width,(int)sqrt(2)*width, Bitmap.Config.ARGB_8888);
-            PdfRenderer renderer = new PdfRenderer(context,fileDescriptor);
+            int width = (int) (context.getResources().getDisplayMetrics().density * 180); // 180dp
+            Bitmap thumbnail = Bitmap.createBitmap(width, (int) sqrt(2) * width, Bitmap.Config.ARGB_8888);
+            PdfRenderer renderer = new PdfRenderer(context, fileDescriptor);
             PdfRenderer.Page page = renderer.openPage(0);
             page.render(thumbnail);
             page.close();
-            if(documentChanged) {
+            if (documentChanged) {
                 ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor), which);
-                ids.pages = renderer.getPageCount();
+                Objects.requireNonNull(ids).pages = renderer.getPageCount();
                 ids.hashCreationDate = Calendar.getInstance().getTime();
                 doc.update(ids);
             }
@@ -98,10 +94,10 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         }
     }
 
-   public static DocumentPickerActivity.Meta getMetaFromUri(Context context, Uri uri) {
+    public static DocumentPickerActivity.Meta getMetaFromUri(Context context, Uri uri) {
         DocumentPickerActivity.Meta ret = new DocumentPickerActivity.Meta();
         String path = null;
-        if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+        if (Objects.equals(uri.getAuthority(), "com.android.providers.downloads.documents")) {
             // Cursor.close not needed because of Java 7 automatic resource management
             try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
@@ -109,13 +105,17 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
                 }
             }
         } else {
-            String[] split = uri.getPath().split(":");
+            String[] split = Objects.requireNonNull(uri.getPath()).split(":");
             path = split[split.length - 1];
         }
-        String[] split = path.split(File.separator);
+        String[] split = Objects.requireNonNull(path).split(File.separator);
         ret.name = split[split.length - 1];
         ret.lastModifiedDate = new Date(new File(path).lastModified());
         return ret;
+    }
+
+    public enum RejectionReason {
+        NONE, TOO_MANY_PAGES, HASH_DOES_NOT_MATCH, TOO_MANY_DOCS
     }
 
 }

@@ -115,6 +115,13 @@ public class ClientServiceManager extends ServiceManager {
     }
 
     /**
+     * Is called from the query listener, when all three steps: Discover, Resolve & Query are done
+     */
+    public interface ServiceReadyListener extends BaseListener {
+        void onServiceReady(NsdService nsdService);
+    }
+
+    /**
      * Discovery Callbacks
      */
     private class ExamBrowseListener implements BrowseListener {
@@ -176,12 +183,5 @@ public class ClientServiceManager extends ServiceManager {
         public void operationFailed(DNSSDService service, int errorCode) {
             serviceReadyListener.operationFailed(service, errorCode);
         }
-    }
-
-    /**
-     * Is called from the query listener, when all three steps: Discover, Resolve & Query are done
-     */
-    public interface ServiceReadyListener extends BaseListener {
-        void onServiceReady(NsdService nsdService);
     }
 }

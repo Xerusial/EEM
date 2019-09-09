@@ -18,20 +18,38 @@ import edu.hm.eem_library.model.TeacherExam;
 import static java.lang.System.exit;
 
 public class FilePacket extends DataPacket {
+    public static final String EXAMDIR = "exams";
     /*  File Packet:
         [8 Bytes: Size]
         [Size Bytes: File]
      */
-    public static final String FILENAME = "sendable_exam";
-    public static final String EXAMDIR = "exams";
-    private final File f;
+    private static final String FILENAME = "sendable_exam";
     private static final ExamFactory factory = new ExamFactory(ExamFactory.ExamType.TEACHER);
+    private final File f;
+
     public FilePacket(File filesdir, String exam) {
         super(Type.EXAMFILE);
         File examFile = new File(filesdir.getPath() + File.separator + EXAMDIR + File.separator + exam);
         File sendableExamFile = new File(filesdir.getPath() + File.separator + FilePacket.FILENAME);
         factory.createSendableVersion(examFile, sendableExamFile);
         this.f = new File(filesdir.getPath() + File.separator + FILENAME);
+    }
+
+    @Nullable
+    public static TeacherExam readData(InputStream is) {
+        byte[] sizeBytes = new byte[LONG_BYTES];
+        TeacherExam exam = null;
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            is.read(sizeBytes);
+            long size = ByteBuffer.wrap(sizeBytes).getLong();
+            BoundedInputStream bis = new BoundedInputStream(is, size);
+            exam = (TeacherExam) factory.extract(bis);
+            //Do not close bis, as this will close the socket!
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return exam;
     }
 
     @Override
@@ -47,27 +65,11 @@ public class FilePacket extends DataPacket {
                 os.flush();
             }
             fis.close();
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             exit(1);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    @Nullable
-    public static TeacherExam readData(InputStream is) {
-        byte[] sizeBytes = new byte[LONG_BYTES];
-        TeacherExam exam = null;
-        try {
-            is.read(sizeBytes);
-            long size = ByteBuffer.wrap(sizeBytes).getLong();
-            BoundedInputStream bis = new BoundedInputStream(is, size);
-            exam = (TeacherExam) factory.extract(bis);
-            //Do not close bis, as this will close the socket!
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return exam;
     }
 }

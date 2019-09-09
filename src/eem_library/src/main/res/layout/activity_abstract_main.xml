@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context="edu.hm.eem_library.view.AbstractMainActivity">
 
+    <View
+        android:id="@+id/toolbar_overflow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="2dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/toolbar" />
+
     <android.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -80,15 +90,5 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         tools:layout="@layout/fragment_itemlist" />
-
-    <View
-        android:id="@+id/toolbar_overflow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginRight="2dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@id/toolbar"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,52 +6,17 @@
     android:layout_height="match_parent"
     tools:context="edu.hm.eem_host.view.LockActivity">
 
-    <android.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:title="ExamTitle"/>
-
-    <TextView
-        android:id="@+id/header_con_method"
+    <CheckBox
+        android:id="@+id/cb_service_running"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_conmethod"
-        android:textSize="18sp"
+        android:buttonTint="@color/colorPrimary"
+        android:clickable="false"
+        android:text="@string/service_runnning"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <LinearLayout
-        android:id="@+id/sw_use_hotspot_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_con_method">
-
-        <Switch
-            android:id="@+id/sw_use_hotspot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/wifi"
-            android:layout_gravity="center_vertical"
-            />
-
-        <TextView
-            android:id="@+id/wifi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:lines="2"
-            android:text="@string/hotspot"
-            android:textColor="@color/black" />
-
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@id/sw_start_service" />
 
     <LinearLayout
         android:id="@+id/hotspot_credentials"
@@ -87,15 +52,31 @@
             android:text="@string/blank" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/header_con_devices"
+    <LinearLayout
+        android:id="@+id/sw_use_hotspot_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_condev"
-        android:textSize="18sp"
+        android:orientation="horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/hotspot_credentials" />
+        app:layout_constraintTop_toBottomOf="@id/header_con_method">
+
+        <Switch
+            android:id="@+id/sw_use_hotspot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/wifi" />
+
+        <TextView
+            android:id="@+id/wifi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="2"
+            android:text="@string/hotspot"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
 
     <Switch
         android:id="@+id/sw_start_service"
@@ -107,18 +88,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_con_devices" />
 
-    <CheckBox
-        android:id="@+id/cb_service_running"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:buttonTint="@color/colorPrimary"
-        android:clickable="false"
-        android:text="@string/service_runnning"
-        android:visibility="gone"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sw_start_service" />
-
     <Switch
         android:id="@+id/sw_lock_students"
         android:layout_width="wrap_content"
@@ -129,16 +98,46 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cb_service_running" />
 
+    <TextView
+        android:id="@+id/header_con_devices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_condev"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hotspot_credentials" />
+
+    <TextView
+        android:id="@+id/header_con_method"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_conmethod"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <android.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:title="ExamTitle" />
+
     <fragment
         android:id="@+id/student_list"
         android:name="edu.hm.eem_library.view.ItemListFragment"
-        android:layout_height="0dp"
         android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:ListContent="DEVICE"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sw_lock_students"
-        app:ListContent="DEVICE"
         tools:layout="@layout/fragment_itemlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,8 +8,8 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import edu.hm.eem_client.R;
 
-/** Auto generated class binding the root_preferences.xml
- *
+/**
+ * Auto generated class binding the root_preferences.xml
  */
 public class SettingsActivity extends AppCompatActivity {
 

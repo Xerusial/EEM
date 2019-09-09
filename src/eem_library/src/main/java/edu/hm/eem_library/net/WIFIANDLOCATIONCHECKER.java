@@ -8,9 +8,6 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.SupplicantState;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -24,18 +21,6 @@ public final class WIFIANDLOCATIONCHECKER {
     public static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1;
     public static final int WIFI_REQUEST = 1;
     public static final int LOCATION_REQUEST = 2;
-
-    /**
-     * Checks if wifi and location services are online for hotspot creation.
-     * Please implement the onRequestPermissionResult and onActivityResult in the using class.
-     */
-    public interface onWifiAndLocationEnabledListener {
-        void onWifiEnabled();
-
-        void onLocationEnabled();
-
-        void onNotEnabled();
-    }
 
     public static <T extends AppCompatActivity & onWifiAndLocationEnabledListener> void checkWifi(@NonNull T apl, @NonNull ConnectivityManager cm, boolean firstCheck) {
         @SuppressLint("MissingPermission") NetworkInfo ni = cm.getActiveNetworkInfo();
@@ -90,19 +75,31 @@ public final class WIFIANDLOCATIONCHECKER {
             builder.setMessage(apl.getString(R.string.dialog_location_for_scan));
 
         builder.setPositiveButton(apl.getString(android.R.string.ok), (dialog, which) -> {
-                    Intent intent;
-                    int request;
-                    if (wifi) {
-                        intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-                        request = WIFI_REQUEST;
-                    } else {
-                        intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    request = LOCATION_REQUEST;
-                    }
-                    apl.startActivityForResult(intent, request);
-                })
+            Intent intent;
+            int request;
+            if (wifi) {
+                intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                request = WIFI_REQUEST;
+            } else {
+                intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                request = LOCATION_REQUEST;
+            }
+            apl.startActivityForResult(intent, request);
+        })
                 .setNegativeButton(apl.getString(android.R.string.cancel), (dialog, which) -> dialog.cancel())
                 .setOnCancelListener(dialog -> apl.onNotEnabled())
                 .show();
+    }
+
+    /**
+     * Checks if wifi and location services are online for hotspot creation.
+     * Please implement the onRequestPermissionResult and onActivityResult in the using class.
+     */
+    public interface onWifiAndLocationEnabledListener {
+        void onWifiEnabled();
+
+        void onLocationEnabled();
+
+        void onNotEnabled();
     }
 }

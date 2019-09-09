@@ -1,14 +1,8 @@
 package edu.hm.eem_library.view;
 
 import android.app.AlertDialog;
-
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.ContentResolver;
 import android.content.Context;
-
-import androidx.annotation.Nullable;
-
 import android.content.Intent;
 import android.content.UriPermission;
 import android.net.Uri;
@@ -22,6 +16,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.Toolbar;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,11 +49,6 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     private static final String SHOWCASE_ID = "MainActivity";
 
     protected ExamFactory.ExamType examType;
-
-    public enum ActionType {
-        ACTION_EDITOR, ACTION_LOCK
-    }
-
     private ExamItemViewModel model;
     private ImageButton add_button, del_button, edit_button;
     private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
@@ -75,7 +67,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         del_button.setOnClickListener(v -> removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);
         edit_button.setOnClickListener(v -> {
-            String name = model.getLivedata().getSelected().getName();
+            String name = Objects.requireNonNull(model.getLivedata().getSelected()).getName();
             startSubApplication(name, ActionType.ACTION_EDITOR);
         });
         add_button = findViewById(R.id.bt_add_exam);
@@ -105,7 +97,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         ExamFactory factory = new ExamFactory(examType);
         ContentResolver resolver = getContentResolver();
         uriMap = new TreeMap<>();
-        for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {
+        for (SelectableSortableItem<File> container : Objects.requireNonNull(model.getLivedata().getValue())) {
             try {
                 FileInputStream fis = new FileInputStream(container.item);
                 StudentExam exam = factory.extract(fis);
@@ -124,7 +116,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                             }
                         }
                         Pair<Boolean, List<String>> entry = uriMap.get(uriString);
-                        entry.second.add(container.item.getName());
+                        Objects.requireNonNull(entry).second.add(container.item.getName());
                     }
                 }
             } catch (IOException e) {
@@ -197,10 +189,10 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     void handleDocument(@Nullable Uri uri) {
         if (uri != null) {
             Pair<Boolean, List<String>> entry = uriMap.get(replacementUri);
-            ExamDocument doc = ThumbnailedExamDocument.getInstance(this, uri, HASHTOOLBOX.WhichHash.BOTH).item;
-            for (String s : entry.second) {
+            ExamDocument doc = Objects.requireNonNull(ThumbnailedExamDocument.getInstance(this, uri, HASHTOOLBOX.WhichHash.BOTH)).item;
+            for (String s : Objects.requireNonNull(entry).second) {
                 ExamFactory factory = new ExamFactory(examType);
-                for (SelectableSortableItem<File> container : model.getLivedata().getValue()) {
+                for (SelectableSortableItem<File> container : Objects.requireNonNull(model.getLivedata().getValue())) {
                     if (container.item.getName().equals(s)) {
                         try {
                             FileInputStream fis = new FileInputStream(container.item);
@@ -209,7 +201,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                             List<ExamDocument> list = exam.getAllowedDocuments();
                             for (int i = 0; i < list.size(); i++) {
                                 ExamDocument oldDoc = list.get(i);
-                                if (oldDoc.getUriString().equals(replacementUri)) {
+                                if (Objects.equals(oldDoc.getUriString(), replacementUri)) {
                                     ExamDocument newDoc = (ExamDocument) doc.clone();
                                     if (oldDoc.getHash() == null)
                                         newDoc.removeHash();
@@ -239,7 +231,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
 
     @Override
     public void onListFragmentPress(int index) {
-        startSubApplication(model.getLivedata().getValue().get(index).getSortableKey(), ActionType.ACTION_LOCK);
+        startSubApplication(Objects.requireNonNull(model.getLivedata().getValue()).get(index).getSortableKey(), ActionType.ACTION_LOCK);
     }
 
     private void showNameDialog() {
@@ -265,7 +257,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if(requestCode == REQUEST_CODE_READ_STORAGE){
+        if (requestCode == REQUEST_CODE_READ_STORAGE) {
             doNotRebuildUriMap = true;
         }
         super.onActivityResult(requestCode, resultCode, resultData);
@@ -273,7 +265,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
 
     @Override
     public void onResume() {
-        if(doNotRebuildUriMap)
+        if (doNotRebuildUriMap)
             doNotRebuildUriMap = false;
         else
             buildUriMap();
@@ -282,7 +274,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
 
     protected abstract void startSubApplication(@Nullable String examName, ActionType action);
 
-    private void tutorial(){
+    private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
@@ -302,5 +294,9 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
                 getString(R.string.tutorial_menu_button), getString(android.R.string.ok));
 
         sequence.start();
+    }
+
+    public enum ActionType {
+        ACTION_EDITOR, ACTION_LOCK
     }
 }

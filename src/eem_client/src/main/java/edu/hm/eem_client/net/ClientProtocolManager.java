@@ -23,8 +23,8 @@ import edu.hm.eem_library.net.SignalPacket;
  * functions for sending data on the outputstream.
  */
 public class ClientProtocolManager extends ProtocolManager {
-    private Socket socket = null;
     private final String name;
+    private Socket socket = null;
 
     /**
      * constructor

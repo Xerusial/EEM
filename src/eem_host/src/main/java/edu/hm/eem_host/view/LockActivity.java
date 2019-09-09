@@ -1,11 +1,5 @@
 package edu.hm.eem_host.view;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
-import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -23,10 +17,6 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -37,17 +27,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.ViewModelProviders;
+
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Objects;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_host.net.HostProtocolManager;
 import edu.hm.eem_host.net.HostServiceManager;
+import edu.hm.eem_library.model.ClientItemViewModel;
+import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.net.SignalPacket;
 import edu.hm.eem_library.net.WIFIANDLOCATIONCHECKER;
-import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.ItemListFragment;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
@@ -74,39 +73,6 @@ public class LockActivity extends AppCompatActivity
     private CheckBox cbServiceRunning;
     private boolean locked;
 
-    private enum ProtocolTerminationReason {
-        EXIT, CHANGE_CONNECTION
-    }
-
-    public class LockHandler extends Handler implements ProtocolHandler {
-        private int id = 0;
-
-        private LockHandler(Looper looper) {
-            super(looper);
-        }
-
-        public void notifyStudentLeft(String name) {
-                this.post(() -> {
-                    if (locked) {
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(LockActivity.this, CHANNEL_ID)
-                                .setSmallIcon(R.drawable.ic_student_black)
-                                .setContentTitle(getString(R.string.student_left, name))
-                                .setStyle(new NotificationCompat.BigTextStyle()
-                                        .bigText(getString(R.string.student_left_text, name)))
-                                .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-                        nm.notify(++id, builder.build());
-                        model.getLivedata().disconnected(name);
-                    } else
-                        model.getLivedata().remove(name,false);
-                });
-        }
-
-        @Override
-        public void putToast(int resId) {
-            this.post(() -> Toast.makeText(LockActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
-        }
-    }
-
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -122,7 +88,6 @@ public class LockActivity extends AppCompatActivity
             notificationManager.createNotificationChannel(channel);
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +122,7 @@ public class LockActivity extends AppCompatActivity
             }
         });
         swUseHotspot.setOnClickListener(v -> {
-            if(model.getLivedata().getValue().size() != 0)
+            if (Objects.requireNonNull(model.getLivedata().getValue()).size() != 0)
                 showExitDialog(ProtocolTerminationReason.CHANGE_CONNECTION);
             else
                 changeHotSpot(swUseHotspot.isChecked());
@@ -165,7 +130,7 @@ public class LockActivity extends AppCompatActivity
         switchSetEnabled(swLock, false);
         swLock.setOnClickListener(v -> {
             if (swLock.isChecked()) {
-                if (model.getLivedata().getSelectionCount() != model.getLivedata().getValue().size())
+                if (model.getLivedata().getSelectionCount() != Objects.requireNonNull(model.getLivedata().getValue()).size())
                     showDialog(R.string.dialog_still_unchecked_documents, (dialog, id) -> lock(true), dialog -> swLock.setChecked(false));
                 else
                     lock(true);
@@ -211,7 +176,7 @@ public class LockActivity extends AppCompatActivity
     private void changeHotSpot(boolean enable) {
         quitProtocol();
         quitService();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (enable) {
                 WIFIANDLOCATIONCHECKER.checkLocation(LockActivity.this, lm, true);
                 switchSetEnabled(swStartService, false);
@@ -219,7 +184,7 @@ public class LockActivity extends AppCompatActivity
                 hotspotManager.turnOffHotspot();
             }
         } else {
-            if(enable) {
+            if (enable) {
                 showDialog(R.string.dialog_hotspot_api23, (dialogInterface, i) -> {
                     final Intent intent = new Intent(Intent.ACTION_MAIN, null);
                     intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -248,7 +213,7 @@ public class LockActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             hotspotManager.turnOffHotspot();
         quitProtocol();
         quitService();
@@ -391,7 +356,7 @@ public class LockActivity extends AppCompatActivity
         hostProtocolManager.sendLightHouse(index);
     }
 
-    private void tutorial(){
+    private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
@@ -411,5 +376,38 @@ public class LockActivity extends AppCompatActivity
                 getString(edu.hm.eem_library.R.string.tutorial_lock_switch), getString(android.R.string.ok));
 
         sequence.start();
+    }
+
+    private enum ProtocolTerminationReason {
+        EXIT, CHANGE_CONNECTION
+    }
+
+    public class LockHandler extends Handler implements ProtocolHandler {
+        private int id = 0;
+
+        private LockHandler(Looper looper) {
+            super(looper);
+        }
+
+        public void notifyStudentLeft(String name) {
+            this.post(() -> {
+                if (locked) {
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(LockActivity.this, CHANNEL_ID)
+                            .setSmallIcon(R.drawable.ic_student_black)
+                            .setContentTitle(getString(R.string.student_left, name))
+                            .setStyle(new NotificationCompat.BigTextStyle()
+                                    .bigText(getString(R.string.student_left_text, name)))
+                            .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+                    nm.notify(++id, builder.build());
+                    model.getLivedata().disconnected(name);
+                } else
+                    model.getLivedata().remove(name, false);
+            });
+        }
+
+        @Override
+        public void putToast(int resId) {
+            this.post(() -> Toast.makeText(LockActivity.this.getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
+        }
     }
 }

@@ -11,7 +11,8 @@ import com.shockwave.pdfium.util.Size;
 import java.io.IOException;
 
 
-/** Wrapper class for {@link PdfiumCore} to make it behave similar to {@link android.graphics.pdf.PdfRenderer}.
+/**
+ * Wrapper class for {@link PdfiumCore} to make it behave similar to {@link android.graphics.pdf.PdfRenderer}.
  * {@link android.graphics.pdf.PdfRenderer} does not work correctly on Devices with API lower
  * than Oreo.
  */
@@ -24,15 +25,15 @@ public class PdfRenderer {
         this.pdfDocument = pdfiumCore.newDocument(fd);
     }
 
-    public void close(){
+    public void close() {
         pdfiumCore.closeDocument(pdfDocument);
     }
 
-    public int getPageCount(){
+    public int getPageCount() {
         return pdfiumCore.getPageCount(pdfDocument);
     }
 
-    public Page openPage(int pageNum){
+    public Page openPage(int pageNum) {
         return new Page(pageNum);
     }
 
@@ -44,16 +45,16 @@ public class PdfRenderer {
             this.pageNum = pageNum;
         }
 
-        public void render(Bitmap bitmap){
+        public void render(Bitmap bitmap) {
             pdfiumCore.openPage(pdfDocument, pageNum);
             Size s = pdfiumCore.getPageSize(pdfDocument, pageNum);
-            float scaler = ((float)bitmap.getWidth())/s.getWidth();
-            int height = (int) (s.getHeight()*scaler);
-            int startY = bitmap.getHeight()/2-height/2;
+            float scaler = ((float) bitmap.getWidth()) / s.getWidth();
+            int height = (int) (s.getHeight() * scaler);
+            int startY = bitmap.getHeight() / 2 - height / 2;
             pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, startY, bitmap.getWidth(), height, true);
         }
 
-        public void close(){
+        public void close() {
 
         }
     }

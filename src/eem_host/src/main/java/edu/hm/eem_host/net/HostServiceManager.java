@@ -19,6 +19,35 @@ public class HostServiceManager extends ServiceManager {
     private LockActivity apl;
     private NsdManager.RegistrationListener currentListener = null;
 
+    public HostServiceManager(LockActivity apl, String profName, HostProtocolManager protocolManager) {
+        this.apl = apl;
+        serviceInfo = new NsdServiceInfo();
+        serviceInfo.setServiceName(profName);
+        serviceInfo.setServiceType(SERVICE_TYPE);
+        this.protocolManager = protocolManager;
+        nsdm = (NsdManager) apl.getSystemService(Context.NSD_SERVICE);
+    }
+
+    public void init(ServerSocket serverSocket) {
+        this.currentListener = apl;
+        this.serverThread = new ServerThread(serverSocket);
+        this.serverThread.start();
+        serviceInfo.setPort(serverSocket.getLocalPort());
+        nsdm.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, currentListener);
+    }
+
+    @Override
+    public void quit() {
+        if (currentListener != null) {
+            nsdm.unregisterService(currentListener);
+            currentListener = null;
+        }
+        if (serverThread != null) {
+            serverThread.interrupt();
+            serverThread = null;
+        }
+    }
+
     private class ServerThread extends Thread {
         private ServerSocket serverSocket;
 
@@ -42,35 +71,6 @@ public class HostServiceManager extends ServiceManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public HostServiceManager(LockActivity apl, String profName, HostProtocolManager protocolManager) {
-        this.apl = apl;
-        serviceInfo = new NsdServiceInfo();
-        serviceInfo.setServiceName(profName);
-        serviceInfo.setServiceType(SERVICE_TYPE);
-        this.protocolManager = protocolManager;
-        nsdm = (NsdManager) apl.getSystemService(Context.NSD_SERVICE);
-    }
-
-    public void init(ServerSocket serverSocket){
-        this.currentListener = apl;
-        this.serverThread = new ServerThread(serverSocket);
-        this.serverThread.start();
-        serviceInfo.setPort(serverSocket.getLocalPort());
-        nsdm.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, currentListener);
-    }
-
-    @Override
-    public void quit() {
-        if(currentListener!=null) {
-            nsdm.unregisterService(currentListener);
-            currentListener = null;
-        }
-        if(serverThread!=null) {
-            serverThread.interrupt();
-            serverThread = null;
         }
     }
 }
