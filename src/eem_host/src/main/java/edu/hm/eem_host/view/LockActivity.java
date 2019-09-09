@@ -156,7 +156,12 @@ public class LockActivity extends AppCompatActivity
                 cbServiceRunning.setVisibility(View.GONE);
             }
         });
-        swUseHotspot.setOnClickListener(v -> showExitDialog(ProtocolTerminationReason.CHANGE_CONNECTION));
+        swUseHotspot.setOnClickListener(v -> {
+            if(model.getLivedata().getValue().size() != 0)
+                showExitDialog(ProtocolTerminationReason.CHANGE_CONNECTION);
+            else
+                changeHotSpot(swUseHotspot.isChecked());
+        });
         switchSetEnabled(swLock, false);
         swLock.setOnClickListener(v -> {
             if (swLock.isChecked()) {

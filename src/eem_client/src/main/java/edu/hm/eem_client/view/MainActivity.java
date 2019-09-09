@@ -15,14 +15,19 @@ import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.view.AbstractMainActivity;
 import edu.hm.eem_library.view.AboutActivity;
 
-/** The first activity of this application, only used to correctly branch into other activities.
+/**
+ * The first activity of this application, only used to correctly branch into other activities.
  * Main functionality is in the {@link AbstractMainActivity} in the eem_library.
- *
  */
 public class MainActivity extends AbstractMainActivity {
     private static final int REQUEST_ACCESS_DND = 2;
     private NotificationManager nm;
 
+    /**
+     * Special init procedure for DND enabling in the client
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         examType = ExamFactory.ExamType.STUDENT;
@@ -31,7 +36,8 @@ public class MainActivity extends AbstractMainActivity {
         checkDnDPermission(true);
     }
 
-    /** Branch into activities launched from the burger menu
+    /**
+     * Branch into activities launched from the burger menu
      *
      * @param item which has been touched
      * @return launchintent for item was found
@@ -40,7 +46,7 @@ public class MainActivity extends AbstractMainActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean ret = false;
         Intent intent = null;
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.menu_settings:
                 intent = new Intent(this, SettingsActivity.class);
                 ret = true;
@@ -50,19 +56,20 @@ public class MainActivity extends AbstractMainActivity {
                 ret = true;
                 break;
         }
-        if(intent!=null) startActivity(intent);
+        if (intent != null) startActivity(intent);
         return ret;
     }
 
-    /** Starts follow-up activities from various input touchpoints in this activity.
+    /**
+     * Starts follow-up activities from various input touchpoints in this activity.
      *
      * @param examName currently focused exam, may be null
-     * @param action specifies the next activity to be launched
+     * @param action   specifies the next activity to be launched
      */
     @Override
     protected void startSubApplication(@Nullable String examName, ActionType action) {
         Intent intent = null;
-        switch (action){
+        switch (action) {
             case ACTION_EDITOR:
                 intent = new Intent(this, ExamEditorActivity.class);
                 break;
@@ -70,25 +77,26 @@ public class MainActivity extends AbstractMainActivity {
                 intent = new Intent(this, ScanActivity.class);
                 break;
         }
-        if (examName != null){
+        if (examName != null) {
             intent.putExtra(EXAMNAME_FIELD, examName);
             startActivity(intent);
         }
     }
 
-    /** Do not disturb mode/ zen mode needs to be enabled in this app, in order to hide notifications
+    /**
+     * Do not disturb mode/ zen mode needs to be enabled in this app, in order to hide notifications
      * form the student. This needs a special permission, which is checked by this function.
      *
      * @param firstTry first time to ask for permission or has the user already cancelled the req?
      */
-    private void checkDnDPermission(boolean firstTry){
-        if(!nm.isNotificationPolicyAccessGranted()){
-            if(firstTry) {
+    private void checkDnDPermission(boolean firstTry) {
+        if (!nm.isNotificationPolicyAccessGranted()) {
+            if (firstTry) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.dialog_dnd_required)
                         .setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {
-                             Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-                             startActivityForResult(intent, REQUEST_ACCESS_DND);
+                            Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                            startActivityForResult(intent, REQUEST_ACCESS_DND);
                         })
                         .setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel())
                         .setOnCancelListener(dialog -> finish())
@@ -99,9 +107,16 @@ public class MainActivity extends AbstractMainActivity {
         }
     }
 
+    /**
+     * Called when user returns from accepting or declining access to do not disturb mode (zen mode)
+     *
+     * @param requestCode Android basics
+     * @param resultCode  Android basics
+     * @param data        Android basics
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == REQUEST_ACCESS_DND){
+        if (requestCode == REQUEST_ACCESS_DND) {
             checkDnDPermission(false);
         } else
             super.onActivityResult(requestCode, resultCode, data);

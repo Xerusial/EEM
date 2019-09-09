@@ -12,10 +12,10 @@ import edu.hm.eem_client.R;
 import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
 
-/** The implemetation of the {@link AbstractExamEditorActivity} for the client side.
+/**
+ * The implemetation of the {@link AbstractExamEditorActivity} for the client side.
  * This class is only used to change the layout and set the progress symbol to one
  * that is optimized for E-Ink screens
- *
  */
 public class ExamEditorActivity extends AbstractExamEditorActivity {
 
@@ -23,6 +23,11 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     private ImageView progress;
     private AnimationDrawable progressAnim;
 
+    /**
+     * Get a viewmodel for our list, init views, and set clicklisteners
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,36 +37,42 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         svButton = findViewById(R.id.bt_save);
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
-        addButton.setOnClickListener(v -> checkFileManagerPermissions());
         toolbar = findViewById(R.id.toolbar);
         progressBg = findViewById(R.id.progress_background);
         progress = findViewById(R.id.progress);
-        progressAnim = (AnimationDrawable) progress.getDrawable();
         docList = findViewById(R.id.doc_list);
+        addButton.setOnClickListener(v -> checkFileManagerPermissions());
+        progressAnim = (AnimationDrawable) progress.getDrawable();
     }
 
+    /**
+     * The save button onClickListener. Make sure at least one document is specified
+     *
+     * @param v view that was clicked on
+     */
     @Override
     public void onClick(View v) {
-        if(model.getLivedata().isEmpty()){
+        if (model.getLivedata().isEmpty()) {
             Toast.makeText(getApplicationContext(), R.string.toast_select_documents_student, Toast.LENGTH_SHORT).show();
         }
         super.onClick(v);
     }
 
-    /** Setting custom progress symbol
+    /**
+     * Setting custom progress symbol
      *
-     * @param on Progress is running
+     * @param on       Progress is running
      * @param hideList Hide the list of documents at the same time
      */
     @Override
-    protected void progress(boolean on, boolean hideList){
-        if(on){
+    protected void progress(boolean on, boolean hideList) {
+        if (on) {
             progressAnim.start();
         } else {
             progressAnim.stop();
         }
-        progressBg.setVisibility(on?View.VISIBLE:View.GONE);
-        progress.setVisibility(on?View.VISIBLE:View.GONE);
-        if(hideList) docList.setVisibility(on?View.INVISIBLE:View.VISIBLE);
+        progressBg.setVisibility(on ? View.VISIBLE : View.GONE);
+        progress.setVisibility(on ? View.VISIBLE : View.GONE);
+        if (hideList) docList.setVisibility(on ? View.INVISIBLE : View.VISIBLE);
     }
 }

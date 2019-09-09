@@ -1,6 +1,7 @@
 package edu.hm.eem_client.view;
 
 import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
@@ -8,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +29,9 @@ import edu.hm.eem_library.view.ItemListFragment;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+/**
+ * This activity is used to scan for teacher devices and connect to them.
+ */
 public class ScanActivity extends AppCompatActivity implements ItemListFragment.OnListFragmentPressListener, ClientServiceManager.ServiceReadyListener {
     private static final String SHOWCASE_ID = "ScanActivity";
     public static final String PROF_FIELD = "Prof";
@@ -43,31 +48,37 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
     private boolean uiLocked = false;
     private String examName;
 
+    /**
+     * Init views, managers, label the toolbar, get args
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
-        cm = (ConnectivityManager) getApplicationContext().getSystemService( Context.CONNECTIVITY_SERVICE);
-        sw = findViewById(R.id.sw_scan_services);
-        sw.setOnClickListener(v -> sw.setChecked(progress(scanNetwork(sw.isChecked()))));
         model = ViewModelProviders.of(this).get(HostItemViewModel.class);
         clientServiceManager = new ClientServiceManager(getApplicationContext(), model.getLivedata(), this);
+        cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        sw = findViewById(R.id.sw_scan_services);
         progressBg = findViewById(R.id.progress_background);
         progress = findViewById(R.id.progress);
         uiLockView = findViewById(R.id.ui_locker);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        sw.setOnClickListener(v -> sw.setChecked(progress(scanNetwork(sw.isChecked()))));
         progressAnim = (AnimationDrawable) progress.getDrawable();
         examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
-        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(examName);
         tutorial();
     }
 
-    /** Enable DNSSD scanning for host devices in the local network.
+    /**
+     * Enable DNSSD scanning for host devices in the local network.
      *
      * @param on / off
      * @return scanning has been enabled
      */
-    private boolean scanNetwork(boolean on){
+    private boolean scanNetwork(boolean on) {
         boolean ret = false;
         if (on && cm != null) {
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -78,50 +89,56 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
                 return false;
             }
         }
-        if(on) model.getLivedata().clean(true);
+        if (on) model.getLivedata().clean(true);
         clientServiceManager.discover(on);
         return ret;
     }
 
-    /** Enable the progress bar
+    /**
+     * Enable the progress bar
      *
      * @param on / off
      * @return boolean pass-through
      */
-    private boolean progress(boolean on){
-        if(on){
+    private boolean progress(boolean on) {
+        if (on) {
             progressAnim.start();
         } else {
             progressAnim.stop();
         }
-        progressBg.setVisibility(on?View.VISIBLE:View.GONE);
-        progress.setVisibility(on?View.VISIBLE:View.GONE);
+        progressBg.setVisibility(on ? View.VISIBLE : View.GONE);
+        progress.setVisibility(on ? View.VISIBLE : View.GONE);
         return on;
     }
 
-    /** Interface, which is called from the recyclerview fragment in this activity
+    /**
+     * Interface, which is called from the recyclerview fragment in this activity
      *
      * @param index which item has been pressed?
      */
     @Override
     public void onListFragmentPress(int index) {
-        if(!uiLocked) {
+        if (!uiLocked) {
             lock(true);
             NsdService item = model.get(index);
             clientServiceManager.resolve(item);
         }
     }
 
-    /** Display a screen lock, so no connection attempts can be done by the user, while still trying
+    /**
+     * Display a screen lock, so no connection attempts can be done by the user, while still trying
      * to connect to a host.
      *
      * @param enable it
      */
-    private void lock(boolean enable){
+    private void lock(boolean enable) {
         uiLocked = enable;
-        uiLockView.setVisibility(enable?View.VISIBLE:View.INVISIBLE);
+        uiLockView.setVisibility(enable ? View.VISIBLE : View.INVISIBLE);
     }
 
+    /**
+     * Disable scan switch, loading overlay and clean devices list
+     */
     @Override
     protected void onPause() {
         sw.setChecked(progress(scanNetwork(false)));
@@ -130,13 +147,17 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         super.onPause();
     }
 
+    /**
+     * Disable scanning
+     */
     @Override
     protected void onDestroy() {
         scanNetwork(false);
         super.onDestroy();
     }
 
-    /** Called if host IP and port have been found.
+    /**
+     * Called if host IP and port have been found.
      *
      * @param nsdService holding IP and Port
      */
@@ -150,21 +171,26 @@ public class ScanActivity extends AppCompatActivity implements ItemListFragment.
         startActivity(intent);
     }
 
+    /**
+     * Failed scanning
+     *
+     * @param service   current service
+     * @param errorCode failure reason
+     */
     @Override
     public void operationFailed(DNSSDService service, int errorCode) {
         lock(false);
     }
 
-    private void tutorial(){
+    /**
+     * Show a little tutorial using a showcaseview
+     */
+    private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
-
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
-
         sequence.setConfig(config);
-
         sequence.addSequenceItem(sw,
                 getString(edu.hm.eem_library.R.string.tutorial_scan_switch), getString(android.R.string.ok));
-
         sequence.start();
     }
 }
