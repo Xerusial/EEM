@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Subclass of {@link ItemViewModel}. Check out {@link ItemViewModel} for full hierarchy
+ */
 public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel.ExamItemLiveData> {
 
     public ExamItemViewModel(Application application) {
@@ -18,9 +21,17 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
         this.livedata = new ExamItemLiveData();
     }
 
+    /**
+     * {@link androidx.lifecycle.LiveData} backing a {@link androidx.recyclerview.widget.RecyclerView}
+     * containing exam yaml file names
+     */
     public class ExamItemLiveData extends SelectableSortableItemLiveData<File, SelectableSortableItem<File>> {
         private final int FILEOBSERVERMASK = FileObserver.DELETE | FileObserver.CREATE;
 
+        /**
+         * Initialize file observer to keep {@link androidx.recyclerview.widget.RecyclerView} in
+         * sync with the storage directory
+         */
         ExamItemLiveData() {
             super(false);
             // Filelist has been modified; Update self
@@ -35,6 +46,11 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
             refreshData(getDir(), false);
         }
 
+        /**
+         * Create a set from storage directories contents: "The list
+         *
+         * @return a list with unique identifiers
+         */
         private Set<SelectableSortableItem<File>> getDir() {
             Set<SelectableSortableItem<File>> ret = new TreeSet<>();
             for (File f : examDir.listFiles()) {
@@ -43,6 +59,11 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
             return ret;
         }
 
+        /**
+         * Remove selected entries from liveData
+         *
+         * @return Array of deleted files
+         */
         @Nullable
         @Override
         public ArrayList<SelectableSortableItem<File>> removeSelected() {
@@ -54,6 +75,13 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
             return ret;
         }
 
+        /**
+         * Remove certain YAML exam file
+         *
+         * @param sortableKey unique name of exam
+         * @param post        post to UI thread
+         * @return Removed exam file
+         */
         @Override
         public SelectableSortableItem<File> remove(String sortableKey, boolean post) {
             SelectableSortableItem<File> ret = super.remove(sortableKey, post);

@@ -11,14 +11,28 @@ import edu.hm.eem_library.model.ExamFactory;
 import edu.hm.eem_library.view.AboutActivity;
 import edu.hm.eem_library.view.AbstractMainActivity;
 
+/**
+ * Host side {@link AbstractMainActivity}
+ */
 public class MainActivity extends AbstractMainActivity {
 
+    /**
+     * Create the fitting exam factory
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         examType = ExamFactory.ExamType.TEACHER;
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Callbacks for options menu (Burger)
+     *
+     * @param item item that has been clicked on
+     * @return if callback for menu item has been found
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean ret = false;
@@ -37,6 +51,12 @@ public class MainActivity extends AbstractMainActivity {
         return ret;
     }
 
+    /**
+     * Demultiplexer for all intents started from the {@link AbstractMainActivity}
+     *
+     * @param examName
+     * @param action
+     */
     @Override
     protected void startSubApplication(@Nullable String examName, ActionType action) {
         Intent intent = null;

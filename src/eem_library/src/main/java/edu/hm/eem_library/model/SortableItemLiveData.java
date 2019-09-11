@@ -14,32 +14,32 @@ import java.util.TreeMap;
  * livedata is used to inform {@link androidx.recyclerview.widget.RecyclerView}s of changes of their
  * content. All observers are notified with the use of the setValue method. The inheritance tree of
  * LiveData with their respective items used in this project is shown in the following.
- * <p>
- * .----------------------.
- * | SortableItemLiveData |
- * |----------------------|
- * | SortableItem         |
- * '----------------------'
- * ^
- * |
- * |
- * .--------------------------------.
- * | SelectableSortableItemLiveData |
- * .->|--------------------------------|<-.
- * |  | SelectableSortableItem         |  |
- * |  '--------------------------------'  |
- * |                   ^                  |
- * .---------------------------.     |  .------------------------------.
- * | ExamDocumentItemLiveData  |     |  |       ExamItemLiveData       |
- * |---------------------------|     |  |------------------------------|
- * | ThumbnailedExamDocument   |     |  | SelectableSortableItem<File> |
- * '---------------------------'     |  '------------------------------'
- * |
- * .------------------------------------.
- * |         ClientItemLiveData         |
- * |------------------------------------|
- * | SelectableSortableItem<ClientItem> |
- * '------------------------------------'
+ *
+ *                        .----------------------.
+ *                        | SortableItemLiveData |
+ *                        |----------------------|
+ *                        | SortableItem         |
+ *                        '----------------------'
+ *                                    ^
+ *                                    |
+ *                                    |
+ *                   .--------------------------------.
+ *                   | SelectableSortableItemLiveData |
+ *                .->|--------------------------------|<-.
+ *                |  | SelectableSortableItem         |  |
+ *                |  '--------------------------------'  |
+ *                |                   ^                  |
+ *  .---------------------------.     |  .------------------------------.
+ *  | ExamDocumentItemLiveData  |     |  |       ExamItemLiveData       |
+ *  |---------------------------|     |  |------------------------------|
+ *  | ThumbnailedExamDocument   |     |  | SelectableSortableItem<File> |
+ *  '---------------------------'     |  '------------------------------'
+ *                                    |
+ *                 .------------------------------------.
+ *                 |         ClientItemLiveData         |
+ *                 |------------------------------------|
+ *                 | SelectableSortableItem<ClientItem> |
+ *                 '------------------------------------'
  *
  * @param <V> The real item contained in the backingmap of this livedata
  * @param <T> The SortableItem container to hold the item

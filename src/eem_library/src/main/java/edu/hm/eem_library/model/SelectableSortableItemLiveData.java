@@ -6,18 +6,40 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
 
+/**
+ * Subclass of {@link SortableItemLiveData}. Check out {@link SortableItemLiveData} for full hierarchy
+ *
+ * @param <V> item for Sortableitem container
+ * @param <T> Type of SelectableSortableItem
+ */
 public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
     int selectionCounter;
 
+    /**
+     * Constructor
+     *
+     * @param notificationNeeded whether Recyclerview's observers need to be notified when updating data
+     */
     SelectableSortableItemLiveData(boolean notificationNeeded) {
         super(notificationNeeded);
     }
 
+    /**
+     * Toggle selected property of an item
+     *
+     * @param index item index
+     */
     public void toggleSelected(int index) {
         selectionCounter += (Objects.requireNonNull(getValue()).get(index).selected ^= true) ? 1 : -1;
         notifyObserversMeta();
     }
 
+    /**
+     * Set selected property of an item
+     *
+     * @param name   unique name of the item
+     * @param notify whether to notify the attached observers
+     */
     public void setSelected(String name, boolean notify) {
         Objects.requireNonNull(backingMap.get(name)).selected = true;
         selectionCounter++;
@@ -25,6 +47,9 @@ public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<
             notifyObserversMeta();
     }
 
+    /**
+     * Set selected property of all contained items
+     */
     public void setSelected() {
         for (T item : Objects.requireNonNull(getValue())) {
             if (!item.selected) {
@@ -53,23 +78,36 @@ public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<
     }
 
     /**
-     * Notfify Observers, but only the selection has changed, so the Arraylist does not need to be
+     * Notify Observers, but only the selection has changed, so the Arraylist does not need to be
      * rebuilt.
      */
     void notifyObserversMeta() {
         postValue(getValue());
     }
 
+    /**
+     * Get the number of selected items
+     *
+     * @return number
+     */
     public int getSelectionCount() {
         return selectionCounter;
     }
 
+    /**
+     * Deselect an item
+     *
+     * @param name unique name of the item
+     */
     public void clearSelection(String name) {
         Objects.requireNonNull(backingMap.get(name)).selected = false;
         selectionCounter--;
         notifyObserversMeta();
     }
 
+    /**
+     * Clear selection of all items
+     */
     public void clearSelection() {
         for (SelectableSortableItem<V> item : backingMap.values())
             item.selected = false;
@@ -77,6 +115,11 @@ public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<
         notifyObserversMeta();
     }
 
+    /**
+     * Remove selected items
+     *
+     * @return An arraylist of removed items
+     */
     @Nullable
     public ArrayList<T> removeSelected() {
         ArrayList<T> removed = null;
@@ -97,17 +140,25 @@ public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<
         return removed;
     }
 
+    /**
+     * Remove an item by name
+     *
+     * @param sortableKey the unique name of the item
+     * @param post        post to UI thread
+     * @return th removed item
+     */
     @Override
     public T remove(String sortableKey, boolean post) {
-        selectionCounter--;
-        return super.remove(sortableKey, post);
+        T item = super.remove(sortableKey, post);
+        if (item.selected) selectionCounter--;
+        return item;
     }
 
-    @Override
-    void notifyObservers(boolean post) {
-        super.notifyObservers(post);
-    }
-
+    /**
+     * Clear entire list
+     *
+     * @param post post to UI thread
+     */
     @Override
     public void clean(boolean post) {
         selectionCounter = 0;

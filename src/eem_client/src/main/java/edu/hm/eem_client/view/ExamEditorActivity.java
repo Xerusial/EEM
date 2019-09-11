@@ -19,8 +19,7 @@ import edu.hm.eem_library.view.AbstractExamEditorActivity;
  */
 public class ExamEditorActivity extends AbstractExamEditorActivity {
 
-    private ImageView progressBg;
-    private ImageView progress;
+    private ImageView progressDots;
     private AnimationDrawable progressAnim;
 
     /**
@@ -38,11 +37,11 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
         toolbar = findViewById(R.id.toolbar);
-        progressBg = findViewById(R.id.progress_background);
         progress = findViewById(R.id.progress);
+        progressDots = findViewById(R.id.progressAnim);
         docList = findViewById(R.id.doc_list);
         addButton.setOnClickListener(v -> checkFileManagerPermissions());
-        progressAnim = (AnimationDrawable) progress.getDrawable();
+        progressAnim = (AnimationDrawable) progressDots.getDrawable();
     }
 
     /**
@@ -71,8 +70,6 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         } else {
             progressAnim.stop();
         }
-        progressBg.setVisibility(on ? View.VISIBLE : View.GONE);
-        progress.setVisibility(on ? View.VISIBLE : View.GONE);
-        if (hideList) docList.setVisibility(on ? View.INVISIBLE : View.VISIBLE);
+        super.progress(on, hideList);
     }
 }

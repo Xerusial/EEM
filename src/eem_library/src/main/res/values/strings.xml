@@ -15,7 +15,7 @@
     <string name="connection_refused">Connection was refused! Please retry!</string>
     <string name="del">Delete</string>
     <string name="dialog_build_document">Build document meta-data from:</string>
-    <string name="dialog_delete_all_documents">Delete all documents?</string>
+    <string name="dialog_delete_all_documents">Clear document allowed list?</string>
     <string name="dialog_dnd_required">This app requires access to the do not disturb mode on your device to disable notifications in the reader. Please enable it in the next screen!</string>
     <string name="dialog_document_not_found_bt_neg">…exit the app</string>
     <string name="dialog_document_not_found_bt_neutral">…delete the exams</string>
@@ -44,7 +44,7 @@
     <string name="label_conmethod">Connection Method</string>
     <string name="library_name">EEM Library</string>
     <string name="lighthouse">Lighthouse</string>
-    <string name="loading_documents">Loading documents…</string>
+    <string name="loading_documents">Loading large document…</string>
     <string name="lock_student_devices">Lock student devices</string>
     <string name="name">Name</string>
     <string name="notification_drawer_has_been_opened">Notification drawer has been opened %d times</string>
@@ -100,6 +100,8 @@
     <string name="tutorial_connected_devices">If you want to check, whether a tab really represents a student device, tap it. A lighthouse should appear on the students device.</string>
     <string name="tutorial_scan_switch">Use this switch to scan for teacher devices in your network and the tap the appearing device below, that you want to connect to.</string>
     <string name="tutorial_lock_switch">Use this switch to enter exam mode and to deny access to all rejected documents on the students devices. </string>
+    <string name="tutorial_file_counter">This shows the used file handles of the app. Android only allows for 128 handles in total.</string>
+    <string name="tutorial_file_counter2">If you delete a document from the list, the field updates when leaving the editor.</string>
     <string name="tutorial_sv_button">This button saves the exam.</string>
     <string name="used_files">Used files: %d/128</string>
     <string name="waiting_for_host_to_connect">Waiting for host to connect</string>

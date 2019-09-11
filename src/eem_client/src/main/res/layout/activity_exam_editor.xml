@@ -13,30 +13,6 @@
         android:text="@string/save"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <ImageView
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/search_running"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@id/progress_background"
-        app:layout_constraintLeft_toLeftOf="@id/progress_background"
-        app:layout_constraintRight_toRightOf="@id/progress_background"
-        app:layout_constraintTop_toTopOf="@id/progress_background"
-        app:srcCompat="@drawable/progress_anim" />
-
-    <ImageView
-        android:id="@+id/progress_background"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:contentDescription="@string/search_running"
-        android:visibility="invisible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/used_files"
-        app:srcCompat="@drawable/progress_background" />
-
     <TextView
         android:id="@+id/used_files"
         android:layout_width="wrap_content"
@@ -94,6 +70,50 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </android.widget.Toolbar>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/progressAnim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/search_running"
+            app:layout_constraintBottom_toBottomOf="@id/progress_background"
+            app:layout_constraintLeft_toLeftOf="@id/progress_background"
+            app:layout_constraintRight_toRightOf="@id/progress_background"
+            app:layout_constraintTop_toTopOf="@id/progress_background"
+            app:srcCompat="@drawable/progress_anim" />
+
+        <ImageView
+            android:id="@+id/progress_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:contentDescription="@string/search_running"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/progress_background" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_documents"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressAnim" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <fragment
         android:id="@+id/doc_list"

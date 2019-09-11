@@ -11,31 +11,50 @@ import java.net.Socket;
 import edu.hm.eem_host.view.LockActivity;
 import edu.hm.eem_library.net.ServiceManager;
 
+/**
+ * Host side {@link ServiceManager}. This sets up Bonjour/Zeroconf using the built-in {@link NsdManager}
+ * and a server thread to assign incoming connection requests to TCP sockets
+ */
 public class HostServiceManager extends ServiceManager {
     private NsdManager nsdm;
     private NsdServiceInfo serviceInfo;
     private ServerThread serverThread;
     private HostProtocolManager protocolManager;
-    private LockActivity apl;
+    private LockActivity act;
     private NsdManager.RegistrationListener currentListener = null;
 
-    public HostServiceManager(LockActivity apl, String profName, HostProtocolManager protocolManager) {
-        this.apl = apl;
+    /**
+     * Initialize service type ("_exammode._tcp") and name,
+     *
+     * @param act             hosting activity
+     * @param profName        is used as service name
+     * @param protocolManager the protocolmanager hosting the receiver threads for all connections
+     */
+    public HostServiceManager(LockActivity act, String profName, HostProtocolManager protocolManager) {
+        this.act = act;
         serviceInfo = new NsdServiceInfo();
         serviceInfo.setServiceName(profName);
         serviceInfo.setServiceType(SERVICE_TYPE);
         this.protocolManager = protocolManager;
-        nsdm = (NsdManager) apl.getSystemService(Context.NSD_SERVICE);
+        nsdm = (NsdManager) act.getSystemService(Context.NSD_SERVICE);
     }
 
+    /**
+     * Start service and TCP server
+     *
+     * @param serverSocket
+     */
     public void init(ServerSocket serverSocket) {
-        this.currentListener = apl;
+        this.currentListener = act;
         this.serverThread = new ServerThread(serverSocket);
         this.serverThread.start();
         serviceInfo.setPort(serverSocket.getLocalPort());
         nsdm.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, currentListener);
     }
 
+    /**
+     * Clean up
+     */
     @Override
     public void quit() {
         if (currentListener != null) {
@@ -48,6 +67,9 @@ public class HostServiceManager extends ServiceManager {
         }
     }
 
+    /**
+     * The server thread used to assign the incoming connection requests to TCP sockets
+     */
     private class ServerThread extends Thread {
         private ServerSocket serverSocket;
 

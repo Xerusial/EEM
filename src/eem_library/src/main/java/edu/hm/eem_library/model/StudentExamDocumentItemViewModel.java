@@ -8,11 +8,19 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Objects;
 
+/**
+ * Subclass of {@link ItemViewModel}. Check out {@link ItemViewModel} for full hierarchy
+ */
 public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<StudentExam> {
     private static final int CODE_ACCEPTED = 0;
     private static final int CODE_REJECTED_TOO_MANY_PAGES = -1;
     public TeacherExam teacherExam;
 
+    /**
+     * Constructor
+     *
+     * @param application host activity
+     */
     public StudentExamDocumentItemViewModel(Application application) {
         super(application);
         factory = new ExamFactory(ExamFactory.ExamType.STUDENT);
@@ -97,6 +105,9 @@ public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<
         return ret;
     }
 
+    /**
+     * Helper struct with comparator for the checkExam
+     */
     private class Meta implements Comparable<Meta> {
         private int index, pages;
         private byte[] hash, nonAnnotatedHash;

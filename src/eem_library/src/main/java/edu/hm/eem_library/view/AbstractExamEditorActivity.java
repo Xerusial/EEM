@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toolbar;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
@@ -32,7 +33,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     protected Button svButton;
     protected Toolbar toolbar;
     protected View docList;
-
+    protected ConstraintLayout progress;
     protected TextView fileCounter;
 
     protected String examName;
@@ -51,6 +52,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         model.getLivedata().observe(this, sortableItems -> {
             int sel_cnt = model.getLivedata().getSelectionCount();
             enableButton(delButton, sel_cnt > 0);
+            updateFileCounter();
         });
         svButton.setOnClickListener(this);
         toolbar.setTitle(examName);
@@ -61,7 +63,10 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         tutorial();
     }
 
-    protected abstract void progress(boolean on, boolean hideList);
+    protected void progress(boolean on, boolean hideList){
+        progress.setVisibility(on ? View.VISIBLE : View.GONE);
+        docList.setVisibility(hideList ? View.INVISIBLE : View.VISIBLE);
+    }
 
     @Override
     public void onClick(View v) {
@@ -107,6 +112,11 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         sequence.addSequenceItem(svButton,
                 getString(R.string.tutorial_sv_button), getString(android.R.string.ok));
 
+        sequence.addSequenceItem(fileCounter,
+                getString(R.string.tutorial_file_counter), getString(android.R.string.ok));
+        sequence.addSequenceItem(fileCounter,
+                getString(R.string.tutorial_file_counter2), getString(android.R.string.ok));
+
         sequence.start();
     }
 
@@ -134,7 +144,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            context.get().progress(false, true);
+            context.get().progress(false, false);
         }
     }
 
@@ -148,7 +158,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            context.get().progress(true, false);
+            context.get().progress(true, true);
         }
 
         @Override
@@ -161,7 +171,6 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
             super.onPostExecute(doc);
             context.get().progress(false, false);
             context.get().model.getLivedata().add(doc, false);
-            context.get().updateFileCounter();
         }
     }
 }

@@ -19,18 +19,33 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 
+/**
+ * Class representing an exam object for the student/client side
+ */
 public class StudentExam {
     private LinkedList<ExamDocument> allowedDocuments;
 
+    /**
+     * Constructor
+     */
     StudentExam() {
         this.allowedDocuments = new LinkedList<>();
     }
 
+    /**
+     * Getter for alloed documents in the exam
+     *
+     * @return allowed documents
+     */
     public LinkedList<ExamDocument> getAllowedDocuments() {
         return allowedDocuments;
     }
 
-    //needed for SnakeYAML
+    /**
+     * Setter for allowed documents. This ins needed for SnakeYAML
+     *
+     * @param allowedDocuments allowed documents
+     */
     public void setAllowedDocuments(LinkedList<ExamDocument> allowedDocuments) {
         this.allowedDocuments = allowedDocuments;
     }
@@ -61,6 +76,12 @@ public class StudentExam {
         return treeSet;
     }
 
+    /**
+     * Custom SnakeYAML constructor
+     *
+     * @param snode            node representing the YAML document
+     * @param yamlConstructors other standard constructors are used
+     */
     final void constructAllowedDocuments(SequenceNode snode, Map<Tag, Construct> yamlConstructors) {
         allowedDocuments = new LinkedList<>();
         for (Node child : snode.getValue()) {
@@ -106,12 +127,26 @@ public class StudentExam {
         }
     }
 
+    /**
+     * Search for allowed documents YAML tag and construct it when found
+     *
+     * @param vnode            node to be searched
+     * @param yamlConstructors other standard YAML constructors (int, String...)
+     * @param tag              Current Tag
+     */
     protected void stepTags(Node vnode, Map<Tag, Construct> yamlConstructors, String tag) {
         if ("allowedDocuments".equals(tag)) {
             constructAllowedDocuments((SequenceNode) vnode, yamlConstructors);
         }
     }
 
+    /**
+     * Construct Objects from YAML
+     *
+     * @param nnode            root node
+     * @param yamlConstructors other standard YAML constructors
+     * @return if root node was successfully parsed
+     */
     final boolean construct(Node nnode, Map<Tag, Construct> yamlConstructors) {
         if (nnode.getTag().equals(new Tag(Tag.PREFIX + getClass().getName()))) {
             MappingNode mnode = (MappingNode) nnode;
@@ -137,6 +172,9 @@ public class StudentExam {
             yamlClassConstructors.put(NodeId.mapping, new StudentExam.ExamConstructor.ExamConstruct());
         }
 
+        /**
+         * Custom constructor object
+         */
         class ExamConstruct extends Constructor.ConstructMapping {
             @Override
             public Object construct(Node nnode) {

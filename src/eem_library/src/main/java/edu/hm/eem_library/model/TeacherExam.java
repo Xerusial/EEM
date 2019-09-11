@@ -18,18 +18,39 @@ public class TeacherExam extends StudentExam {
     private byte[] salt;
     private byte[] passwordHash;
 
+    /**
+     * Generate constant salt for exam
+     */
     TeacherExam() {
         this.salt = HASHTOOLBOX.genSalt();
     }
 
+    /**
+     * Set password of exam
+     *
+     * @param pw String of pw
+     */
     public void setPassword(String pw) {
         this.passwordHash = HASHTOOLBOX.genSha256(pw, salt);
     }
 
+    /**
+     * Check a password string
+     *
+     * @param pw password
+     * @return matched password of this exam
+     */
     public boolean checkPW(String pw) {
         return Arrays.equals(passwordHash, HASHTOOLBOX.genSha256(pw, salt));
     }
 
+    /**
+     * Scan through the YAML Tag of a given vnode and try to reconstruct our fields
+     *
+     * @param vnode            node to be searched
+     * @param yamlConstructors other standard YAML constructors (int, String...)
+     * @param tag              Current Tag
+     */
     @Override
     protected void stepTags(Node vnode, Map<Tag, Construct> yamlConstructors, String tag) {
         switch (tag) {

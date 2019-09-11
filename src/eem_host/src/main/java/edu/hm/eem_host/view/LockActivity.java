@@ -52,6 +52,9 @@ import edu.hm.eem_library.view.ItemListFragment;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+/**
+ * Core activity for the host user. Here, logged in clients are listed and can be monitored.
+ */
 public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
         HotspotManager.OnHotspotEnabledListener,
@@ -73,6 +76,9 @@ public class LockActivity extends AppCompatActivity
     private CheckBox cbServiceRunning;
     private boolean locked;
 
+    /**
+     * Create a notification channel. This is used to push notifications if a student disconnects
+     */
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -89,6 +95,11 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Init views, managers, the handler, the list viewmodel and the clicklisteners for the switch
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,6 +122,11 @@ public class LockActivity extends AppCompatActivity
         model = ViewModelProviders.of(this).get(ClientItemViewModel.class);
         handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar) findViewById(R.id.toolbar)).setTitle(examName);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
+        hostProtocolManager = new HostProtocolManager(this, model.getLivedata(), handler, examName);
+        hostServiceManager = new HostServiceManager(this, profName, hostProtocolManager);
+        switchSetEnabled(swLock, false);
         swStartService.setOnClickListener(v -> {
             if (swStartService.isChecked()) {
                 prepareService();
@@ -127,7 +143,6 @@ public class LockActivity extends AppCompatActivity
             else
                 changeHotSpot(swUseHotspot.isChecked());
         });
-        switchSetEnabled(swLock, false);
         swLock.setOnClickListener(v -> {
             if (swLock.isChecked()) {
                 if (model.getLivedata().getSelectionCount() != Objects.requireNonNull(model.getLivedata().getValue()).size())
@@ -138,13 +153,15 @@ public class LockActivity extends AppCompatActivity
                 lock(false);
             }
         });
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
-        hostProtocolManager = new HostProtocolManager(this, model.getLivedata(), handler, examName);
-        hostServiceManager = new HostServiceManager(this, profName, hostProtocolManager);
         tutorial();
     }
 
+    /**
+     * Call this method enable or disable lock state. In lock state, all documents on student devices,
+     * which did not pass the checks are disabled. Also, exits and pulling the notification bar will be monitored.
+     *
+     * @param enable / disable the lock
+     */
     private void lock(boolean enable) {
         if (enable) {
             quitService();
@@ -164,15 +181,27 @@ public class LockActivity extends AppCompatActivity
         hotspotCredentials.setVisibility(enable ? View.GONE : View.VISIBLE);
     }
 
-    private void showDialog(@StringRes int message, DialogInterface.OnClickListener click, DialogInterface.OnCancelListener cancel) {
+    /**
+     * Show a dialog containing a message, which executes a function on ok and another on cancel
+     *
+     * @param message message to display
+     * @param ok      handle to execute on ok
+     * @param cancel  handle to execute on cancel
+     */
+    private void showDialog(@StringRes int message, DialogInterface.OnClickListener ok, DialogInterface.OnCancelListener cancel) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
-                .setPositiveButton(R.string.string_continue, click)
+                .setPositiveButton(R.string.string_continue, ok)
                 .setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.cancel())
                 .setOnCancelListener(cancel)
                 .show();
     }
 
+    /**
+     * Enable or disable hotspot connectivity. On Android 8+, use private hotspot, on 6+ classic hotspot
+     *
+     * @param enable / diable it
+     */
     private void changeHotSpot(boolean enable) {
         quitProtocol();
         quitService();
@@ -197,6 +226,9 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * In wifi mode, check if wifi is enabled, in hotspot mode use hotspot
+     */
     private void prepareService() {
         if (!swUseHotspot.isChecked())
             WIFIANDLOCATIONCHECKER.checkWifi(LockActivity.this, cm, true);
@@ -204,12 +236,21 @@ public class LockActivity extends AppCompatActivity
             onWifiEnabled();
     }
 
+    /**
+     * Enable/Disable a switch and make it opaque/solid
+     *
+     * @param sw     Switch
+     * @param enable / disable it
+     */
     private void switchSetEnabled(Switch sw, boolean enable) {
         sw.setEnabled(enable);
         if (sw == swUseHotspot)
             wifiText.setAlpha(enable ? 1.0f : 0.5f);
     }
 
+    /**
+     * Clean up
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -219,6 +260,9 @@ public class LockActivity extends AppCompatActivity
         quitService();
     }
 
+    /**
+     * Clean up TCP protocol
+     */
     private void quitProtocol() {
         if (hostProtocolManager != null) {
             hostProtocolManager.quit();
@@ -226,12 +270,19 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Clean up Bonjour service
+     */
     private void quitService() {
         if (hostServiceManager != null) {
             hostServiceManager.quit();
         }
     }
 
+    /**
+     * Intercept pressing of the back button to prevent the teacher from accidentally terminating
+     * the activity
+     */
     @Override
     public void onBackPressed() {
         if (!model.getLivedata().isEmpty())
@@ -240,6 +291,12 @@ public class LockActivity extends AppCompatActivity
             super.onBackPressed();
     }
 
+    /**
+     * Dialog shown when accidental exits are recognized or the connection type is about
+     * to be changed
+     *
+     * @param reason from the reason enum
+     */
     private void showExitDialog(ProtocolTerminationReason reason) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_exit_teacher)
@@ -261,6 +318,10 @@ public class LockActivity extends AppCompatActivity
         builder.show();
     }
 
+    /**
+     * If prepareService was successful, this method all set-up which require an active connection:
+     * Start Bonjour and TCP Server
+     */
     @Override
     public void onWifiEnabled() {
         try {
@@ -277,6 +338,12 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Gets called when Bonjour fails to become ready
+     *
+     * @param serviceInfo Current service info
+     * @param errorCode   Error on which bonjour failed
+     */
     @Override
     public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
         hostServiceManager.quit();
@@ -284,26 +351,40 @@ public class LockActivity extends AppCompatActivity
         swStartService.setChecked(false);
     }
 
+    //Unused, just here to fulfill interface signature
     @Override
     public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
 
     }
 
+    /**
+     * If bonjour gets enabled successfully, indicate to user
+     *
+     * @param serviceInfo registered service info
+     */
     @Override
     public void onServiceRegistered(NsdServiceInfo serviceInfo) {
         handler.post(() -> cbServiceRunning.setChecked(true));
     }
 
+    //Unused, just here to fulfill interface signature
     @Override
     public void onServiceUnregistered(NsdServiceInfo serviceInfo) {
     }
 
+    /**
+     * Is only called if the private Hotspot is used. For this, one needs to enable location services
+     * If the user does so, continue
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onLocationEnabled() {
         hotspotManager.turnOnHotspot();
     }
 
+    /**
+     * If location or wifi are not enabled by the user, reset switches
+     */
     @Override
     public void onNotEnabled() {
         swUseHotspot.setChecked(false);
@@ -312,6 +393,12 @@ public class LockActivity extends AppCompatActivity
         cbServiceRunning.setVisibility(View.GONE);
     }
 
+    /**
+     * If the private hotspot was successfully started, display credentials to host user
+     *
+     * @param enabled           hotspot was enabled
+     * @param wifiConfiguration contains hotspots ssid and password. They are auto generated
+     */
     @Override
     public void OnHotspotEnabled(boolean enabled, @Nullable WifiConfiguration wifiConfiguration) {
         if (enabled) {
@@ -326,6 +413,13 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Is called when user returns from accepting/ declining permissions
+     *
+     * @param requestCode  The permissions reques ID
+     * @param permissions  permissions that where ased for
+     * @param grantResults whether the user granted them
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == WIFIANDLOCATIONCHECKER.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION) {
@@ -336,6 +430,14 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * If the user returns from certain external applications, that where launched from intents from
+     * this class, this is the target callback
+     *
+     * @param requestCode that was attached to the starting intent
+     * @param resultCode  return value from external application
+     * @param data        return data bundle
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
@@ -351,11 +453,19 @@ public class LockActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Listener callback if an element in the recyclerview is pressed
+     *
+     * @param index which index is pressed
+     */
     @Override
     public void onListFragmentPress(int index) {
         hostProtocolManager.sendLightHouse(index);
     }
 
+    /**
+     * CHows a tutorial using a showcaseview
+     */
     private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
 
@@ -378,10 +488,16 @@ public class LockActivity extends AppCompatActivity
         sequence.start();
     }
 
+    /**
+     * Termination reasons for the accidental exit dialog
+     */
     private enum ProtocolTerminationReason {
         EXIT, CHANGE_CONNECTION
     }
 
+    /**
+     * Handler that can be called from out-of-UI threads(TCP receivers) and modify UI elements
+     */
     public class LockHandler extends Handler implements ProtocolHandler {
         private int id = 0;
 

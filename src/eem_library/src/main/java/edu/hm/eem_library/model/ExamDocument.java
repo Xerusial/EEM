@@ -5,7 +5,8 @@ import androidx.annotation.Nullable;
 import java.util.Date;
 
 /**
- * A class containing information on a specific document, which can be later checked by the client.
+ * A class containing information on a specific document, which is later compared to document
+ * information on the students device
  */
 public class ExamDocument {
     private String name;
@@ -18,6 +19,12 @@ public class ExamDocument {
     private String uriString;
     private Date hashCreationDate;
 
+    /**
+     * Constructor from uri
+     *
+     * @param name      name of document
+     * @param uriString uri
+     */
     protected ExamDocument(String name, @Nullable final String uriString) {
         this.name = name;
         this.hash = null;
@@ -27,6 +34,12 @@ public class ExamDocument {
         this.hashCreationDate = new Date(0);
     }
 
+    /**
+     * Constructor from pages
+     *
+     * @param name  name of document
+     * @param pages number of pages
+     */
     protected ExamDocument(String name, int pages) {
         this.name = name;
         this.hash = null;
@@ -36,6 +49,16 @@ public class ExamDocument {
         this.hashCreationDate = new Date(0);
     }
 
+    /**
+     * Full constructor for recreation from YAML
+     *
+     * @param name             name of document
+     * @param hash             classic MD5 of document
+     * @param nonAnnotatedHash all COSObjects in 1st hierarchy level of document listed and annot objects removed. Then  MD5ed
+     * @param pages            number of pages
+     * @param uriString        target uri
+     * @param hashCreationDate timestamp for hash creation
+     */
     protected ExamDocument(String name, @Nullable final byte[] hash, @Nullable final byte[] nonAnnotatedHash, int pages, @Nullable final String uriString, Date hashCreationDate) {
         this.name = name;
         this.hash = hash;
@@ -45,22 +68,39 @@ public class ExamDocument {
         this.hashCreationDate = hashCreationDate;
     }
 
+    /**
+     * Removing uri because in transmitted YAML, there does not need to be a URI
+     */
     void removeUriString() {
         uriString = null;
     }
 
+    /**
+     * Removing normal MD5
+     */
     public void removeHash() {
         hash = null;
     }
 
+    /**
+     * Removing non annotated MD5
+     */
     public void removeNonAnnotatedHash() {
         nonAnnotatedHash = null;
     }
 
+    /**
+     * Removing the timestamp because in transmitted YAML, there does not need to be a timestamp
+     */
     void removeHashCreationDate() {
         hashCreationDate = new Date(0);
     }
 
+    /**
+     * Update meta using the identifier struct
+     *
+     * @param id
+     */
     void update(Identifiers id) {
         this.pages = id.pages;
         this.hash = id.hash;
@@ -68,6 +108,7 @@ public class ExamDocument {
         this.hashCreationDate = id.hashCreationDate;
     }
 
+    // Clone
     @Override
     public Object clone() {
         byte[] hash = null, nonAnnotatedHash = null;
@@ -80,33 +121,56 @@ public class ExamDocument {
         return new ExamDocument(name, hash, nonAnnotatedHash, pages, uriString, hashCreationDate);
     }
 
-    // Getters needed for SnakeYAML
+    /**
+     * SnakeYAML needs either a Java bean or a special YAML parse constructor.
+     * We work with beans for writing and the constructor for reading as we then
+     * can still protect our attributes
+     * The bean needs getters
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Getters needed for SnakeYAML
+     */
     public byte[] getHash() {
         return hash;
     }
 
+    /**
+     * Getters needed for SnakeYAML
+     */
     byte[] getNonAnnotatedHash() {
         return nonAnnotatedHash;
     }
 
+    /**
+     * Getters needed for SnakeYAML
+     */
     public int getPages() {
         return pages;
     }
 
+    /**
+     * Getters needed for SnakeYAML
+     */
     @Nullable
     public String getUriString() {
         return uriString;
     }
 
+    /**
+     * Getters needed for SnakeYAML
+     */
     @Nullable
     Date getHashCreationDate() {
         return hashCreationDate;
     }
 
+    /**
+     * Identifiers struct for update purposes
+     */
     static class Identifiers {
         int pages = 0;
         byte[] hash = null, nonAnnotatedHash = null;

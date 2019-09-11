@@ -14,32 +14,32 @@ import androidx.lifecycle.MutableLiveData;
  * of the {@link androidx.recyclerview.widget.RecyclerView} in the
  * {@link edu.hm.eem_library.view.ItemListFragment}. The inheritance chain of the viewmodels with
  * their respective livedatas is shown in the following.
- * <p>
- * .---------------.
- * | ItemViewModel |
- * |---------------|<--------------------.
- * | <T>           |                     |
- * '---------------'          .---------------------.
- * ^                  | ClientItemViewModel |
- * |                  |---------------------|
- * |                  | ClientItemLiveData  |
- * |                  '---------------------'
- * .-------------------------.
- * | FileBackedItemViewModel |
- * |-------------------------|<----------------.
- * | <T>                     |                 |
- * '-------------------------'       .-------------------.
- * ^                    | ExamItemViewModel |
- * |                    |-------------------|
- * |                    | ExamItemLiveData  |
- * |                    '-------------------'
- * .---------------------------.
- * | ExamDocumentItemViewModel |
- * .---->|---------------------------|<-----.
- * |     | ExamDocumentItemLiveData  |      |
- * |     '---------------------------'      |
- * |                                        |
- * |                                        |
+ *
+ *                                 .---------------.
+ *                                 | ItemViewModel |
+ *                                 |---------------|<--------------------.
+ *                                 | <T>           |                     |
+ *                                 '---------------'          .---------------------.
+ *                                         ^                  | ClientItemViewModel |
+ *                                         |                  |---------------------|
+ *                                         |                  | ClientItemLiveData  |
+ *                                         |                  '---------------------'
+ *                            .-------------------------.
+ *                            | FileBackedItemViewModel |
+ *                            |-------------------------|<----------------.
+ *                            | <T>                     |                 |
+ *                            '-------------------------'       .-------------------.
+ *                                         ^                    | ExamItemViewModel |
+ *                                         |                    |-------------------|
+ *                                         |                    | ExamItemLiveData  |
+ *                                         |                    '-------------------'
+ *                           .---------------------------.
+ *                           | ExamDocumentItemViewModel |
+ *                     .---->|---------------------------|<-----.
+ *                     |     | ExamDocumentItemLiveData  |      |
+ *                     |     '---------------------------'      |
+ *                     |                                        |
+ *                     |                                        |
  * .---------------------------------------..---------------------------------------.
  * |   TeacherExamDocumentItemViewModel    ||   StudentExamDocumentItemViewModel    |
  * |---------------------------------------||---------------------------------------|

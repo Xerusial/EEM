@@ -8,7 +8,6 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -31,8 +30,12 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     private EditText pwField;
     private CheckBox allDocAllowedField;
     private boolean allowAnnotations;
-    private ProgressBar progressBar;
 
+    /**
+     * Init views, set listeners on view password and all docs allowed checkboxes
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +47,9 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         svButton = findViewById(R.id.bt_save);
         delButton = findViewById(R.id.bt_del_doc);
         addButton = findViewById(R.id.bt_add_doc);
-        progressBar = findViewById(R.id.progress);
+        toolbar = findViewById(R.id.toolbar);
         addButton.setOnClickListener(v -> showSourceDialog());
+        progress = findViewById(R.id.progress);
         CheckBox cbPass = findViewById(R.id.showPass);
         cbPass.setOnClickListener(v -> {
             if (cbPass.isChecked()) pwField.setTransformationMethod(null);
@@ -61,20 +65,21 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 docUISetEnabled(true);
             }
         });
-        toolbar = findViewById(R.id.toolbar);
     }
 
-    @Override
-    protected void progress(boolean on, boolean hideList) {
-        progressBar.setVisibility(on ? View.VISIBLE : View.GONE);
-        if (hideList) docList.setVisibility(on ? View.INVISIBLE : View.VISIBLE);
-    }
-
+    /**
+     * Enable adding of documents only when not all documents are allowed
+     *
+     * @param enable enable document list editor UI
+     */
     private void docUISetEnabled(boolean enable) {
         enableButton(addButton, enable);
         docList.setAlpha(enable ? 1.0f : 0.5f);
     }
 
+    /**
+     * If user checks all documents allowed checkbox, make sure he did not do this by accident
+     */
     private void showRemoveAllDocsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_delete_all_documents))
@@ -87,6 +92,11 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 .show();
     }
 
+    /**
+     * Click listener call of the save button
+     *
+     * @param v the view of the save button
+     */
     @Override
     public void onClick(View v) {
         String pw = pwField.getText().toString();
@@ -102,6 +112,10 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         super.onClick(v);
     }
 
+    /**
+     * Dialog for adding documents. They can either be specified by page number or by file with or
+     * without annotations
+     */
     private void showSourceDialog() {
         @SuppressLint("InflateParams") View v = getLayoutInflater().inflate(R.layout.dialog_build_examdocument, null);
         EditText numPages = v.findViewById(R.id.number_pages);
@@ -133,6 +147,11 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
                 .show();
     }
 
+    /**
+     * If a document has been returned, load it using a asynctask
+     *
+     * @param uri returned uri from the file manager
+     */
     @Override
     protected void handleDocument(@Nullable Uri uri) {
         if (uri != null) {
@@ -141,6 +160,9 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         }
     }
 
+    /**
+     * A tutorial using a showcase library
+     */
     @Override
     protected void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
@@ -163,6 +185,10 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         sequence.start();
     }
 
+    /**
+     * Host variant of the {@link edu.hm.eem_library.view.AbstractExamEditorActivity.SingleDocumentLoader}
+     * Has the ability to switch between the desired hashes
+     */
     static class HostSingleDocumentLoader extends SingleDocumentLoader {
 
         HostSingleDocumentLoader(ExamEditorActivity context) {

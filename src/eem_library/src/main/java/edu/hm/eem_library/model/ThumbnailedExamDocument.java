@@ -22,12 +22,24 @@ import edu.hm.eem_library.view.DocumentPickerActivity;
 
 import static java.lang.Math.sqrt;
 
+/**
+ * A Subclass of Examdocument with selectable property. Mainly used to add a thumbnail bitmap
+ * for display purposes
+ */
 public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument> {
     @Nullable
     public final Bitmap thumbnail;
     public final boolean hasThumbnail;
     public RejectionReason reason;
 
+    /**
+     * Constructor
+     *
+     * @param sortableKey unique Key
+     * @param item containing examdocument
+     * @param thumbnail thumbnail bitmap, if one exists
+     * @param hasThumbnail boolean specifying if thumbnail will be added later
+     */
     private ThumbnailedExamDocument(String sortableKey, ExamDocument item, @Nullable Bitmap thumbnail, boolean hasThumbnail) {
         super(sortableKey, item);
         this.thumbnail = thumbnail;
@@ -35,6 +47,13 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         reason = RejectionReason.NONE;
     }
 
+    /**
+     * Load all thumbnails an refresh hashes of given document list
+     *
+     * @param context calling activity
+     * @param outSet output set of thumbnailed examdocuments
+     * @param inList input list of documents
+     */
     static void loadInstances(Context context, TreeSet<ThumbnailedExamDocument> outSet, LinkedList<ExamDocument> inList) {
         for (ExamDocument doc : inList) {
             if (doc.getUriString() == null) {
@@ -52,12 +71,27 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         }
     }
 
+    /**
+     * Load single page specified document (has no thumbnail
+     *
+     * @param context calling activity
+     * @param num_pages number of pages
+     * @return a thumbnailed document
+     */
     public static ThumbnailedExamDocument getInstance(Context context, int num_pages) {
         String name = context.getString(R.string.page_specified_document);
         ExamDocument doc = new ExamDocument(name, num_pages);
         return new ThumbnailedExamDocument(name, doc, null, false);
     }
 
+    /**
+     * Load single uri specified document
+     *
+     * @param context calling activity
+     * @param uri specifying uri
+     * @param which which hash to create from uri
+     * @return a thumbnailed document
+     */
     @Nullable
     public static ThumbnailedExamDocument getInstance(Context context, Uri uri, HASHTOOLBOX.WhichHash which) {
         ThumbnailedExamDocument thDoc;
@@ -72,6 +106,16 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         return thDoc;
     }
 
+    /**
+     *  Get a thumbnail and refresh meta of document
+     *
+     * @param context calling activity
+     * @param fileDescriptor file descriptor of PDF
+     * @param doc origin of Uri
+     * @param which which hash to generate
+     * @param documentChanged does meta nedd to be updated?
+     * @return a thumbnailed document
+     */
     private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which, boolean documentChanged) {
         try {
             int width = (int) (context.getResources().getDisplayMetrics().density * 180); // 180dp
@@ -94,6 +138,13 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         }
     }
 
+    /**
+     * Receive name and timestamp from a URI. This depends on the content provider
+     *
+     * @param context calling activity
+     * @param uri source
+     * @return Meta object with name and timestamp
+     */
     public static DocumentPickerActivity.Meta getMetaFromUri(Context context, Uri uri) {
         DocumentPickerActivity.Meta ret = new DocumentPickerActivity.Meta();
         String path = null;
@@ -114,6 +165,9 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
         return ret;
     }
 
+    /**
+     * Reason a document was not accepted by meta matching
+     */
     public enum RejectionReason {
         NONE, TOO_MANY_PAGES, HASH_DOES_NOT_MATCH, TOO_MANY_DOCS
     }

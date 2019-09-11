@@ -19,10 +19,25 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Iterator;
 
+/**
+ * Static class responsible for all hashing in this project
+ */
 public final class HASHTOOLBOX {
+    /**
+     * Private constructor: class should be fully static
+     */
     private HASHTOOLBOX() {
     }
 
+    /**
+     * Responsible for generating the document hashes, entry function which is visible from outside
+     *
+     * @param context hosting activity
+     * @param is      document inputstream
+     * @param which   which hash to create
+     * @return document meta data
+     * @throws IOException if stream can not be read
+     */
     static ExamDocument.Identifiers genDocMD5s(Context context, InputStream is, WhichHash which) throws IOException {
         try {
             // Create MessageDigest instance for MD5
@@ -52,6 +67,13 @@ public final class HASHTOOLBOX {
         return null;
     }
 
+    /**
+     * Get the first level hierarchy of COSObjects from the document and removes Annotations
+     *
+     * @param document Object representing the PDF document
+     * @param writer   A COSObject(the building blocks of a PDF) parser
+     * @throws IOException If stream can not be read
+     */
     private static void stripDocument(PDDocument document, COSWriter writer) throws IOException {
         Iterator<PDPage> it = document.getDocumentCatalog().getPages().iterator();
         for (; it.hasNext(); ) {
@@ -65,6 +87,14 @@ public final class HASHTOOLBOX {
         writer.close();
     }
 
+    /**
+     * Generates MD5 of document with removed annotations
+     *
+     * @param ids     Identifiers to return
+     * @param context calling activity
+     * @param is      inputstream of document
+     * @throws IOException If inputstream can not be read
+     */
     private static void genMD5WithoutAnnotations(ExamDocument.Identifiers ids, Context context, InputStream is) throws IOException {
         //For performance
         PDFBoxResourceLoader.init(context);
@@ -85,6 +115,13 @@ public final class HASHTOOLBOX {
         }
     }
 
+    /**
+     * Generate a SHA256 password hash
+     *
+     * @param pw   input password string
+     * @param salt input salt
+     * @return hash bytes
+     */
     static byte[] genSha256(String pw, byte[] salt) {
         try {
             // Create MessageDigest instance for SHA256
@@ -99,6 +136,11 @@ public final class HASHTOOLBOX {
         return null;
     }
 
+    /**
+     * Generate a salt for the SHA256 password hash
+     *
+     * @return Salt bytes
+     */
     static byte[] genSalt() {
         try {
             //SecureRandom generator
@@ -115,6 +157,9 @@ public final class HASHTOOLBOX {
         return null;
     }
 
+    /**
+     * Types of PDF document hashes
+     */
     public enum WhichHash {
         NORMAL, NON_ANNOTATED, BOTH;
 
