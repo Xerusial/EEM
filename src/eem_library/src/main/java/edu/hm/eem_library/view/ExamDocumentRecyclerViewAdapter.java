@@ -17,16 +17,36 @@ import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.SelectableSortableItemLiveData;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
+/**
+ * Subclass of {@link ItemRecyclerViewAdapter}. For more info on the {@link ItemRecyclerViewAdapter} family, check out
+ * {@link ItemRecyclerViewAdapter}.
+ */
 public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerViewAdapter {
     private final int colorBlackOpaque;
     private final int colorPrimaryOpaque;
 
+    /**
+     * Constructor
+     *
+     * @param liveData     liveData holding the data for this adapter
+     * @param context      calling activity
+     * @param listener     listener for on item clicks
+     * @param content      Indicator for the recyclerview fragment holding this adapter
+     * @param isSelectable Are tabs selectable by user?
+     */
     ExamDocumentRecyclerViewAdapter(SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content, boolean isSelectable) {
         super(liveData, listener, content, isSelectable);
         this.colorBlackOpaque = context.getColor(R.color.colorBlackOpaque);
         this.colorPrimaryOpaque = context.getColor(R.color.colorPrimaryOpaque);
     }
 
+    /**
+     * Create new viewholder
+     *
+     * @param parent   Android basics
+     * @param viewType Android basics
+     * @return new viewholder
+     */
     @NonNull
     @Override
     public StringViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -35,12 +55,21 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
         return new DocumentViewHolder(v);
     }
 
+    /**
+     * The viewholder for this adapter
+     */
     class DocumentViewHolder extends SelectableStringViewHolder {
         final ImageView thumbnail;
         final TextView numberPages;
         final ConstraintLayout item;
         final ImageView notes_allowed;
 
+
+        /**
+         * Constructor
+         *
+         * @param view inflated view of this viewholder
+         */
         DocumentViewHolder(View view) {
             super(view);
             thumbnail = view.findViewById(R.id.icon);
@@ -49,6 +78,11 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
             notes_allowed = view.findViewById(R.id.notes_allowed);
         }
 
+        /**
+         * Initialize this viewholder from livedata
+         *
+         * @param position view is at this position in list
+         */
         @Override
         void initializeFromLiveData(int position) {
             super.initializeFromLiveData(position);
@@ -86,6 +120,11 @@ public class ExamDocumentRecyclerViewAdapter extends InteractableItemRecyclerVie
 
         }
 
+        /**
+         * UI changes when being selected
+         *
+         * @param selected yes or no?
+         */
         @Override
         void setSelected(boolean selected) {
             if (isSelectable) {

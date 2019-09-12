@@ -33,6 +33,9 @@ import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.model.TeacherExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 
+/**
+ * Enum for the kinds of different adapters this Recyclerview can contain
+ */
 enum ItemListContent {
     EXAM(0), STUDENTEXAMDOCUMENT(1), TEACHEREXAMDOCUMENT(2), HOST(3), DEVICE(4), EXAMDOCUMENTEXPLORER(5);
     static ItemListContent[] values = null;
@@ -52,7 +55,7 @@ enum ItemListContent {
 }
 
 /**
- * A fragment representing a list of Items.
+ * A fragment representing a list of Items through a {@link RecyclerView}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link OnListFragmentPressListener}
  * interface.
@@ -72,11 +75,14 @@ public class ItemListFragment extends Fragment {
     public ItemListFragment() {
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    /**
+     * Called when view of the fragment is created
+     *
+     * @param inflater           Android basics
+     * @param container          Android basics
+     * @param savedInstanceState Android basics
+     * @return inflated view
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -132,6 +138,11 @@ public class ItemListFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Attach fragment to a host layout
+     *
+     * @param context Android basics
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -155,6 +166,13 @@ public class ItemListFragment extends Fragment {
         }
     }
 
+    /**
+     * Called when layout inflation has finished
+     *
+     * @param context            Android basics
+     * @param attrs              Android basics
+     * @param savedInstanceState Android basics
+     */
     @Override
     public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
@@ -167,6 +185,11 @@ public class ItemListFragment extends Fragment {
         a.recycle();
     }
 
+    /**
+     * Called when activity is finally up
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -178,11 +201,17 @@ public class ItemListFragment extends Fragment {
         });
     }
 
+    /**
+     * Show a placeholder if recyclerview is empty
+     */
     private void updateEmptyLayout() {
         recyclerView.setVisibility(adapter.getItemCount() == 0 ? View.INVISIBLE : View.VISIBLE);
         emptyLayout.setVisibility(adapter.getItemCount() == 0 ? View.VISIBLE : View.INVISIBLE);
     }
 
+    /**
+     * Listener for list fragment press interactions
+     */
     public interface OnListFragmentPressListener {
         void onListFragmentPress(int index);
     }

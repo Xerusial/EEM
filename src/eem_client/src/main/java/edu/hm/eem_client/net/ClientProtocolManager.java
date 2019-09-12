@@ -114,7 +114,7 @@ public class ClientProtocolManager extends ProtocolManager {
 
         /**
          * The run method, which can be found in the {@link ProtocolManager.ReceiverThread} does
-         * the basic prepocessing like stripping the headers from the packet and decoding its type.
+         * the basic preprocessing like stripping the headers from the packet and decoding its type.
          * This type is then handed to this method for further actions on the client.
          *
          * @param type   The type of {@link DataPacket}

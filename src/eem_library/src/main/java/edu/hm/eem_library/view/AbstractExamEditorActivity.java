@@ -24,6 +24,9 @@ import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+/**
+ * Core class for both exam editor activities of host and client, as they have many common features
+ */
 public abstract class AbstractExamEditorActivity extends DocumentPickerActivity implements View.OnClickListener, ItemListFragment.OnListFragmentPressListener {
 
     private static final String SHOWCASE_ID = "ExamEditorActivity";
@@ -35,9 +38,13 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     protected View docList;
     protected ConstraintLayout progress;
     protected TextView fileCounter;
-
     protected String examName;
 
+    /**
+     * Init PDFBox loader for faster document hashing
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +52,12 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
     }
 
+    /**
+     * Views are initialized in the child classes, so onCreate is moved to onPostCreate
+     * Here all UI update hooks are set and views are configured
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -63,27 +76,54 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         tutorial();
     }
 
-    protected void progress(boolean on, boolean hideList){
+    /**
+     * Show a progress bar and hide the exams list
+     *
+     * @param on       Progress is running
+     * @param hideList Hide the list of documents at the same time
+     */
+    protected void progress(boolean on, boolean hideList) {
         progress.setVisibility(on ? View.VISIBLE : View.GONE);
         docList.setVisibility(hideList ? View.INVISIBLE : View.VISIBLE);
     }
 
+    /**
+     * CLick listener for the save button
+     *
+     * @param v view that was clicked on
+     */
     @Override
     public void onClick(View v) {
         model.closeExam();
         finish();
     }
 
+    /**
+     * Disable buttons and make them opaque
+     *
+     * @param b      target button
+     * @param enable enable/ disable it
+     */
     protected void enableButton(ImageButton b, boolean enable) {
         b.setEnabled(enable);
         b.setAlpha(enable ? 1.0f : 0.5f);
     }
 
+    /**
+     * Empty callback if a press on a document item has occurred
+     *
+     * @param index index of the document
+     */
     @Override
     public void onListFragmentPress(int index) {
 
     }
 
+    /**
+     * If a document has been returned, load it using a asynctask
+     *
+     * @param uri returned uri from the file manager
+     */
     protected void handleDocument(@Nullable Uri uri) {
         if (uri != null) {
             SingleDocumentLoader loader = new SingleDocumentLoader(this);
@@ -91,11 +131,18 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         }
     }
 
+    /**
+     * Refresh the persistent URI counter. Only 128 are allowed per Android app, so display to the
+     * user if we get close to the limit
+     */
     protected final void updateFileCounter() {
         int cnt = getContentResolver().getPersistedUriPermissions().size();
         fileCounter.setText(getString(R.string.used_files, cnt));
     }
 
+    /**
+     * A tutorial using a showcase library
+     */
     protected void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
 
@@ -120,6 +167,10 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         sequence.start();
     }
 
+    /**
+     * An asynctask being responsible for loading multiple document thumbnails (after the activity
+     * was started)
+     */
     static class DocumentLoader extends AsyncTask<Void, Void, Void> {
         private final WeakReference<AbstractExamEditorActivity> context;
         private final String examName;
@@ -148,6 +199,9 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         }
     }
 
+    /**
+     * Load a single document thumbnail & hash (in the process of editing the exam)
+     */
     protected static class SingleDocumentLoader extends AsyncTask<Uri, Void, ThumbnailedExamDocument> {
         protected final WeakReference<AbstractExamEditorActivity> context;
 

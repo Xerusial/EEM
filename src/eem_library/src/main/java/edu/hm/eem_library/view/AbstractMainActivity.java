@@ -43,6 +43,9 @@ import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+/**
+ * Core class for client- and host main activities as they are virtually the same
+ */
 public abstract class AbstractMainActivity extends DocumentPickerActivity implements ItemListFragment.OnListFragmentPressListener {
 
     public static final String EXAMNAME_FIELD = "ExamName";
@@ -55,6 +58,11 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     private String replacementUri;
     private boolean doNotRebuildUriMap = false;
 
+    /**
+     * Init views, set click callbacks and UI update hooks
+     *
+     * @param savedInstanceState Android basics
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +94,12 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         tutorial();
     }
 
+    /**
+     * Burger popup for settings an about
+     *
+     * @param menu target menu
+     * @return return value from passed on super class
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -93,6 +107,14 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Generate a map of all persistent uris in all exams and delete the ones that are not
+     * needed any more. As we only can have 128 at the same time, this is necessary housekeeping.
+     * And we can't do this in exameditor, because if the user decides to delete document A from
+     * the current exam, we cannot delete the uri as we do not know if a different exam also needs
+     * the uri. The uri map is also needed to check if all documents are still there or if one needs
+     * to be updated location- and hashwise.
+     */
     private void buildUriMap() {
         ExamFactory factory = new ExamFactory(examType);
         ContentResolver resolver = getContentResolver();
@@ -127,6 +149,9 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         askToRemoveExams();
     }
 
+    /**
+     * Remove selected exams from list. Check if we can also delete unused Uris.
+     */
     private void removeSelected() {
         if (model.getLivedata().getSelectionCount() != 0) {
             model.getLivedata().removeSelected();
@@ -141,6 +166,9 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         }
     }
 
+    /**
+     * Dialog asking the user what to do if a Uri points to a faulty location (Doc has been deleted)
+     */
     private void askToRemoveExams() {
         boolean entryFound = false;
         for (Map.Entry<String, Pair<Boolean, List<String>>> entry : uriMap.entrySet()) {
@@ -185,6 +213,12 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         if (!entryFound) removeSelected();
     }
 
+    /**
+     * If the user has decided to update the location of a missing document, update all
+     * exams containing this document.
+     *
+     * @param uri selected uri returned by the file manager
+     */
     @Override
     void handleDocument(@Nullable Uri uri) {
         if (uri != null) {
@@ -224,16 +258,30 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         askToRemoveExams();
     }
 
+    /**
+     * Disable buttons and make them opaque
+     *
+     * @param button target button
+     * @param enable enable/ disable it
+     */
     private void buttonSetEnabled(ImageButton button, boolean enable) {
         button.setEnabled(enable);
         button.setAlpha(enable ? 1.0f : 0.5f);
     }
 
+    /**
+     * Start exam editor on a press on the exam tab
+     *
+     * @param index tab which has been pressed
+     */
     @Override
     public void onListFragmentPress(int index) {
         startSubApplication(Objects.requireNonNull(model.getLivedata().getValue()).get(index).getSortableKey(), ActionType.ACTION_LOCK);
     }
 
+    /**
+     * If a new exam has been created, show a dialog to set the name
+     */
     private void showNameDialog() {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
@@ -255,6 +303,13 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         builder.show();
     }
 
+    /**
+     * Android callback if returning from a launched app
+     *
+     * @param requestCode code the intent was started with
+     * @param resultCode  return from app
+     * @param resultData  result data from app
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == REQUEST_CODE_READ_STORAGE) {
@@ -263,6 +318,9 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         super.onActivityResult(requestCode, resultCode, resultData);
     }
 
+    /**
+     * Called if user resumes from other app
+     */
     @Override
     public void onResume() {
         if (doNotRebuildUriMap)
@@ -272,8 +330,17 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         super.onResume();
     }
 
+    /**
+     * Template to sub activity launch demultiplexer
+     *
+     * @param examName target exam
+     * @param action   activity for open
+     */
     protected abstract void startSubApplication(@Nullable String examName, ActionType action);
 
+    /**
+     * Tutorial using a showcase libarary
+     */
     private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
 
@@ -296,6 +363,9 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         sequence.start();
     }
 
+    /**
+     * Different action types for the activity launcher
+     */
     public enum ActionType {
         ACTION_EDITOR, ACTION_LOCK
     }

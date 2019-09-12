@@ -10,17 +10,30 @@ import java.util.Objects;
 
 import edu.hm.eem_library.R;
 
+/**
+ * Abstract base for the client- and host version protocol manager.
+ * Everything concerning the TCP protocol is implemented here.
+ */
 public abstract class ProtocolManager {
     protected final Activity context;
     protected final ProtocolHandler handler;
     private final LinkedList<ReceiverThread> threads;
 
+    /**
+     * Constructor
+     *
+     * @param context calling activity
+     * @param handler a protocol handler to sync callback to UI thread
+     */
     public ProtocolManager(Activity context, ProtocolHandler handler) {
         this.context = context;
         this.handler = handler;
         threads = new LinkedList<>();
     }
 
+    /**
+     * Cleanup
+     */
     public void quit() {
         for (ReceiverThread thread : threads) {
             thread.interrupt();
@@ -52,6 +65,9 @@ public abstract class ProtocolManager {
             threads.add(this);
         }
 
+        /**
+         * Core runnable for the receiver thread
+         */
         @Override
         public void run() {
             InputStream is = null;
@@ -83,6 +99,15 @@ public abstract class ProtocolManager {
             }
         }
 
+        /**
+         * Template call for managing incoming packets. Implemented in the respective host and client
+         * side receiver threads.
+         *
+         * @param type   type of {@link DataPacket}
+         * @param is     the inputstream from the respective socket
+         * @param socket the respective socket
+         * @return whether to terminate the receiverthread
+         */
         protected abstract boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket);
     }
 }

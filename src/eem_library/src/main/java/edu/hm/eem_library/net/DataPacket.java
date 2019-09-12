@@ -6,18 +6,57 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
+/**
+ * The base class for all TCP packets in this project. This is its hierarchy:
+ * <p>
+ *                .----------------.
+ *                | << abstract >> |
+ *           .--->|   DataPacket   |<-----.
+ *           |    '----------------'      |
+ *           |             ^              |
+ *           |             |              |
+ * .-------------------.   |   .---------------------.
+ * |   SignalPacket    |   |   |     FilePacket      |
+ * '-------------------'   |   '---------------------'
+ *                         |
+ *            .-------------------------.
+ *            |       LoginPacket       |
+ *            '-------------------------'
+ *
+ * A {@link DataPacket} consist of a header with the following fields:
+ * <p>
+ * Protocol specification: EEP - E-Reader TeacherExam Protocol
+ *     [4 Byte: Version]
+ *     [4 Byte: Type]
+ *     [following Bytes: Data]
+ * Data Types:
+ *     0: Login: carrying the name of the student
+ *     1: File: carrying a YAML file containing information, which documents are allowed in the exam
+ *              and also a password hash for the teacher to manually accept exams being rejected by
+ *              the algorithm
+ *     2: Signal: Various signals. {@link SignalPacket} for more info
+ * <p>
+ * Data specification can be found in the respective child-classes.
+ */
 public abstract class DataPacket {
     // incremental protocol version
     static final int PROTOCOL_VERSION = 0;
     static final int INT_BYTES = 4;
     static final int LONG_BYTES = 8;
-    private static final int HEADER_FIELDS = 3;
-    private static final int HEADER_SIZE = 2 * INT_BYTES + LONG_BYTES;
+    private static final int HEADER_FIELDS = 2;
+    private static final int HEADER_SIZE = HEADER_FIELDS * INT_BYTES;
     private final Type type;
+
     DataPacket(Type type) {
         this.type = type;
     }
 
+    /**
+     * Read the header data from an input stream (Socket input stream)
+     *
+     * @param is given inputstream
+     * @return the read data
+     */
     static Object[] readHeader(InputStream is) {
         Object[] ret = new Object[HEADER_FIELDS];
         byte[] bytes = new byte[HEADER_SIZE];
@@ -33,6 +72,11 @@ public abstract class DataPacket {
         return ret;
     }
 
+    /**
+     * Write this objects header data in output stream (Socket output stream)
+     *
+     * @param os given output stream
+     */
     private void writeHeader(OutputStream os) {
         ByteBuffer bb = ByteBuffer.allocate(HEADER_SIZE);
         bb.putInt(PROTOCOL_VERSION);
@@ -45,6 +89,11 @@ public abstract class DataPacket {
         }
     }
 
+    /**
+     * Template for a method writing packet type specific data to output stream
+     *
+     * @param os given output stream
+     */
     protected abstract void writeData(OutputStream os);
 
     private void sendData(OutputStream os) {
@@ -52,11 +101,8 @@ public abstract class DataPacket {
         writeData(os);
     }
 
-    /* Protocol specification: EEP - E-Reader TeacherExam Protocol
-       [4 Byte: Version]
-       [4 Byte: Type]
-       [following Bytes: Data]
-       Data specification can be found in the respective child-classes.
+    /**
+     * Enum for the packet type
      */
     public enum Type {
         LOGIN, EXAMFILE, SIGNAL;
@@ -77,6 +123,9 @@ public abstract class DataPacket {
 
     }
 
+    /**
+     * A thread being created every time a packet has to be sent.
+     */
     public static final class SenderThread extends Thread {
         private final Socket socket;
         private final DataPacket dp;
@@ -86,6 +135,9 @@ public abstract class DataPacket {
             this.dp = dp;
         }
 
+        /**
+         * Runnable sending the data of the packet object out
+         */
         @Override
         public void run() {
             super.run();
@@ -94,7 +146,8 @@ public abstract class DataPacket {
                     OutputStream os = socket.getOutputStream();
                     dp.sendData(os);
                 }
-                //Do not close outputstream, as it cant be opened again
+                //Do not close outputstream, as it cannot be opened again
+                //Socket will be closed by the receiverThread
             } catch (IOException e) {
                 e.printStackTrace();
             }

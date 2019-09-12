@@ -2,6 +2,10 @@ package edu.hm.eem_library.net;
 
 import java.net.InetAddress;
 
+/**
+ * A struct containing information on an NSD Service. This struct is used for the RxDNSSD library
+ * because it does not have Android's handy {@link android.net.nsd.NsdServiceInfo}
+ */
 public class NsdService {
     public int flags, ifIndex, port;
     public String serviceName, regType, domain;

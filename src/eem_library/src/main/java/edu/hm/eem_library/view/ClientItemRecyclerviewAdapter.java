@@ -18,15 +18,34 @@ import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.model.SelectableSortableItemLiveData;
 import edu.hm.eem_library.net.ClientItem;
 
+/**
+ * Subclass of {@link ItemRecyclerViewAdapter}. For more info on the {@link ItemRecyclerViewAdapter} family, check out
+ * {@link ItemRecyclerViewAdapter}.
+ */
 public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
     private final Context context;
 
 
+    /**
+     * Constructor
+     *
+     * @param liveData liveData holding the data for this adapter
+     * @param context  calling activity
+     * @param listener listener for on item clicks
+     * @param content  Indicator for the recyclerview fragment holding this adapter
+     */
     ClientItemRecyclerviewAdapter(SelectableSortableItemLiveData<?, SelectableSortableItem<?>> liveData, Context context, ItemListFragment.OnListFragmentPressListener listener, ItemListContent content) {
         super(liveData, context, listener, content, false);
         this.context = context;
     }
 
+    /**
+     * Create viewholders to fill the screen
+     *
+     * @param parent   Android basics
+     * @param viewType Android basics
+     * @return the viewholder
+     */
     @NonNull
     @Override
     public StringViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -35,12 +54,20 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
         return new StudentDeviceViewHolder(v);
     }
 
+    /**
+     * The viewholder for this adapter
+     */
     public class StudentDeviceViewHolder extends NameTabRecyclerViewAdapter.NameTabViewHolder {
         final ConstraintLayout layout;
         final ConstraintSet constraintSet = new ConstraintSet();
         final TextView countNotificationDrawer;
         final int disconnectedColor = context.getColor(R.color.disconnected);
 
+        /**
+         * Constructor
+         *
+         * @param view inflated view of this viewholder
+         */
         StudentDeviceViewHolder(View view) {
             super(view);
             icon.setImageResource(R.drawable.ic_student);
@@ -48,12 +75,20 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
             countNotificationDrawer = view.findViewById(R.id.count_notification_drawer);
         }
 
+        /**
+         * Indicate, that this student is currently "lighthoused"
+         */
         private void lighthouse() {
             int position = getAdapterPosition();
             ((ClientItemViewModel.ClientItemLiveData) liveData).lighthouse(position);
             listener.onListFragmentPress(position);
         }
 
+        /**
+         * Initialize this viewholder from livedata
+         *
+         * @param position view is at this position in list
+         */
         @Override
         void initializeFromLiveData(int position) {
             super.initializeFromLiveData(position);

@@ -18,11 +18,17 @@ import java.util.Objects;
 
 import edu.hm.eem_library.R;
 
+/**
+ * Core for all activities that need a filemanager to select a PDF document
+ */
 public abstract class DocumentPickerActivity extends AppCompatActivity {
 
     static final int REQUEST_CODE_READ_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
+    /**
+     * Check if we have access to storage
+     */
     protected final void checkFileManagerPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -34,6 +40,13 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Callback if user returns from a permission request dialog
+     *
+     * @param requestCode  requestCode of the permission
+     * @param permissions  permission strings
+     * @param grantResults accepted permissions
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
@@ -43,6 +56,9 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Open the android document picker
+     */
     private void openFileManager() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -53,6 +69,13 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_READ_STORAGE);
     }
 
+    /**
+     * Gets called when user returns for other application
+     *
+     * @param requestCode start intent code
+     * @param resultCode  resultcode from other application
+     * @param resultData  returned data from other application
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
@@ -78,6 +101,11 @@ public abstract class DocumentPickerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Option for children to implement actions after document has been selected
+     *
+     * @param uri document URI
+     */
     abstract void handleDocument(@Nullable Uri uri);
 
     public static class Meta {

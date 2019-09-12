@@ -17,16 +17,26 @@ import edu.hm.eem_library.model.TeacherExam;
 
 import static java.lang.System.exit;
 
+/**
+ * Subclass of {@link DataPacket}. For more info on the {@link DataPacket} family, check out
+ * {@link DataPacket}.
+ * <p>
+ * Protocol specification: EEP - File packet
+ *     [8 Bytes: Size]
+ *     [Size Bytes: File]
+ */
 public class FilePacket extends DataPacket {
     public static final String EXAMDIR = "exams";
-    /*  File Packet:
-        [8 Bytes: Size]
-        [Size Bytes: File]
-     */
     private static final String FILENAME = "sendable_exam";
     private static final ExamFactory factory = new ExamFactory(ExamFactory.ExamType.TEACHER);
     private final File f;
 
+    /**
+     * Constructor
+     *
+     * @param filesdir root data dir. For storage purposes of the temporary sendable examfile
+     * @param exam     name of exam to be sent
+     */
     public FilePacket(File filesdir, String exam) {
         super(Type.EXAMFILE);
         File examFile = new File(filesdir.getPath() + File.separator + EXAMDIR + File.separator + exam);
@@ -35,6 +45,12 @@ public class FilePacket extends DataPacket {
         this.f = new File(filesdir.getPath() + File.separator + FILENAME);
     }
 
+    /**
+     * Read YAML file from a sockets incoming file packet
+     *
+     * @param is incoming data
+     * @return an exam object constructed from the YAML file
+     */
     @Nullable
     public static TeacherExam readData(InputStream is) {
         byte[] sizeBytes = new byte[LONG_BYTES];
@@ -52,6 +68,11 @@ public class FilePacket extends DataPacket {
         return exam;
     }
 
+    /**
+     * Write a file packet to a TCP socket output stream
+     *
+     * @param os given output stream
+     */
     @Override
     protected void writeData(OutputStream os) {
         try {
