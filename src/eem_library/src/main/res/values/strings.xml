@@ -31,14 +31,12 @@
     <string name="dialog_still_unchecked_documents">There are still students with unchecked documents. They will loose access to them during exam if you lock their devices.</string>
     <string name="dialog_wifi_for_app">Wifi needs to be enabled for this app to work. Do you want to enable it?</string>
     <string name="disclaimer">Disclaimer</string>
-    <string name="disclaimer_text_student">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranties of
-        MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.\n\nAs a student, you must test this application with your teacher at the beginning of the
-        course with your device, because although Android has a high level of compatibility among devices, yours might not work well with this application and you
-        wouldn\'t risk a failure on exam day, would you?</string>
-    <string name="disclaimer_text_teacher">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranties of
-        MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.\n\nAs a teacher, you must test this application with your students at the beginning of the
-        course, because although Android has a high level of compatibility among devices, some student\'s devices might not work well with this application and you
-        should not risk a failure on exam day.</string>
+    <string name="disclaimer_text_student">This program is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        \n\nAs a student, you must test this application with your teacher at the beginning of the course with your device, because although Android has a high level
+        of compatibility among devices, yours might not work well with this application and you wouldn\'t risk a failure on exam day, would you?</string>
+    <string name="disclaimer_text_teacher">This program is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        \n\nAs a teacher, you must test this application with your students at the beginning of the course, because although Android has a high level of compatibility
+        among devices, some student\'s devices might not work well with this application and you should not risk a failure on exam day.</string>
     <string name="documents_checked">Documents are OK!</string>
     <string name="edit">Edit</string>
     <string name="exam_name">Name of Exam:</string>
