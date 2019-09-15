@@ -5,22 +5,29 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Bundle;
+
 import android.text.InputType;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +59,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
 
     public static final String EXAMNAME_FIELD = "ExamName";
     private static final String SHOWCASE_ID = "MainActivity";
+    private static final String SHOW_DISCLAIMER = "ShowDisclaimer";
 
     protected ExamFactory.ExamType examType;
     private ExamItemViewModel model;
@@ -378,13 +386,23 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
      * @param onPositive is executed if the user hits the OK button
      */
     final protected void showDisclaimerDialog(@StringRes int message, DialogInterface.OnClickListener onPositive) {
-        AlertDialog.Builder builder;
-        builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.disclaimer))
-                .setMessage(message)
-                .setPositiveButton(getString(android.R.string.ok), onPositive)
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
-                .setOnCancelListener(dialogInterface -> finish())
-                .show();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showAgain = preferences.getBoolean(SHOW_DISCLAIMER, true);
+        if(showAgain) {
+            final LayoutInflater inflater = getLayoutInflater();
+            View v = inflater.inflate(R.layout.dialog_disclaimer, null);
+            ((TextView) v.findViewById(R.id.text)).setText(message);
+            ((CheckBox) v.findViewById(R.id.checkBox)).setOnCheckedChangeListener((compoundButton, b) -> {
+                preferences.edit().putBoolean(SHOW_DISCLAIMER, !b).apply();
+            });
+            AlertDialog.Builder builder;
+            builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.disclaimer))
+                    .setView(v)
+                    .setPositiveButton(getString(android.R.string.ok), onPositive)
+                    .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
+                    .setOnCancelListener(dialogInterface -> finish())
+                    .show();
+        }
     }
 }

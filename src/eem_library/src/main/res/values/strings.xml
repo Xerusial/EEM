@@ -22,6 +22,7 @@
     <string name="dialog_document_not_found_bt_pos">…change the file</string>
     <string name="dialog_document_not_found_pl">Document %s in exams %s was not found. Do you want to…</string>
     <string name="dialog_document_not_found_sing">Document %s in exam %s was not found. Do you want to…</string>
+    <string name="dialog_do_not_show">Do not show this again</string>
     <string name="dialog_exit_student">Do you REALLY want to exit?</string>
     <string name="dialog_exit_teacher">There are still students connected. Do you REALLY want to quit the protocol?</string>
     <string name="dialog_explorer">This document is not allowed in the exam. However if you are certain it is, ask your professor to type his password for you.</string>
