@@ -22,7 +22,7 @@ public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends F
      */
     ExamDocumentItemViewModel(Application application) {
         super(application);
-        this.livedata = new ExamDocumentItemLiveData(true);
+        this.livedata = new ExamDocumentItemLiveData();
     }
 
     /**
@@ -58,8 +58,8 @@ public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends F
      * filled the {@link ThumbnailedExamDocument} tabs. These lists are the base of all file explorers in this app
      */
     public class ExamDocumentItemLiveData extends SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument> {
-        ExamDocumentItemLiveData(boolean notificationNeeded) {
-            super(notificationNeeded);
+        ExamDocumentItemLiveData() {
+            super(true);
         }
 
         /**
@@ -67,7 +67,7 @@ public abstract class ExamDocumentItemViewModel<T extends StudentExam> extends F
          *
          * @param container the document
          * @param post      post the addition to the UI thread
-         * @return
+         * @return if it was successfully added
          */
         @Override
         public boolean add(ThumbnailedExamDocument container, boolean post) {

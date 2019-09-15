@@ -44,7 +44,7 @@ import edu.hm.eem_library.model.SortableItemLiveData;
  * | StringViewHolder                   |
  * '------------------------------------'
  *<p>
- * This basic adapter is extended by its child adapters to add more UI elements to the viewfolder tabs.
+ * This basic adapter is extended by its child adapters to add more UI elements to the viewholder tabs.
  * The basic layout stays the same.
  */
 public abstract class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerViewAdapter.StringViewHolder> {

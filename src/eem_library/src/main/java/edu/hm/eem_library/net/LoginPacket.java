@@ -17,7 +17,7 @@ import java.io.PrintWriter;
  *     [Newline terminated String: name]
  */
 public class LoginPacket extends DataPacket {
-    private String name;
+    private final String name;
 
     /**
      * Constructor

@@ -104,7 +104,8 @@ public class MainActivity extends AbstractMainActivity {
 
             } else
                 finish();
-        }
+        } else
+            showDisclaimerDialog(R.string.disclaimer_text_student, (dialogInterface, i) -> dialogInterface.dismiss());
     }
 
     /**

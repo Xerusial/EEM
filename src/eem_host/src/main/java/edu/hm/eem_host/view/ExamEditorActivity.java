@@ -148,7 +148,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
     }
 
     /**
-     * If a document has been returned, load it using a asynctask
+     * If a document has been returned, load it using a async task
      *
      * @param uri returned uri from the file manager
      */

@@ -29,6 +29,15 @@
     <string name="dialog_location_for_scan">Location services need to be enabled in order to scan for wifi. Do you want to enable them?</string>
     <string name="dialog_still_unchecked_documents">There are still students with unchecked documents. They will loose access to them during exam if you lock their devices.</string>
     <string name="dialog_wifi_for_app">Wifi needs to be enabled for this app to work. Do you want to enable it?</string>
+    <string name="disclaimer">Disclaimer</string>
+    <string name="disclaimer_text_student">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranties of
+        MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.\n\nAs a student, you must test this application with your teacher at the beginning of the
+        course with your device, because although Android has a high level of compatibility among devices, yours might not work well with this application and you
+        wouldn\'t risk a failure on exam day, would you?</string>
+    <string name="disclaimer_text_teacher">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranties of
+        MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.\n\nAs a teacher, you must test this application with your students at the beginning of the
+        course, because although Android has a high level of compatibility among devices, some student\'s devices might not work well with this application and you
+        should not risk a failure on exam day.</string>
     <string name="documents_checked">Documents are OK!</string>
     <string name="edit">Edit</string>
     <string name="exam_name">Name of Exam:</string>
@@ -39,6 +48,9 @@
     <string name="help">Help</string>
     <string name="host_app_name">EEM Host</string>
     <string name="hotspot">Hotspot (usually 8 \n devices max)</string>
+    <string name="imagedescription_icon">Icon for the tab</string>
+    <string name="imagedescription_lighthouse">A lighthouse icon</string>
+    <string name="imagedescription_thumbnail">Thumbnail of the document</string>
     <string name="incorrect_document">Incorrect document!</string>
     <string name="label_condev">Connected Devices</string>
     <string name="label_conmethod">Connection Method</string>
@@ -47,7 +59,10 @@
     <string name="loading_documents">Loading large document…</string>
     <string name="lock_student_devices">Lock student devices</string>
     <string name="name">Name</string>
-    <string name="notification_drawer_has_been_opened">Notification drawer has been opened %d times</string>
+    <plurals name="notification_drawer_has_been_opened">
+        <item quantity="one">Notification drawer has been opened once</item>
+        <item quantity="many">Notification drawer has been opened %d times</item>
+    </plurals>
     <string name="page_number">%d/%d</string>
     <string name="page_specified_document">Page specified document</string>
     <string name="password">Password</string>
@@ -61,7 +76,7 @@
     <string name="save">Save</string>
     <string name="scan_for_services">Scan network</string>
     <string name="search_running">Search running!</string>
-    <string name="service_runnning">Service running</string>
+    <string name="service_running">Service running</string>
     <string name="settings">Settings</string>
     <string name="start_service">Start service</string>
     <string name="stext">Show text</string>

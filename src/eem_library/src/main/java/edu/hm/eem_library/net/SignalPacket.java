@@ -76,7 +76,7 @@ public class SignalPacket extends DataPacket {
 
         private static Signal[] values = null;
 
-        public static Signal extractFromBytebuffer(ByteBuffer buf) {
+        static Signal extractFromBytebuffer(ByteBuffer buf) {
             int idx = buf.getInt();
             if (Signal.values == null) {
                 Signal.values = Signal.values();
@@ -90,7 +90,7 @@ public class SignalPacket extends DataPacket {
          * @param buf the byte buffer
          * @return the byte buffer
          */
-        public ByteBuffer insertInBytebuffer(ByteBuffer buf) {
+        ByteBuffer insertInBytebuffer(ByteBuffer buf) {
             return buf.putInt(this.ordinal());
         }
 

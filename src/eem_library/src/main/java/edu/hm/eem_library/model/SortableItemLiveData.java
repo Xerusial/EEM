@@ -75,13 +75,13 @@ public class SortableItemLiveData<V, T extends SortableItem<V>> extends MutableL
         backingMap.put(item.getSortableKey(), item);
     }
 
-    public T remove(String sortableKey, boolean post) {
+    T remove(String sortableKey, boolean post) {
         T removed = backingMap.remove(sortableKey);
         if (notificationNeeded) notifyObservers(post);
         return removed;
     }
 
-    public void clean(boolean post) {
+    void clean(boolean post) {
         backingMap.clear();
         notifyObservers(post);
     }

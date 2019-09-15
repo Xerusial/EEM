@@ -7,8 +7,9 @@ import java.net.InetAddress;
  * because it does not have Android's handy {@link android.net.nsd.NsdServiceInfo}
  */
 public class NsdService {
-    public int flags, ifIndex, port;
-    public String serviceName, regType, domain;
+    public final int flags, ifIndex;
+    public int port;
+    public final String serviceName, regType, domain;
     public InetAddress address;
 
     public NsdService(int flags, int ifIndex, String serviceName, String regType, String domain) {

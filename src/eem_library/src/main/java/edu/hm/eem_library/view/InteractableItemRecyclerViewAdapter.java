@@ -77,7 +77,7 @@ public abstract class InteractableItemRecyclerViewAdapter extends ItemRecyclerVi
         }
 
         /**
-         * Updated selectedness
+         * Updates selectedness
          *
          * @param position view is at this position in list
          */

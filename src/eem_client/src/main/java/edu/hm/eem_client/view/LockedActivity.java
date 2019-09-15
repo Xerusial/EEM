@@ -178,7 +178,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     }
 
     /**
-     * Method for activation and deactiviation of DnD mode
+     * Method for activation and deactivation of DnD mode
      *
      * @param on turn on or off
      */

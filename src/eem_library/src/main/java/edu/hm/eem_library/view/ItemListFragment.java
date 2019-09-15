@@ -38,8 +38,8 @@ import edu.hm.eem_library.model.ThumbnailedExamDocument;
  */
 enum ItemListContent {
     EXAM(0), STUDENTEXAMDOCUMENT(1), TEACHEREXAMDOCUMENT(2), HOST(3), DEVICE(4), EXAMDOCUMENTEXPLORER(5);
-    static ItemListContent[] values = null;
-    int id;
+    private static ItemListContent[] values = null;
+    private final int id;
 
     ItemListContent(int id) {
         this.id = id;
@@ -116,7 +116,7 @@ public class ItemListFragment extends Fragment {
                 tw.setText(R.string.placeholder_exam);
                 break;
             case STUDENTEXAMDOCUMENT:
-                //falltrough
+                //fallthrough
             case TEACHEREXAMDOCUMENT:
                 adapter = new ExamDocumentRecyclerViewAdapter((SelectableSortableItemLiveData<ExamDocument, ThumbnailedExamDocument>) model.getLivedata(), context, listener, content, true);
                 tw.setText(R.string.placeholder_document);
@@ -144,7 +144,7 @@ public class ItemListFragment extends Fragment {
      * @param context Android basics
      */
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         switch (content) {
             case EXAM:
@@ -174,7 +174,7 @@ public class ItemListFragment extends Fragment {
      * @param savedInstanceState Android basics
      */
     @Override
-    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs, Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ItemListFragment);

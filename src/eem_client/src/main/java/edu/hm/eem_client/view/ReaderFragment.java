@@ -29,7 +29,7 @@ import edu.hm.eem_library.model.PdfRenderer;
 /**
  * Fragment used to display the PDFs in the exam.
  */
-public class ReaderFragment extends Fragment {
+class ReaderFragment extends Fragment {
 
     private FloatingActionButton pageForward, pageBackward;
     private PdfRenderer renderer = null;
@@ -151,7 +151,7 @@ public class ReaderFragment extends Fragment {
     }
 
     /**
-     * Sets the current page whil also updating the page indicator
+     * Sets the current page while also updating the page indicator
      *
      * @param idx value to set to
      */
@@ -174,7 +174,7 @@ public class ReaderFragment extends Fragment {
     /**
      * wrapper for multiple calls to render a page on the canvas.
      *
-     * @param bitmap reander to highRes or preview Bitmap?
+     * @param bitmap render to highRes or preview Bitmap?
      */
     private void renderPage(Bitmap bitmap) {
         if (renderer != null) {

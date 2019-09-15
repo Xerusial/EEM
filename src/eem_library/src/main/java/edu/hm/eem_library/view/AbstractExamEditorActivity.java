@@ -38,7 +38,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     protected View docList;
     protected ConstraintLayout progress;
     protected TextView fileCounter;
-    protected String examName;
+    private String examName;
 
     /**
      * Init PDFBox loader for faster document hashing
@@ -120,7 +120,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     }
 
     /**
-     * If a document has been returned, load it using a asynctask
+     * If a document has been returned, load it using a async task
      *
      * @param uri returned uri from the file manager
      */
@@ -135,7 +135,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
      * Refresh the persistent URI counter. Only 128 are allowed per Android app, so display to the
      * user if we get close to the limit
      */
-    protected final void updateFileCounter() {
+    private void updateFileCounter() {
         int cnt = getContentResolver().getPersistedUriPermissions().size();
         fileCounter.setText(getString(R.string.used_files, cnt));
     }
@@ -168,7 +168,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
     }
 
     /**
-     * An asynctask being responsible for loading multiple document thumbnails (after the activity
+     * An async task being responsible for loading multiple document thumbnails (after the activity
      * was started)
      */
     static class DocumentLoader extends AsyncTask<Void, Void, Void> {

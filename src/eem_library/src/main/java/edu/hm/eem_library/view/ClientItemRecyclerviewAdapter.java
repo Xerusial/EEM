@@ -57,7 +57,7 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
     /**
      * The viewholder for this adapter
      */
-    public class StudentDeviceViewHolder extends NameTabRecyclerViewAdapter.NameTabViewHolder {
+    class StudentDeviceViewHolder extends NameTabRecyclerViewAdapter.NameTabViewHolder {
         final ConstraintLayout layout;
         final ConstraintSet constraintSet = new ConstraintSet();
         final TextView countNotificationDrawer;
@@ -101,7 +101,7 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
             constraintSet.applyTo(layout);
             if (device.countNotificationDrawer > 0) {
                 countNotificationDrawer.setVisibility(View.VISIBLE);
-                countNotificationDrawer.setText(context.getString(R.string.notification_drawer_has_been_opened, device.countNotificationDrawer));
+                countNotificationDrawer.setText(context.getResources().getQuantityString(R.plurals.notification_drawer_has_been_opened, device.countNotificationDrawer));
             } else {
                 countNotificationDrawer.setVisibility(View.GONE);
             }

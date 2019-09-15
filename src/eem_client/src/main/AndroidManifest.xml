@@ -18,7 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning" >
         <activity android:name=".view.ExamEditorActivity" />
         <activity
             android:name=".view.MainActivity"
@@ -35,7 +35,7 @@
         <activity
             android:name=".view.LockedActivity"
             android:configChanges="screenSize|orientation">
-            <!-- Dont recreated activity on orientation change-->
+            <!-- Don't recreate activity on orientation change-->
         </activity>
         <activity android:name=".view.ScanActivity" />
     </application>

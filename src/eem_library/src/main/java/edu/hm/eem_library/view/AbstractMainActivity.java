@@ -3,6 +3,7 @@ package edu.hm.eem_library.view;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.ViewModelProviders;
 
 import java.io.File;
@@ -84,7 +86,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
             //show keyboard
             InputMethodManager imm = (InputMethodManager)
                     getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_IMPLICIT);
+            Objects.requireNonNull(imm).showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_IMPLICIT);
         });
         model.getLivedata().observe(this, sortableItems -> {
             int sel_cnt = model.getLivedata().getSelectionCount();
@@ -110,7 +112,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     /**
      * Generate a map of all persistent uris in all exams and delete the ones that are not
      * needed any more. As we only can have 128 at the same time, this is necessary housekeeping.
-     * And we can't do this in exameditor, because if the user decides to delete document A from
+     * And we can't do this in exam editor, because if the user decides to delete document A from
      * the current exam, we cannot delete the uri as we do not know if a different exam also needs
      * the uri. The uri map is also needed to check if all documents are still there or if one needs
      * to be updated location- and hashwise.
@@ -284,23 +286,21 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
      */
     private void showNameDialog() {
         AlertDialog.Builder builder;
-        builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.exam_name));
-
         final EditText input = new EditText(this);
 
         input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.exam_name))
+                .setView(input)
+                .setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {
+                    String text = input.getText().toString();
+                    if (model.getLivedata().contains(text))
+                        Toast.makeText(getApplicationContext(), getString(R.string.toast_exam_already_exists), Toast.LENGTH_SHORT).show();
+                    else startSubApplication(text, ActionType.ACTION_EDITOR);
 
-        builder.setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {
-            String text = input.getText().toString();
-            if (model.getLivedata().contains(text))
-                Toast.makeText(getApplicationContext(), getString(R.string.toast_exam_already_exists), Toast.LENGTH_SHORT).show();
-            else startSubApplication(text, ActionType.ACTION_EDITOR);
-
-        });
-        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
-        builder.show();
+                })
+                .setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel())
+                .show();
     }
 
     /**
@@ -339,7 +339,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     protected abstract void startSubApplication(@Nullable String examName, ActionType action);
 
     /**
-     * Tutorial using a showcase libarary
+     * Tutorial using a showcase library
      */
     private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
@@ -368,5 +368,23 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
      */
     public enum ActionType {
         ACTION_EDITOR, ACTION_LOCK
+    }
+
+    /**
+     * Shows a disclaimer at the launch of the activity to make sure, student and teach do test the
+     * application properly
+     *
+     * @param message A message body for the disclaimer
+     * @param onPositive is executed if the user hits the OK button
+     */
+    final protected void showDisclaimerDialog(@StringRes int message, DialogInterface.OnClickListener onPositive) {
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.disclaimer))
+                .setMessage(message)
+                .setPositiveButton(getString(android.R.string.ok), onPositive)
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
+                .setOnCancelListener(dialogInterface -> finish())
+                .show();
     }
 }

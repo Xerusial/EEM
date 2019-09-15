@@ -29,7 +29,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/selected"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/ic_exam" />
+        tools:src="@drawable/ic_exam"
+        android:contentDescription="@string/imagedescription_icon" />
 
     <TextView
         android:id="@+id/itemname"

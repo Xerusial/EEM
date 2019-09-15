@@ -45,11 +45,6 @@ public class HotspotManager {
             }
 
             @Override
-            public void onStopped() {
-                super.onStopped();
-            }
-
-            @Override
             public void onFailed(int reason) {
                 super.onFailed(reason);
             }

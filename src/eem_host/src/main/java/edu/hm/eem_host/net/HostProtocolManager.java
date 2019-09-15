@@ -22,7 +22,7 @@ import edu.hm.eem_library.net.SignalPacket;
 public class HostProtocolManager extends ProtocolManager {
     public static final int TO_ALL = -1;
     private final String exam;
-    private ClientItemViewModel.ClientItemLiveData liveData;
+    private final ClientItemViewModel.ClientItemLiveData liveData;
 
     public HostProtocolManager(Activity context, ClientItemViewModel.ClientItemLiveData liveData, LockActivity.LockHandler handler, String exam) {
         super(context, handler);

@@ -91,7 +91,7 @@ public class LockActivity extends AppCompatActivity
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
         }
     }
 
@@ -200,7 +200,7 @@ public class LockActivity extends AppCompatActivity
     /**
      * Enable or disable hotspot connectivity. On Android 8+, use private hotspot, on 6+ classic hotspot
      *
-     * @param enable / diable it
+     * @param enable / disable it
      */
     private void changeHotSpot(boolean enable) {
         quitProtocol();
@@ -417,7 +417,7 @@ public class LockActivity extends AppCompatActivity
      * Is called when user returns from accepting/ declining permissions
      *
      * @param requestCode  The permissions reques ID
-     * @param permissions  permissions that where ased for
+     * @param permissions  permissions that where asked for
      * @param grantResults whether the user granted them
      */
     @Override

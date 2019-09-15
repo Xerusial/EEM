@@ -12,7 +12,7 @@ import edu.hm.eem_library.net.ClientItem;
 public class ClientItemViewModel extends ItemViewModel<ClientItemViewModel.ClientItemLiveData> {
     public ClientItemViewModel(Application application) {
         super(application);
-        this.livedata = new ClientItemLiveData(true);
+        this.livedata = new ClientItemLiveData();
     }
 
     /**
@@ -21,8 +21,8 @@ public class ClientItemViewModel extends ItemViewModel<ClientItemViewModel.Clien
      */
     public class ClientItemLiveData extends SelectableSortableItemLiveData<ClientItem, SelectableSortableItem<ClientItem>> {
 
-        ClientItemLiveData(boolean notificationNeeded) {
-            super(notificationNeeded);
+        ClientItemLiveData() {
+            super(true);
         }
 
         /**

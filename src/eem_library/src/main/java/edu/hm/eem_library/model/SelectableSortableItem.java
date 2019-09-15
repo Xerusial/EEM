@@ -1,7 +1,7 @@
 package edu.hm.eem_library.model;
 
 /**
- * Adds seleted property to {@link SortableItem}
+ * Adds selected property to {@link SortableItem}
  *
  * @param <T> item for Sortableitem container
  */

@@ -14,7 +14,8 @@
         android:src="@drawable/ic_lighthouse"
         app:layout_constraintBottom_toBottomOf="@id/card_item"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@id/card_item" />
+        app:layout_constraintTop_toTopOf="@id/card_item"
+        android:contentDescription="@string/imagedescription_lighthouse" />
 
     <TextView
         android:id="@+id/count_notification_drawer"
@@ -51,7 +52,7 @@
                 android:id="@+id/selected"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginBottom="10dp"
                 android:buttonTint="@color/white"
                 android:checked="false"
@@ -71,13 +72,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_student" />
+                tools:src="@drawable/ic_student"
+                android:contentDescription="@string/imagedescription_icon" />
 
             <TextView
                 android:id="@+id/itemname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
                 android:gravity="center_vertical"
                 android:maxLines="1"

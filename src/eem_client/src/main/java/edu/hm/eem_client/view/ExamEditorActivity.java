@@ -13,13 +13,12 @@ import edu.hm.eem_library.model.StudentExamDocumentItemViewModel;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
 
 /**
- * The implemetation of the {@link AbstractExamEditorActivity} for the client side.
+ * The implementation of the {@link AbstractExamEditorActivity} for the client side.
  * This class is only used to change the layout and set the progress symbol to one
  * that is optimized for E-Ink screens
  */
 public class ExamEditorActivity extends AbstractExamEditorActivity {
 
-    private ImageView progressDots;
     private AnimationDrawable progressAnim;
 
     /**
@@ -38,7 +37,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
         addButton = findViewById(R.id.bt_add_doc);
         toolbar = findViewById(R.id.toolbar);
         progress = findViewById(R.id.progress);
-        progressDots = findViewById(R.id.progressAnim);
+        ImageView progressDots = findViewById(R.id.progressAnim);
         docList = findViewById(R.id.doc_list);
         addButton.setOnClickListener(v -> checkFileManagerPermissions());
         progressAnim = (AnimationDrawable) progressDots.getDrawable();

@@ -1,5 +1,6 @@
 package edu.hm.eem_library.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Date;
@@ -9,7 +10,7 @@ import java.util.Date;
  * information on the students device
  */
 public class ExamDocument {
-    private String name;
+    private final String name;
     @Nullable
     private byte[] hash;
     @Nullable
@@ -25,7 +26,7 @@ public class ExamDocument {
      * @param name      name of document
      * @param uriString uri
      */
-    protected ExamDocument(String name, @Nullable final String uriString) {
+    ExamDocument(String name, @Nullable final String uriString) {
         this.name = name;
         this.hash = null;
         this.nonAnnotatedHash = null;
@@ -40,7 +41,7 @@ public class ExamDocument {
      * @param name  name of document
      * @param pages number of pages
      */
-    protected ExamDocument(String name, int pages) {
+    ExamDocument(String name, int pages) {
         this.name = name;
         this.hash = null;
         this.nonAnnotatedHash = null;
@@ -59,7 +60,7 @@ public class ExamDocument {
      * @param uriString        target uri
      * @param hashCreationDate timestamp for hash creation
      */
-    protected ExamDocument(String name, @Nullable final byte[] hash, @Nullable final byte[] nonAnnotatedHash, int pages, @Nullable final String uriString, Date hashCreationDate) {
+    ExamDocument(String name, @Nullable final byte[] hash, @Nullable final byte[] nonAnnotatedHash, int pages, @Nullable final String uriString, Date hashCreationDate) {
         this.name = name;
         this.hash = hash;
         this.nonAnnotatedHash = nonAnnotatedHash;
@@ -99,7 +100,7 @@ public class ExamDocument {
     /**
      * Update meta using the identifier struct
      *
-     * @param id
+     * @param id update with this id
      */
     void update(Identifiers id) {
         this.pages = id.pages;
@@ -109,6 +110,7 @@ public class ExamDocument {
     }
 
     // Clone
+    @NonNull
     @Override
     public Object clone() {
         byte[] hash = null, nonAnnotatedHash = null;

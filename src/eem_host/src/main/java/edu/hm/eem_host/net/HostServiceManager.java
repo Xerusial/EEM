@@ -16,11 +16,11 @@ import edu.hm.eem_library.net.ServiceManager;
  * and a server thread to assign incoming connection requests to TCP sockets
  */
 public class HostServiceManager extends ServiceManager {
-    private NsdManager nsdm;
-    private NsdServiceInfo serviceInfo;
+    private final NsdManager nsdm;
+    private final NsdServiceInfo serviceInfo;
     private ServerThread serverThread;
-    private HostProtocolManager protocolManager;
-    private LockActivity act;
+    private final HostProtocolManager protocolManager;
+    private final LockActivity act;
     private NsdManager.RegistrationListener currentListener = null;
 
     /**
@@ -42,7 +42,7 @@ public class HostServiceManager extends ServiceManager {
     /**
      * Start service and TCP server
      *
-     * @param serverSocket
+     * @param serverSocket server will be initialized on this socket
      */
     public void init(ServerSocket serverSocket) {
         this.currentListener = act;
@@ -71,7 +71,7 @@ public class HostServiceManager extends ServiceManager {
      * The server thread used to assign the incoming connection requests to TCP sockets
      */
     private class ServerThread extends Thread {
-        private ServerSocket serverSocket;
+        private final ServerSocket serverSocket;
 
         private ServerThread(ServerSocket serverSocket) {
             setName("ServerThread");

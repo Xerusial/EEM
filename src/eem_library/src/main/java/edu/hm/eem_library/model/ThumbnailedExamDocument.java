@@ -113,7 +113,7 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
      * @param fileDescriptor file descriptor of PDF
      * @param doc origin of Uri
      * @param which which hash to generate
-     * @param documentChanged does meta nedd to be updated?
+     * @param documentChanged does meta need to be updated?
      * @return a thumbnailed document
      */
     private static ThumbnailedExamDocument getThumb(Context context, ParcelFileDescriptor fileDescriptor, ExamDocument doc, HASHTOOLBOX.WhichHash which, boolean documentChanged) {

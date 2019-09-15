@@ -109,8 +109,9 @@ public class StudentExamDocumentItemViewModel extends ExamDocumentItemViewModel<
      * Helper struct with comparator for the checkExam
      */
     private class Meta implements Comparable<Meta> {
-        private int index, pages;
-        private byte[] hash, nonAnnotatedHash;
+        private final int index;
+        private int pages;
+        private final byte[] hash, nonAnnotatedHash;
 
         private Meta(int index, int pages, byte[] hash, byte[] nonAnnotatedHash) {
             this.index = index;

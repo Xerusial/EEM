@@ -25,6 +25,7 @@ public class MainActivity extends AbstractMainActivity {
     protected void onCreate(Bundle savedInstanceState) {
         examType = ExamFactory.ExamType.TEACHER;
         super.onCreate(savedInstanceState);
+        showDisclaimerDialog(R.string.disclaimer_text_teacher, (dialogInterface, i) -> dialogInterface.dismiss());
     }
 
     /**
@@ -54,8 +55,8 @@ public class MainActivity extends AbstractMainActivity {
     /**
      * Demultiplexer for all intents started from the {@link AbstractMainActivity}
      *
-     * @param examName
-     * @param action
+     * @param examName The target exam for the launched activities
+     * @param action action type to launch
      */
     @Override
     protected void startSubApplication(@Nullable String examName, ActionType action) {

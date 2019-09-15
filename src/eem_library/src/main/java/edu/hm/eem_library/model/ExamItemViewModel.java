@@ -53,7 +53,7 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
          */
         private Set<SelectableSortableItem<File>> getDir() {
             Set<SelectableSortableItem<File>> ret = new TreeSet<>();
-            for (File f : examDir.listFiles()) {
+            for (File f : Objects.requireNonNull(examDir.listFiles())) {
                 ret.add(new SelectableSortableItem<>(f.getName(), f));
             }
             return ret;

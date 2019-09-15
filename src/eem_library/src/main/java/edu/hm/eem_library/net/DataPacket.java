@@ -109,7 +109,7 @@ public abstract class DataPacket {
 
         private static Type[] values = null;
 
-        public static Type extractFromBytebuffer(ByteBuffer buf) {
+        static Type extractFromBytebuffer(ByteBuffer buf) {
             int idx = buf.getInt();
             if (Type.values == null) {
                 Type.values = Type.values();
@@ -117,7 +117,7 @@ public abstract class DataPacket {
             return Type.values[idx];
         }
 
-        public ByteBuffer insertInBytebuffer(ByteBuffer buf) {
+        ByteBuffer insertInBytebuffer(ByteBuffer buf) {
             return buf.putInt(this.ordinal());
         }
 

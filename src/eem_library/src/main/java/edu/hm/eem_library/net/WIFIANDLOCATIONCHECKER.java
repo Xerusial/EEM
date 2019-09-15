@@ -105,7 +105,7 @@ public final class WIFIANDLOCATIONCHECKER {
         else if (cm != null)
             wifi = true;
         else
-            throw new IllegalArgumentException("One of both managers musst be non null!");
+            throw new IllegalArgumentException("One of both managers must be non-null!");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(apl);
         if (wifi)

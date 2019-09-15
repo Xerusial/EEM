@@ -64,7 +64,8 @@
             android:visibility="gone"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_edit" />
+            app:srcCompat="@android:drawable/ic_menu_edit"
+            android:contentDescription="@string/imagedescription_thumbnail" />
 
         <TextView
             android:id="@+id/itemname"

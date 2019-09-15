@@ -25,7 +25,7 @@ public abstract class ProtocolManager {
      * @param context calling activity
      * @param handler a protocol handler to sync callback to UI thread
      */
-    public ProtocolManager(Activity context, ProtocolHandler handler) {
+    protected ProtocolManager(Activity context, ProtocolHandler handler) {
         this.context = context;
         this.handler = handler;
         threads = new LinkedList<>();
@@ -58,7 +58,7 @@ public abstract class ProtocolManager {
      * The server opens one thread for each socket, the client has only got one thread.
      */
     public abstract class ReceiverThread extends Thread {
-        private Socket socket;
+        private final Socket socket;
 
         public ReceiverThread(Socket Socket) {
             this.socket = Socket;

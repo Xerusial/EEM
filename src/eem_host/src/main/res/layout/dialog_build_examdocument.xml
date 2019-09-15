@@ -21,7 +21,9 @@
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="@id/rbs"
         app:layout_constraintLeft_toRightOf="@id/rbs"
-        app:layout_constraintRight_toRightOf="@id/allow_annotations" />
+        app:layout_constraintRight_toRightOf="@id/allow_annotations"
+        android:importantForAutofill="no"
+        android:labelFor="@id/rb_page"/>
 
     <RadioGroup
         android:id="@+id/rbs"

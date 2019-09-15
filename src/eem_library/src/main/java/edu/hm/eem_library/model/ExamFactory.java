@@ -22,7 +22,7 @@ public class ExamFactory {
     /**
      * Creates specific YAML constructors for the teacher and student exams
      *
-     * @param type stduent or teacher?
+     * @param type student or teacher?
      */
     public ExamFactory(ExamType type) {
         this.type = type;
@@ -102,7 +102,7 @@ public class ExamFactory {
     }
 
     /**
-     * Types of exams: Teacherexams contain a password hash and salt
+     * Types of exams: Teacher exams contain a password hash and salt
      */
     public enum ExamType {
         STUDENT, TEACHER

@@ -14,7 +14,7 @@ import edu.hm.eem_library.net.FilePacket;
  * @param <T> Type of used liveData, check {@link SortableItemLiveData} for more info
  */
 abstract class FilebackedItemViewModel<T extends MutableLiveData> extends ItemViewModel<T> {
-    File examDir;
+    final File examDir;
 
     /**
      * Creates storage directory for YAML files

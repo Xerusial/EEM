@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import edu.hm.eem_library.R;
 
 /**
- * Activity printing all used libaries and contact information
+ * Activity printing all used libraries and contact information
  */
 public class AboutActivity extends AppCompatActivity {
 

@@ -49,7 +49,7 @@ import androidx.lifecycle.MutableLiveData;
  * @param <T> The type of livedata used in this viewmodel
  */
 public abstract class ItemViewModel<T extends MutableLiveData> extends AndroidViewModel {
-    protected T livedata;
+    T livedata;
 
     ItemViewModel(@NonNull Application application) {
         super(application);

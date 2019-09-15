@@ -33,7 +33,7 @@ public class StudentExam {
     }
 
     /**
-     * Getter for alloed documents in the exam
+     * Getter for allowed documents in the exam
      *
      * @return allowed documents
      */
@@ -134,7 +134,7 @@ public class StudentExam {
      * @param yamlConstructors other standard YAML constructors (int, String...)
      * @param tag              Current Tag
      */
-    protected void stepTags(Node vnode, Map<Tag, Construct> yamlConstructors, String tag) {
+    void stepTags(Node vnode, Map<Tag, Construct> yamlConstructors, String tag) {
         if ("allowedDocuments".equals(tag)) {
             constructAllowedDocuments((SequenceNode) vnode, yamlConstructors);
         }
