@@ -29,7 +29,7 @@ import edu.hm.eem_library.model.PdfRenderer;
 /**
  * Fragment used to display the PDFs in the exam.
  */
-class ReaderFragment extends Fragment {
+public class ReaderFragment extends Fragment {
 
     private FloatingActionButton pageForward, pageBackward;
     private PdfRenderer renderer = null;

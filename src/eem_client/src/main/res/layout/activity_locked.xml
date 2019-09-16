@@ -6,16 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".view.LockedActivity">
 
-    <ImageView
-        android:id="@+id/lighthouse"
+    <fragment
+        android:id="@+id/nav_host"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
-        android:contentDescription="@string/lighthouse"
-        android:visibility="invisible"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_lighthouse" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="?attr/actionBarSize" />
 
     <ImageView
         android:id="@+id/progress_background"
@@ -42,18 +45,15 @@
         app:layout_constraintTop_toTopOf="@id/progress_background"
         app:srcCompat="@drawable/progress_anim" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
+    <ImageView
+        android:id="@+id/lighthouse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="?attr/actionBarSize" />
-
-    <fragment
-        android:id="@+id/nav_host"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:defaultNavHost="true" />
+        android:background="@color/colorAccent"
+        android:contentDescription="@string/lighthouse"
+        android:visibility="invisible"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_lighthouse" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

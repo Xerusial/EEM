@@ -351,6 +351,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
      */
     private void tutorial() {
         ShowcaseConfig config = new ShowcaseConfig();
+        config.setRenderOverNavigationBar(false);
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
 

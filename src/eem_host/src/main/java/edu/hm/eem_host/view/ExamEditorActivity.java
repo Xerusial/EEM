@@ -20,6 +20,7 @@ import edu.hm.eem_library.model.TeacherExam;
 import edu.hm.eem_library.model.TeacherExamDocumentItemViewModel;
 import edu.hm.eem_library.model.ThumbnailedExamDocument;
 import edu.hm.eem_library.view.AbstractExamEditorActivity;
+import edu.hm.eem_library.view.TransformedShowCaseView;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
@@ -171,8 +172,7 @@ public class ExamEditorActivity extends AbstractExamEditorActivity {
 
         sequence.setConfig(config);
 
-        sequence.addSequenceItem(pwField,
-                getString(edu.hm.eem_library.R.string.tutorial_pass_field), getString(android.R.string.ok));
+        sequence.addSequenceItem(TransformedShowCaseView.getInstance(this, pwField, R.string.tutorial_pass_field,  -400, 0, 400));
 
         sequence.addSequenceItem(allDocAllowedField,
                 getString(edu.hm.eem_library.R.string.tutorial_all_checkbox), getString(android.R.string.ok));

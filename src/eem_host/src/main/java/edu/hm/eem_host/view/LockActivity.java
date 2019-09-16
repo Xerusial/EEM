@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
@@ -34,6 +33,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.net.ServerSocket;

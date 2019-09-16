@@ -156,8 +156,7 @@ public abstract class AbstractExamEditorActivity extends DocumentPickerActivity 
         sequence.addSequenceItem(delButton,
                 getString(R.string.tutorial_deldoc_button), getString(android.R.string.ok));
 
-        sequence.addSequenceItem(svButton,
-                getString(R.string.tutorial_sv_button), getString(android.R.string.ok));
+        sequence.addSequenceItem(TransformedShowCaseView.getInstance(this, svButton, R.string.tutorial_sv_button, 0,0,200));
 
         sequence.addSequenceItem(fileCounter,
                 getString(R.string.tutorial_file_counter), getString(android.R.string.ok));
