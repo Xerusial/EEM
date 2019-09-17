@@ -122,7 +122,7 @@ public class ThumbnailedExamDocument extends SelectableSortableItem<ExamDocument
             Bitmap thumbnail = Bitmap.createBitmap(width, (int) sqrt(2) * width, Bitmap.Config.ARGB_8888);
             PdfRenderer renderer = new PdfRenderer(context, fileDescriptor);
             PdfRenderer.Page page = renderer.openPage(0);
-            page.render(thumbnail);
+            page.render(thumbnail, 0, 0, 1);
             page.close();
             if (documentChanged) {
                 ExamDocument.Identifiers ids = HASHTOOLBOX.genDocMD5s(context, new ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor), which);

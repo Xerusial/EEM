@@ -79,13 +79,14 @@ public class PdfRenderer {
          *
          * @param bitmap bitmap to render on
          */
-        public void render(Bitmap bitmap) {
+        public void render(Bitmap bitmap, int x, int y, float scale) {
             pdfiumCore.openPage(pdfDocument, pageNum);
             Size s = pdfiumCore.getPageSize(pdfDocument, pageNum);
             float scaler = ((float) bitmap.getWidth()) / s.getWidth();
-            int height = (int) (s.getHeight() * scaler);
+            int height = (int) (s.getHeight() * scaler * scale);
+            int width = (int) (bitmap.getWidth() * scale);
             int startY = bitmap.getHeight() / 2 - height / 2;
-            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, startY, bitmap.getWidth(), height, true);
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, x, startY + y, width, height , true);
         }
 
         /**

@@ -10,8 +10,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.util.Pair;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -45,6 +47,7 @@ import edu.hm.eem_library.view.AbstractMainActivity;
  */
 public class LockedActivity extends AppCompatActivity implements DocumentExplorerFragment.OnDocumentsAcceptedListener {
     private ClientProtocolManager pm;
+    private PowerManager powm;
     private NotificationManager nm;
     private ImageView lightHouse;
     private StudentExamDocumentItemViewModel model;
@@ -102,6 +105,7 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
         LockedHandler handler = new LockedHandler(Looper.getMainLooper());
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         pm = new ClientProtocolManager(this, host, port, name, handler);
+        powm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     }
 
     /**
@@ -150,22 +154,31 @@ public class LockedActivity extends AppCompatActivity implements DocumentExplore
     }
 
     /**
-     * Send a logoff signal and quit DnD
+     * Feeds the zoom and pan detector of the reader fragment
+     *
+     * @param ev input event
+     * @return could the event be dispatched?
      */
     @Override
-    protected void onStop() {
-        super.onStop();
-        pm.quit();
-        activateDnD(false);
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        boolean ret = super.dispatchTouchEvent(ev);
+        if(reader!=null)
+            ret |= reader.scaleGestureDetector.onTouchEvent(ev);
+        return ret;
     }
 
     /**
      * When the user brings another activity to foreground, make sure this one quits and sends logoff
      */
     @Override
-    protected void onPause() {
-        super.onPause();
-        finish();
+    protected void onStop() {
+        super.onStop();
+        if(powm.isInteractive()) {
+            //Check if the screen just went inactive
+            pm.quit();
+            activateDnD(false);
+            finish();
+        }
     }
 
     /**

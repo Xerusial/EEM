@@ -1,13 +1,17 @@
 package edu.hm.eem_client.view;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,6 +44,9 @@ public class ReaderFragment extends Fragment {
     private ConstraintLayout seekBarDrawer;
     private TextView pageNumber;
     private boolean seekbarHidden = false;
+    ScaleGestureDetector scaleGestureDetector;
+    private float scale = 1;
+    private int x = 0 ,y = 0, maxX, maxY;
 
     public ReaderFragment() {
         // Required empty public constructor
@@ -72,12 +80,12 @@ public class ReaderFragment extends Fragment {
             pageBackward.hide();
         }
         DisplayMetrics metrics = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics();
-        pageBitmap = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888);
+        pageBitmap = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.RGB_565);
         previewBitmap = Bitmap.createBitmap(metrics.widthPixels / 4, metrics.heightPixels / 4, Bitmap.Config.RGB_565);
         readerPage.setImageBitmap(pageBitmap);
         setCurrentPage(0);
         seekBar.setMax(pageCount);
-        renderPage(pageBitmap);
+        renderPage(pageBitmap, scale, x, y);
         enableButton(pageBackward, false);
         seekBarDrawer.setOnClickListener(view1 -> {
             if (seekbarHidden) {
@@ -94,7 +102,7 @@ public class ReaderFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
                     setCurrentPage(i);
-                    renderPage(previewBitmap);
+                    renderPage(previewBitmap, scale, x, y);
                 }
             }
 
@@ -105,10 +113,48 @@ public class ReaderFragment extends Fragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 syncButtons(currentPage);
-                renderPage(pageBitmap);
+                renderPage(pageBitmap, scale, x, y);
             }
         });
+        scaleGestureDetector = new ScaleGestureDetector(this.getContext(), new PDFTransformDetector());
         return view;
+    }
+
+    /**
+     * A Detector for zooming an panning
+     */
+    private class PDFTransformDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        private int startX, startY, cngX, cngY;
+
+        // Detects that new pointers are going down.
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+            startX = (int) scaleGestureDetector.getFocusX();
+            startY = (int) scaleGestureDetector.getFocusY();
+            return true;
+        }
+
+        @Override
+        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+            int maxVPX = (int) (maxX * (scale - 1));
+            int maxVPY = (int) (maxY / 2 * (scale - 1));
+            scale *= scaleGestureDetector.getScaleFactor();
+            scale = Math.max(1f, Math.min(scale, 5.0f));
+            cngX = (int) scaleGestureDetector.getFocusX() - startX + x;
+            cngY = (int) scaleGestureDetector.getFocusY() - startY + y;
+            cngX = cngX < -maxVPX ? -maxVPX : cngX > 0 ? 0 : cngX;
+            cngY = cngY < -maxVPY ? -maxVPY : cngY > maxVPY ? maxVPY : cngY;
+            ReaderFragment.this.renderPage(pageBitmap, scale, cngX, cngY);
+            ViewCompat.postInvalidateOnAnimation(readerPage);
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            x = cngX;
+            y = cngY;
+            super.onScaleEnd(detector);
+        }
     }
 
     /**
@@ -132,7 +178,7 @@ public class ReaderFragment extends Fragment {
     void turnPage(boolean forward) {
         int idx = currentPage + (forward ? (currentPage == pageCount ? 0 : 1) : (currentPage == 0 ? 0 : -1));
         syncButtons(idx);
-        renderPage(pageBitmap);
+        renderPage(pageBitmap, scale, x, y);
     }
 
     /**
@@ -148,6 +194,8 @@ public class ReaderFragment extends Fragment {
         else if (idx == 0)
             enableButton(pageBackward, false);
         setCurrentPage(idx);
+        scale = 1;
+        x = y = 0;
     }
 
     /**
@@ -176,10 +224,10 @@ public class ReaderFragment extends Fragment {
      *
      * @param bitmap render to highRes or preview Bitmap?
      */
-    private void renderPage(Bitmap bitmap) {
+    private void renderPage(Bitmap bitmap, float scale, int x, int y) {
         if (renderer != null) {
             PdfRenderer.Page page = renderer.openPage(currentPage);
-            page.render(bitmap);
+            page.render(bitmap, x, y, scale);
             readerPage.setImageBitmap(bitmap);
             page.close();
         }
@@ -202,6 +250,11 @@ public class ReaderFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        maxX = size.x;
+        maxY = size.y;
     }
 
     /**
