@@ -129,4 +129,24 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_mscv" />
 
+    <TextView
+        android:id="@+id/header_commons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Apache Commons IO"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mscv_copyright" />
+
+    <TextView
+        android:id="@+id/commons_copyright"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\u00A9 2019 Apache - Release in terms of Apache 2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_commons" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

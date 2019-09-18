@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.text.InputType;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -23,17 +22,19 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
+import android.preference.PreferenceManager;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,7 +67,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     private ImageButton add_button, del_button, edit_button;
     private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
     private String replacementUri;
-    private boolean doNotRebuildUriMap = false;
+    private boolean rebuildUriMap = false;
 
     /**
      * Init views, set click callbacks and UI update hooks
@@ -81,10 +82,13 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         toolbar.inflateMenu(R.menu.burger_popup);
         setActionBar(toolbar);
         model = ViewModelProviders.of(this).get(ExamItemViewModel.class);
+        model.getLivedata().observe(this, selectableSortableItems -> buildUriMap());
         del_button = findViewById(R.id.bt_del_exam);
         del_button.setOnClickListener(v -> removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);
         edit_button.setOnClickListener(v -> {
+            // Rebuild after return
+            rebuildUriMap = true;
             String name = Objects.requireNonNull(model.getLivedata().getSelected()).getName();
             startSubApplication(name, ActionType.ACTION_EDITOR);
         });
@@ -312,29 +316,14 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     }
 
     /**
-     * Android callback if returning from a launched app
-     *
-     * @param requestCode code the intent was started with
-     * @param resultCode  return from app
-     * @param resultData  result data from app
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == REQUEST_CODE_READ_STORAGE) {
-            doNotRebuildUriMap = true;
-        }
-        super.onActivityResult(requestCode, resultCode, resultData);
-    }
-
-    /**
      * Called if user resumes from other app
      */
     @Override
     public void onResume() {
-        if (doNotRebuildUriMap)
-            doNotRebuildUriMap = false;
-        else
+        if (rebuildUriMap){
             buildUriMap();
+            rebuildUriMap = false;
+        }
         super.onResume();
     }
 

@@ -27,6 +27,9 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
      */
     public class ExamItemLiveData extends SelectableSortableItemLiveData<File, SelectableSortableItem<File>> {
         private final int FILEOBSERVERMASK = FileObserver.DELETE | FileObserver.CREATE;
+        //keep reference of Fileobserver because otherwise it will be GCed
+        @SuppressWarnings("FieldCanBeLocal")
+        private final FileObserver fileObserver;
 
         /**
          * Initialize file observer to keep {@link androidx.recyclerview.widget.RecyclerView} in
@@ -35,7 +38,8 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
         ExamItemLiveData() {
             super(false);
             // Filelist has been modified; Update self
-            FileObserver fileObserver = new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
+            //noinspection deprecation
+            fileObserver= new FileObserver(examDir.getPath(), FILEOBSERVERMASK) {
                 @Override
                 public void onEvent(int event, String path) {
                     // Filelist has been modified; Update self
@@ -89,5 +93,7 @@ public class ExamItemViewModel extends FilebackedItemViewModel<ExamItemViewModel
             ret.item.delete();
             return ret;
         }
+
+
     }
 }
