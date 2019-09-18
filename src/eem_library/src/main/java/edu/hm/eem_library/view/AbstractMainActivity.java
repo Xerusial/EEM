@@ -68,6 +68,7 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
     private TreeMap<String, Pair<Boolean, List<String>>> uriMap;
     private String replacementUri;
     private boolean rebuildUriMap = false;
+    private int len_list = 0;
 
     /**
      * Init views, set click callbacks and UI update hooks
@@ -82,7 +83,11 @@ public abstract class AbstractMainActivity extends DocumentPickerActivity implem
         toolbar.inflateMenu(R.menu.burger_popup);
         setActionBar(toolbar);
         model = ViewModelProviders.of(this).get(ExamItemViewModel.class);
-        model.getLivedata().observe(this, selectableSortableItems -> buildUriMap());
+        model.getLivedata().observe(this, selectableSortableItems -> {
+            if(selectableSortableItems.size() != len_list)
+                buildUriMap();
+            len_list = selectableSortableItems.size();
+        });
         del_button = findViewById(R.id.bt_del_exam);
         del_button.setOnClickListener(v -> removeSelected());
         edit_button = findViewById(R.id.bt_edit_exam);
