@@ -27,21 +27,21 @@ import edu.hm.eem_library.model.SortableItemLiveData;
  * .-------------------------------------.   .---------------------------------.
  * | InteractableItemRecyclerViewAdapter |   | ExamDocumentRecyclerViewAdapter |
  * |-------------------------------------|<--|---------------------------------|
- * | StringViewHolder                    |   | StringViewHolder                |
+ * | SelectableStringViewHolder          |   | DocumentViewHolder              |
  * '-------------------------------------'   '---------------------------------'
  *                    ^
  *                    |
  *   .--------------------------------.
  *   |   NameTabRecyclerViewAdapter   |
  *   |--------------------------------|
- *   | StringViewHolder               |
+ *   | NameTabViewHolder              |
  *   '--------------------------------'
  *                    ^
  *                    |
  * .------------------------------------.
  * |   ClientItemRecyclerViewAdapter    |
  * |------------------------------------|
- * | StringViewHolder                   |
+ * | StudentDeviceViewHolder            |
  * '------------------------------------'
  *<p>
  * This basic adapter is extended by its child adapters to add more UI elements to the viewholder tabs.
