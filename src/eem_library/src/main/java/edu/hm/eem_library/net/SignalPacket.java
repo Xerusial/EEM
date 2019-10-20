@@ -13,12 +13,14 @@ import java.nio.ByteBuffer;
  *     [4 byte: signal code]
  * Signal Types:
  *     0: Invalid login: A student with the same name has already logged into the exam
- *     1: Logoff: Student terminated application
- *     2: Lighthouse on: Show lighthouse symbol on students device to identify it
- *     3: Lighthouse off: Turn lighthouse off
- *     4: All doc accepted: Signal returned by the students device if all documents are ok
- *     5: Lock: Remove all not accepted documents from students device and start monitoring them
- *     6: Notificationdrawer pulled: Student has opened his notification drawer (which he should not)
+ *     1: Invalid login: The students protocol version is too high
+ *     2: Invalid login: The students protocol version is too low
+ *     3: Logoff: Student terminated application
+ *     4: Lighthouse on: Show lighthouse symbol on students device to identify it
+ *     5: Lighthouse off: Turn lighthouse off
+ *     6: All doc accepted: Signal returned by the students device if all documents are ok
+ *     7: Lock: Remove all not accepted documents from students device and start monitoring them
+ *     8: Notificationdrawer pulled: Student has opened his notification drawer (which he should not)
  */
 public class SignalPacket extends DataPacket {
     private final Signal signal;
@@ -72,7 +74,7 @@ public class SignalPacket extends DataPacket {
      * The signal enum defining the different kinds of signals
      */
     public enum Signal {
-        INVALID_LOGIN, LOGOFF, LIGHTHOUSE_ON, LIGHTHOUSE_OFF, ALL_DOC_ACCEPTED, LOCK, NOTIFICATIONDRAWER_PULLED;
+        INVALID_LOGIN_NAME, INVALID_LOGIN_VERS_HIGH, INVALID_LOGIN_VERS_LOW, LOGOFF, LIGHTHOUSE_ON, LIGHTHOUSE_OFF, ALL_DOC_ACCEPTED, LOCK, NOTIFICATIONDRAWER_PULLED;
 
         private static Signal[] values = null;
 

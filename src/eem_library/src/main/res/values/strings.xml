@@ -91,7 +91,8 @@
     <string name="toast_exam_already_exists">The specified exam does already exist!</string>
     <string name="toast_gps_needed_for_hotspot">This app needs gps to create the hotspot!</string>
     <string name="toast_please_change_your_username">A student with your name does already participate in this exam. Please change yours. (Add a number or similar)</string>
-    <string name="toast_protocol_too_new">Host uses a newer protocol. Please update your app!</string>
+    <string name="toast_protocol_too_new">Host uses an older protocol!</string>
+    <string name="toast_protocol_too_old">Host uses a newer protocol. Please update your app!</string>
     <string name="toast_read_files_warning">This app needs internal storage access for you to choose the allowed documents in the exam.</string>
     <string name="toast_select_documents_student">Specify at least one document!</string>
     <string name="toast_select_documents_teacher">If not all documents are allowed, specify at least one!</string>

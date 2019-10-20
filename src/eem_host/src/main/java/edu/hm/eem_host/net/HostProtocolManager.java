@@ -89,22 +89,30 @@ public class HostProtocolManager extends ProtocolManager {
             boolean terminate = false;
             if (!loggedIn) {
                 if (type == DataPacket.Type.LOGIN) {
-                    name = LoginPacket.readData(is);
-                    if (name != null) {
-                        DataPacket dataPacket;
-                        if (liveData.contains(name)) {
-                            dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN);
-                        } else {
-                            loggedIn = true;
-                            liveData.add(new SelectableSortableItem<>(name, new ClientItem(socket)), true);
-                            dataPacket = new FilePacket(context.getFilesDir(), exam);
+                    terminate = true;
+                    DataPacket dataPacket = null;
+                    Object[] loginData = LoginPacket.readData(is);
+                    int version = (int) loginData[0];
+                    if(version>DataPacket.PROTOCOL_VERSION){
+                        dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN_VERS_HIGH);
+                    } else if(version<DataPacket.PROTOCOL_VERSION) {
+                        dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN_VERS_LOW);
+                    } else{
+                        name = (String) loginData[1];
+                        if (name != null) {
+                            if (liveData.contains(name)) {
+                                dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN_NAME);
+                            } else {
+                                loggedIn = true;
+                                terminate = false;
+                                liveData.add(new SelectableSortableItem<>(name, new ClientItem(socket)), true);
+                                dataPacket = new FilePacket(context.getFilesDir(), exam);
+                                setName("HostReceiverThread@" + name);
+                            }
                         }
-                        DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);
-                        sender.start();
-                        setName("HostReceiverThread@" + name);
-                    } else {
-                        terminate = true;
                     }
+                    DataPacket.SenderThread sender = new DataPacket.SenderThread(socket, dataPacket);
+                    sender.start();
                 }
             } else {
                 if (type == DataPacket.Type.SIGNAL) {

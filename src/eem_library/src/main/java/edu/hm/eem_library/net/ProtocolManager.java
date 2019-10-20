@@ -8,8 +8,6 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import edu.hm.eem_library.R;
-
 /**
  * Abstract base for the client- and host version protocol manager.
  * Everything concerning the TCP protocol is implemented here.
@@ -79,10 +77,7 @@ public abstract class ProtocolManager {
             }
             while (!Thread.currentThread().isInterrupted()) {
                 Object[] header = DataPacket.readHeader(Objects.requireNonNull(is));
-                if ((int) header[0] != DataPacket.PROTOCOL_VERSION) {
-                    handler.putToast(R.string.toast_protocol_too_new);
-                }
-                if (handleMessage((DataPacket.Type) header[1], is, socket))
+                if (handleMessage((DataPacket.Type) header[0], is, socket))
                     interrupt();
             }
             try {

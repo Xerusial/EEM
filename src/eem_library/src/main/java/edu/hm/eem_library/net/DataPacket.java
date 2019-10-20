@@ -26,7 +26,6 @@ import java.nio.ByteBuffer;
  * A {@link DataPacket} consist of a header with the following fields:
  * <p>
  * Protocol specification: EEP - E-Reader TeacherExam Protocol
- *     [4 Byte: Version]
  *     [4 Byte: Type]
  *     [following Bytes: Data]
  * Data Types:
@@ -40,10 +39,10 @@ import java.nio.ByteBuffer;
  */
 public abstract class DataPacket {
     // incremental protocol version
-    static final int PROTOCOL_VERSION = 0;
+    public static final int PROTOCOL_VERSION = 1;
     static final int INT_BYTES = 4;
     static final int LONG_BYTES = 8;
-    private static final int HEADER_FIELDS = 2;
+    private static final int HEADER_FIELDS = 1;
     private static final int HEADER_SIZE = HEADER_FIELDS * INT_BYTES;
     private final Type type;
 
@@ -67,8 +66,7 @@ public abstract class DataPacket {
             e.printStackTrace();
         }
         ByteBuffer bb = ByteBuffer.wrap(bytes);
-        ret[0] = bb.getInt();
-        ret[1] = Type.extractFromBytebuffer(bb);
+        ret[0] = Type.extractFromBytebuffer(bb);
         return ret;
     }
 
@@ -79,7 +77,6 @@ public abstract class DataPacket {
      */
     private void writeHeader(OutputStream os) {
         ByteBuffer bb = ByteBuffer.allocate(HEADER_SIZE);
-        bb.putInt(PROTOCOL_VERSION);
         type.insertInBytebuffer(bb);
         try {
             os.write(bb.array());

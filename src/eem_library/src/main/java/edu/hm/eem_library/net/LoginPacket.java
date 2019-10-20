@@ -8,12 +8,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 
 /**
  * Subclass of {@link DataPacket}. For more info on the {@link DataPacket} family, check out
  * {@link DataPacket}.
  * <p>
  * Protocol specification: EEP - Login packet
+ *     [4 Byte: Version]
  *     [Newline terminated String: name]
  */
 public class LoginPacket extends DataPacket {
@@ -35,14 +37,25 @@ public class LoginPacket extends DataPacket {
      * @param is given input stream
      * @return the name of the student trying to log in
      */
-    public static String readData(InputStream is) {
-        String ret = null;
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+    public static Object[] readData(InputStream is) {
+        Object[] ret = new Object[2];
+        String name = null;
+        byte[] bytes = new byte[INT_BYTES];
         try {
-            ret = in.readLine();
+            //noinspection ResultOfMethodCallIgnored
+            is.read(bytes);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ByteBuffer bb = ByteBuffer.wrap(bytes);
+        ret[0] = Type.extractFromBytebuffer(bb);
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        try {
+            name = in.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ret[1] = name;
         return ret;
     }
 
@@ -53,6 +66,14 @@ public class LoginPacket extends DataPacket {
      */
     @Override
     protected void writeData(OutputStream os) {
+        ByteBuffer bb = ByteBuffer.allocate(INT_BYTES);
+        bb.putInt(PROTOCOL_VERSION);
+        try {
+            os.write(bb.array());
+            os.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(os)), true);
         out.println(name);
         out.flush();
