@@ -5,7 +5,6 @@ import android.app.Activity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.Objects;
 
 /**
@@ -15,7 +14,6 @@ import java.util.Objects;
 public abstract class ProtocolManager {
     protected final Activity context;
     protected final ProtocolHandler handler;
-    private final LinkedList<ReceiverThread> threads;
 
     /**
      * Constructor
@@ -26,17 +24,6 @@ public abstract class ProtocolManager {
     protected ProtocolManager(Activity context, ProtocolHandler handler) {
         this.context = context;
         this.handler = handler;
-        threads = new LinkedList<>();
-    }
-
-    /**
-     * Cleanup
-     */
-    public void quit() {
-        for (ReceiverThread thread : threads) {
-            thread.interrupt();
-        }
-        threads.clear();
     }
 
     /**
@@ -45,7 +32,7 @@ public abstract class ProtocolManager {
      * @param signal type
      * @param socket target socket
      */
-    protected final void sendSignal(SignalPacket.Signal signal, Socket socket) {
+    public static void sendSignal(SignalPacket.Signal signal, Socket socket) {
         SignalPacket signalPacket = new SignalPacket(signal);
         DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, signalPacket);
         thread.start();
@@ -55,12 +42,11 @@ public abstract class ProtocolManager {
      * Protocol Receiver Thread
      * The server opens one thread for each socket, the client has only got one thread.
      */
-    public abstract class ReceiverThread extends Thread {
+    public static abstract class ReceiverThread extends Thread {
         private final Socket socket;
 
         public ReceiverThread(Socket Socket) {
             this.socket = Socket;
-            threads.add(this);
         }
 
         /**

@@ -48,7 +48,7 @@ public class LoginPacket extends DataPacket {
             e.printStackTrace();
         }
         ByteBuffer bb = ByteBuffer.wrap(bytes);
-        ret[0] = Type.extractFromBytebuffer(bb);
+        ret[0] = bb.getInt();
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         try {
             name = in.readLine();

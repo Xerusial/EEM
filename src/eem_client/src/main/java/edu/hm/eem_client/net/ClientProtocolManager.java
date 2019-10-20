@@ -25,6 +25,7 @@ import edu.hm.eem_library.net.SignalPacket;
 public class ClientProtocolManager extends ProtocolManager {
     private final String name;
     private Socket socket = null;
+    private ClientReceiverThread thread;
 
     /**
      * constructor
@@ -66,8 +67,8 @@ public class ClientProtocolManager extends ProtocolManager {
         ((LockedActivity.LockedHandler) handler).loadDocuments();
         socket = openedSocket;
         //Start the socket receiver thread
-        ReceiverThread receiverThread = new ClientReceiverThread(socket);
-        receiverThread.start();
+        thread = new ClientReceiverThread(socket);
+        thread.start();
         //Send the login packet to the host
         LoginPacket login = new LoginPacket(name);
         DataPacket.SenderThread senderThread = new DataPacket.SenderThread(socket, login);
@@ -91,14 +92,13 @@ public class ClientProtocolManager extends ProtocolManager {
     /**
      * Method in to be called, when the communication needs to be terminated
      */
-    @Override
     public void quit() {
         if (socket != null) {
             SignalPacket termSig = new SignalPacket(SignalPacket.Signal.LOGOFF);
             DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, termSig);
             thread.start();
         }
-        super.quit();
+        thread.interrupt();
     }
 
     /**

@@ -44,6 +44,8 @@
     <string name="documents_checked">Documents are OK!</string>
     <string name="edit">Edit</string>
     <string name="exam_name">Name of Exam:</string>
+    <string name="exam_server">Exam Server: %s</string>
+    <string name="exam_server_text">Exam Server of exam %s is currently running!</string>
     <string name="from_file">file</string>
     <string name="from_page_number">number of pages</string>
     <string name="global_header">E-Reader Exam Mode Platform</string>
@@ -81,7 +83,9 @@
     <string name="stext">Show text</string>
     <string name="string_continue">Continue</string>
     <string name="student_left">Student %s left!</string>
-    <string name="student_left_text">Student %s has terminated his reader app!</string>
+    <string name="student_left_text">Student %s has terminated his/her reader app!</string>
+    <string name="student_pulled">Student %s caught!</string>
+    <string name="student_pulled_text">Student %s pulled his/her notification drawer!</string>
     <string name="teacher_closed">Teacher closed connection!</string>
     <string name="thumbnail_not_found">\u003cThumbnail not found\u003e</string>
     <string name="title_activity_settings">Settings</string>

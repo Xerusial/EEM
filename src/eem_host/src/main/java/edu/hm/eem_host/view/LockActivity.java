@@ -1,12 +1,11 @@
 package edu.hm.eem_host.view;
 
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
@@ -18,6 +17,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.view.View;
 import android.widget.CheckBox;
@@ -31,8 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.preference.PreferenceManager;
 
 import java.io.IOException;
@@ -40,9 +38,10 @@ import java.net.ServerSocket;
 import java.util.Objects;
 
 import edu.hm.eem_host.R;
-import edu.hm.eem_host.net.HostProtocolManager;
+import edu.hm.eem_host.net.HostProtocolService;
 import edu.hm.eem_host.net.HostServiceManager;
 import edu.hm.eem_library.model.ClientItemViewModel;
+import edu.hm.eem_library.model.ItemViewModel;
 import edu.hm.eem_library.net.HotspotManager;
 import edu.hm.eem_library.net.ProtocolHandler;
 import edu.hm.eem_library.net.SignalPacket;
@@ -59,41 +58,21 @@ public class LockActivity extends AppCompatActivity
         implements WIFIANDLOCATIONCHECKER.onWifiAndLocationEnabledListener,
         HotspotManager.OnHotspotEnabledListener,
         ItemListFragment.OnListFragmentPressListener,
-        NsdManager.RegistrationListener {
+        NsdManager.RegistrationListener,
+        ItemListFragment.ViewmodelFromServiceProvider {
     private static final String SHOWCASE_ID = "LockActivity";
-    private static final String CHANNEL_ID = "student_activity";
     private HotspotManager hotspotManager;
     private ConnectivityManager cm;
     private LocationManager lm;
-    private NotificationManager nm;
     private TextView netName, netPw, wifiText;
     private Switch swStartService, swUseHotspot, swLock;
-    private HostProtocolManager hostProtocolManager = null;
+    private HostProtocolService hostProtocolService = null;
     private HostServiceManager hostServiceManager = null;
     private ClientItemViewModel model;
     private LockHandler handler;
     private View hotspotCredentials;
     private CheckBox cbServiceRunning;
-    private boolean locked;
-
-    /**
-     * Create a notification channel. This is used to push notifications if a student disconnects
-     */
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
-        }
-    }
+    private String profName, examName;
 
     /**
      * Init views, managers, the handler, the list viewmodel and the clicklisteners for the switch
@@ -103,8 +82,52 @@ public class LockActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
+        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        hotspotManager = new HotspotManager(wm, this);
+        handler = new LockHandler(Looper.getMainLooper());
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
+        attachToReceiverService();
+    }
+
+    private void attachToReceiverService(){
+        Intent serviceStarter = new Intent(this, HostProtocolService.class);
+        serviceStarter.putExtra(HostProtocolService.EXTRA_EXAM_NAME, examName);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceStarter);
+        } else {
+            startService(serviceStarter);
+        }
+        bindService(serviceStarter, connection, Context.BIND_ABOVE_CLIENT);
+    }
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            HostProtocolService.HostProtocolBinder binder = (HostProtocolService.HostProtocolBinder) service;
+            hostProtocolService = binder.getService();
+            hostServiceManager = new HostServiceManager(LockActivity.this, profName, hostProtocolService);
+            model = hostProtocolService.getViewModelInstance();
+            initUI();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
+
+    /**
+     * Init the UI after the service has been started, so the ViewModel is available
+     */
+    private void initUI(){
         setContentView(R.layout.activity_lock);
-        String examName = getIntent().getStringExtra(AbstractMainActivity.EXAMNAME_FIELD);
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
         wifiText = findViewById(R.id.wifi);
@@ -113,19 +136,7 @@ public class LockActivity extends AppCompatActivity
         swLock = findViewById(R.id.sw_lock_students);
         hotspotCredentials = findViewById(R.id.hotspot_credentials);
         cbServiceRunning = findViewById(R.id.cb_service_running);
-        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
-        cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        createNotificationChannel();
-        hotspotManager = new HotspotManager(wm, this);
-        model = ViewModelProviders.of(this).get(ClientItemViewModel.class);
-        handler = new LockHandler(Looper.getMainLooper());
         ((Toolbar) findViewById(R.id.toolbar)).setTitle(examName);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String profName = sharedPref.getString(getString(R.string.preferences_username), "Username");
-        hostProtocolManager = new HostProtocolManager(this, model.getLivedata(), handler, examName);
-        hostServiceManager = new HostServiceManager(this, profName, hostProtocolManager);
         switchSetEnabled(swLock, false);
         swStartService.setOnClickListener(v -> {
             if (swStartService.isChecked()) {
@@ -156,6 +167,7 @@ public class LockActivity extends AppCompatActivity
         tutorial();
     }
 
+
     /**
      * Call this method enable or disable lock state. In lock state, all documents on student devices,
      * which did not pass the checks are disabled. Also, exits and pulling the notification bar will be monitored.
@@ -167,16 +179,16 @@ public class LockActivity extends AppCompatActivity
             quitService();
             swStartService.setChecked(false);
             cbServiceRunning.setVisibility(View.GONE);
-            hostProtocolManager.sendSignal(SignalPacket.Signal.LOCK, HostProtocolManager.TO_ALL);
+            hostProtocolService.sendSignal(SignalPacket.Signal.LOCK, HostProtocolService.TO_ALL);
             switchSetEnabled(swStartService, false);
             model.getLivedata().setSelected();
-            locked = true;
+            hostProtocolService.locked = true;
         } else {
             model.getLivedata().clearDisconnected(false);
             switchSetEnabled(swUseHotspot, true);
             switchSetEnabled(swStartService, true);
             switchSetEnabled(swLock, false);
-            locked = false;
+            hostProtocolService.locked = false;
         }
         hotspotCredentials.setVisibility(enable ? View.GONE : View.VISIBLE);
     }
@@ -264,8 +276,8 @@ public class LockActivity extends AppCompatActivity
      * Clean up TCP protocol
      */
     private void quitProtocol() {
-        if (hostProtocolManager != null) {
-            hostProtocolManager.quit();
+        if (hostProtocolService != null) {
+            hostProtocolService.quit();
             model.getLivedata().clean(true);
         }
     }
@@ -460,7 +472,7 @@ public class LockActivity extends AppCompatActivity
      */
     @Override
     public void onListFragmentPress(int index) {
-        hostProtocolManager.sendLightHouse(index);
+        hostProtocolService.sendLightHouse(index);
     }
 
     /**
@@ -488,6 +500,11 @@ public class LockActivity extends AppCompatActivity
         sequence.start();
     }
 
+    @Override
+    public ItemViewModel getViewModel() {
+        return model;
+    }
+
     /**
      * Termination reasons for the accidental exit dialog
      */
@@ -499,26 +516,8 @@ public class LockActivity extends AppCompatActivity
      * Handler that can be called from out-of-UI threads(TCP receivers) and modify UI elements
      */
     public class LockHandler extends Handler implements ProtocolHandler {
-        private int id = 0;
-
         private LockHandler(Looper looper) {
             super(looper);
-        }
-
-        public void notifyStudentLeft(String name) {
-            this.post(() -> {
-                if (locked) {
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(LockActivity.this, CHANNEL_ID)
-                            .setSmallIcon(R.drawable.ic_student_black)
-                            .setContentTitle(getString(R.string.student_left, name))
-                            .setStyle(new NotificationCompat.BigTextStyle()
-                                    .bigText(getString(R.string.student_left_text, name)))
-                            .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-                    nm.notify(++id, builder.build());
-                    model.getLivedata().disconnected(name);
-                } else
-                    model.getLivedata().remove(name, false);
-            });
         }
 
         @Override

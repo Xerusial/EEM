@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Objects;
 
 import edu.hm.eem_library.R;
-import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_library.model.ExamDocument;
 import edu.hm.eem_library.model.ExamItemViewModel;
 import edu.hm.eem_library.model.HostItemViewModel;
@@ -161,7 +160,7 @@ public class ItemListFragment extends Fragment {
                 model = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(HostItemViewModel.class);
                 break;
             case DEVICE:
-                model = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(ClientItemViewModel.class);
+                model = ((ViewmodelFromServiceProvider)getActivity()).getViewModel();
                 break;
         }
     }
@@ -214,5 +213,9 @@ public class ItemListFragment extends Fragment {
      */
     public interface OnListFragmentPressListener {
         void onListFragmentPress(int index);
+    }
+
+    public interface ViewmodelFromServiceProvider {
+        ItemViewModel getViewModel();
     }
 }

@@ -19,7 +19,7 @@ public class HostServiceManager extends ServiceManager {
     private final NsdManager nsdm;
     private final NsdServiceInfo serviceInfo;
     private ServerThread serverThread;
-    private final HostProtocolManager protocolManager;
+    private final HostProtocolService receiverService;
     private final LockActivity act;
     private NsdManager.RegistrationListener currentListener = null;
 
@@ -28,14 +28,14 @@ public class HostServiceManager extends ServiceManager {
      *
      * @param act             hosting activity
      * @param profName        is used as service name
-     * @param protocolManager the protocolmanager hosting the receiver threads for all connections
+     * @param receiverService the receiverservice hosting the receiver threads for all connections
      */
-    public HostServiceManager(LockActivity act, String profName, HostProtocolManager protocolManager) {
+    public HostServiceManager(LockActivity act, String profName, HostProtocolService receiverService) {
         this.act = act;
         serviceInfo = new NsdServiceInfo();
         serviceInfo.setServiceName(profName);
         serviceInfo.setServiceType(SERVICE_TYPE);
-        this.protocolManager = protocolManager;
+        this.receiverService = receiverService;
         nsdm = (NsdManager) act.getSystemService(Context.NSD_SERVICE);
     }
 
@@ -83,7 +83,7 @@ public class HostServiceManager extends ServiceManager {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     socket = serverSocket.accept();
-                    protocolManager.genReceiverThread(socket);
+                    receiverService.genReceiverThread(socket);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
