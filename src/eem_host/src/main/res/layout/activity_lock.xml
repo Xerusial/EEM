@@ -23,6 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sw_use_hotspot_wrapper">
@@ -84,9 +85,8 @@
         android:layout_height="wrap_content"
         android:text="@string/start_service"
         android:textAlignment="textStart"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_con_devices" />
+        app:layout_constraintRight_toRightOf="@id/sw_lock_students"
+        app:layout_constraintTop_toBottomOf="@id/hotspot_credentials" />
 
     <Switch
         android:id="@+id/sw_lock_students"
@@ -106,7 +106,7 @@
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/hotspot_credentials" />
+        app:layout_constraintTop_toBottomOf="@id/sw_lock_students" />
 
     <TextView
         android:id="@+id/header_con_method"
@@ -117,6 +117,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <TextView
+        android:id="@+id/number_students"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/number_of_con_students"
+        android:textColor="@color/black"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_con_devices" />
 
     <android.widget.Toolbar
         android:id="@+id/toolbar"
@@ -137,7 +147,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sw_lock_students"
+        app:layout_constraintTop_toBottomOf="@id/number_students"
         tools:layout="@layout/fragment_itemlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

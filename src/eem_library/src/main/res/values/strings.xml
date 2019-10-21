@@ -64,6 +64,7 @@
     <string name="loading_documents">Loading large document…</string>
     <string name="lock_student_devices">Lock student devices</string>
     <string name="name">Name</string>
+    <string name="number_of_con_students">Number of connected students: %d</string>
     <string name="page_number">%d/%d</string>
     <string name="page_specified_document">Page specified document</string>
     <string name="password">Password</string>

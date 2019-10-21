@@ -41,7 +41,7 @@ public class HostProtocolService extends Service {
     public boolean locked;
     private NotificationManager nm;
     private String exam = null;
-    private int id = 1; //0 is reserved for the running service
+    private int id = 2; //1 is reserved for the running service
     private LinkedList<HostReceiverThread> threads;
 
     /**
@@ -78,7 +78,7 @@ public class HostProtocolService extends Service {
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(getString(R.string.exam_server_text, exam)))
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-        startForeground(0, builder.build());
+        startForeground(1, builder.build());
         return START_STICKY;
     }
 

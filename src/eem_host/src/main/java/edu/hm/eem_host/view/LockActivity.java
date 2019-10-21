@@ -64,7 +64,7 @@ public class LockActivity extends AppCompatActivity
     private HotspotManager hotspotManager;
     private ConnectivityManager cm;
     private LocationManager lm;
-    private TextView netName, netPw, wifiText;
+    private TextView cntStudents, netName, netPw, wifiText;
     private Switch swStartService, swUseHotspot, swLock;
     private HostProtocolService hostProtocolService = null;
     private HostServiceManager hostServiceManager = null;
@@ -120,6 +120,7 @@ public class LockActivity extends AppCompatActivity
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            unbindService(this);
         }
     };
 
@@ -128,6 +129,7 @@ public class LockActivity extends AppCompatActivity
      */
     private void initUI(){
         setContentView(R.layout.activity_lock);
+        cntStudents = findViewById(R.id.number_students);
         netName = findViewById(R.id.net_name);
         netPw = findViewById(R.id.net_pw);
         wifiText = findViewById(R.id.wifi);
@@ -164,6 +166,8 @@ public class LockActivity extends AppCompatActivity
                 lock(false);
             }
         });
+        model.getLivedata().observe(this, selectableSortableItems
+                -> cntStudents.setText(getString(R.string.number_of_con_students, model.getLivedata().getValue().size())));
         tutorial();
     }
 
@@ -339,7 +343,6 @@ public class LockActivity extends AppCompatActivity
         try {
             ServerSocket serverSocket = new ServerSocket(0);
             hostServiceManager.init(serverSocket);
-            switchSetEnabled(swUseHotspot, false);
             cbServiceRunning.setVisibility(View.VISIBLE);
             cbServiceRunning.setChecked(false);
             switchSetEnabled(swUseHotspot, false);
@@ -419,9 +422,11 @@ public class LockActivity extends AppCompatActivity
                 netPw.setText(wifiConfiguration.preSharedKey);
                 switchSetEnabled(swStartService, true);
             }
+            hotspotCredentials.setVisibility(View.VISIBLE);
         } else {
             netName.setText(getString(R.string.blank));
             netPw.setText(getString(R.string.blank));
+            hotspotCredentials.setVisibility(View.GONE);
         }
     }
 
