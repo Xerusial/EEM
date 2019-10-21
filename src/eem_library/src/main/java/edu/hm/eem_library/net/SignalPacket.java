@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
  *     6: All doc accepted: Signal returned by the students device if all documents are ok
  *     7: Lock: Remove all not accepted documents from students device and start monitoring them
  *     8: Notificationdrawer pulled: Student has opened his notification drawer (which he should not)
+ *     9: Check connection from host to client
+ *     10: Client answer to a connection check
  */
 public class SignalPacket extends DataPacket {
     private final Signal signal;
@@ -74,7 +76,9 @@ public class SignalPacket extends DataPacket {
      * The signal enum defining the different kinds of signals
      */
     public enum Signal {
-        INVALID_LOGIN_NAME, INVALID_LOGIN_VERS_HIGH, INVALID_LOGIN_VERS_LOW, LOGOFF, LIGHTHOUSE_ON, LIGHTHOUSE_OFF, ALL_DOC_ACCEPTED, LOCK, NOTIFICATIONDRAWER_PULLED;
+        INVALID_LOGIN_NAME, INVALID_LOGIN_VERS_HIGH, INVALID_LOGIN_VERS_LOW,
+        LOGOFF, LIGHTHOUSE_ON, LIGHTHOUSE_OFF, ALL_DOC_ACCEPTED, LOCK,
+        NOTIFICATIONDRAWER_PULLED, CHECK_CONNECTION, CHECK_ACK;
 
         private static Signal[] values = null;
 

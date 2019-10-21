@@ -134,6 +134,11 @@ public class ClientProtocolManager extends ProtocolManager {
                 case SIGNAL:
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal) {
+                        case CHECK_CONNECTION:
+                            SignalPacket ackSig = new SignalPacket(SignalPacket.Signal.CHECK_ACK);
+                            DataPacket.SenderThread thread = new DataPacket.SenderThread(socket, ackSig);
+                            thread.start();
+                            break;
                         case INVALID_LOGIN_NAME:
                             handler.gracefulShutdown(true, R.string.toast_please_change_your_username);
                             break;

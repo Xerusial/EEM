@@ -36,17 +36,6 @@ public class ClientItemViewModel extends ItemViewModel<ClientItemViewModel.Clien
         }
 
         /**
-         * Mark the student as disconnected
-         *
-         * @param name students unique name
-         */
-        public void disconnected(String name) {
-            Objects.requireNonNull(backingMap.get(name)).item.disconnected = true;
-            Objects.requireNonNull(backingMap.get(name)).selected = false;
-            notifyObserversMeta();
-        }
-
-        /**
          * Delete all disconnected students from list
          *
          * @param post if this should be posted to the UI thread
@@ -60,16 +49,6 @@ public class ClientItemViewModel extends ItemViewModel<ClientItemViewModel.Clien
                 }
             }
             notifyObservers(post);
-        }
-
-        /**
-         * Increment a counter indication how often the student has pulled the notification drawer
-         *
-         * @param name students unique name
-         */
-        public void incrCountNotificationDrawer(String name) {
-            Objects.requireNonNull(backingMap.get(name)).item.countNotificationDrawer++;
-            notifyObserversMeta();
         }
     }
 }

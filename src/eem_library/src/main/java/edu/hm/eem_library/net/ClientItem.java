@@ -11,6 +11,7 @@ public class ClientItem {
     public final Socket socket;
     public boolean lighthoused = false;
     public boolean disconnected = false;
+    public boolean checkingConnection = false;
     public int countNotificationDrawer = 0;
 
     public ClientItem(Socket socket) {

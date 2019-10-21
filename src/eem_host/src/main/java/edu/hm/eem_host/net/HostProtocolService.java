@@ -3,6 +3,7 @@ package edu.hm.eem_host.net;
 import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -14,10 +15,12 @@ import androidx.core.app.NotificationCompat;
 
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import edu.hm.eem_host.R;
+import edu.hm.eem_host.view.MainActivity;
 import edu.hm.eem_library.model.ClientItemViewModel;
 import edu.hm.eem_library.model.SelectableSortableItem;
 import edu.hm.eem_library.net.ClientItem;
@@ -42,14 +45,15 @@ public class HostProtocolService extends Service {
     private NotificationManager nm;
     private String exam = null;
     private int id = 2; //1 is reserved for the running service
-    private LinkedList<HostReceiverThread> threads;
+    private Map<String, HostReceiverThread> threads;
+    private ClientConnectionChecker checker = null;
 
     /**
      * Android basics
      */
     @Override
     public void onCreate() {
-        threads = new LinkedList<>();
+        threads = new HashMap<>();
         model = new ClientItemViewModel(this.getApplication());
         nm = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
         createNotificationChannel();
@@ -72,12 +76,17 @@ public class HostProtocolService extends Service {
             exam = newExam;
             model.getLivedata().clean(true);
         }
+        Intent notIntent = new Intent(getApplicationContext(), MainActivity.class);
+        notIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        notIntent.setAction(Intent.ACTION_MAIN);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_exam_black)
                 .setContentTitle(getString(R.string.exam_server, exam))
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(getString(R.string.exam_server_text, exam)))
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setContentIntent(pendingIntent);
         startForeground(1, builder.build());
         return START_STICKY;
     }
@@ -104,6 +113,10 @@ public class HostProtocolService extends Service {
     void genReceiverThread(Socket socket) {
         ProtocolManager.ReceiverThread receiverThread = new HostReceiverThread(socket);
         receiverThread.start();
+        if(checker == null) {
+            checker = new ClientConnectionChecker();
+            checker.start();
+        }
     }
 
     @NonNull
@@ -136,11 +149,8 @@ public class HostProtocolService extends Service {
      * @param name name of the student
      */
     private void notifyStudentLeft(String name) {
-        if (locked) {
+        if (locked)
             notify(getString(R.string.student_left, name), getString(R.string.student_left_text, name));
-            model.getLivedata().disconnected(name);
-        } else
-            model.getLivedata().remove(name, true);
     }
 
     /**
@@ -149,8 +159,8 @@ public class HostProtocolService extends Service {
      * @param name name of the student
      */
     private void notifyStudentPulledDrawer(String name) {
-        model.getLivedata().incrCountNotificationDrawer(name);
-        notify(getString(R.string.student_pulled, name), getString(R.string.student_pulled_text, name));
+        if(locked)
+            notify(getString(R.string.student_pulled, name), getString(R.string.student_pulled_text, name));
     }
 
     /**
@@ -160,12 +170,17 @@ public class HostProtocolService extends Service {
      * @param message message of the notification
      */
     private void notify(String title, String message) {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setAction(Intent.ACTION_MAIN);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_student_black)
                 .setContentTitle(title)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(message))
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setContentIntent(pendingIntent);
         nm.notify(++id, builder.build());
     }
 
@@ -202,29 +217,65 @@ public class HostProtocolService extends Service {
      */
     public void quit() {
         sendSignal(SignalPacket.Signal.LOGOFF, TO_ALL);
-        for (HostReceiverThread thread : threads) {
+        for (HostReceiverThread thread : threads.values()) {
             thread.interrupt();
         }
         threads.clear();
+        if(checker!=null)
+            checker.interrupt();
         stopSelf();
+    }
+
+    /**
+     * Periodically checks the connection to the clients with a polling mechanism
+     */
+    class ClientConnectionChecker extends Thread {
+        private static final int SLEEP_TIME = 5000;
+
+        @Override
+        public void run() {
+            while(!interrupted()){
+                for (SelectableSortableItem<ClientItem> i : Objects.requireNonNull(model.getLivedata().getValue())) {
+                    SignalPacket chkSig = new SignalPacket(SignalPacket.Signal.CHECK_CONNECTION);
+                    DataPacket.SenderThread thread = new DataPacket.SenderThread(i.item.socket, chkSig);
+                    thread.start();
+                    i.item.checkingConnection = !i.item.disconnected;
+                }
+                try {
+                    sleep(SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (SelectableSortableItem<ClientItem> i : Objects.requireNonNull(model.getLivedata().getValue())) {
+                    if(i.item.checkingConnection) {
+                        disconnectClient(i);
+                        threads.get(i.getSortableKey()).interrupt();
+                    }
+                }
+                try {
+                    sleep(SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
      * The TCP receiver thread. Used to handle incoming messages.
      */
     class HostReceiverThread extends ProtocolManager.ReceiverThread {
+        private SelectableSortableItem<ClientItem> item = null;
         private String name;
-        private boolean loggedIn = false;
 
         HostReceiverThread(Socket inputSocket) {
             super(inputSocket);
-            threads.add(this);
         }
 
         @Override
         protected boolean handleMessage(DataPacket.Type type, InputStream is, Socket socket) {
             boolean terminate = false;
-            if (!loggedIn) {
+            if (item == null) {
                 if (type == DataPacket.Type.LOGIN) {
                     terminate = true;
                     DataPacket dataPacket = null;
@@ -240,9 +291,10 @@ public class HostProtocolService extends Service {
                             if (model.getLivedata().contains(name)) {
                                 dataPacket = new SignalPacket(SignalPacket.Signal.INVALID_LOGIN_NAME);
                             } else {
-                                loggedIn = true;
                                 terminate = false;
-                                model.getLivedata().add(new SelectableSortableItem<>(name, new ClientItem(socket)), true);
+                                threads.put(name, this);
+                                item = new SelectableSortableItem<>(name, new ClientItem(socket));
+                                model.getLivedata().add(item, true);
                                 dataPacket = new FilePacket(getApplication().getFilesDir(), exam);
                                 setName("HostProtocolService@" + name);
                             }
@@ -256,19 +308,35 @@ public class HostProtocolService extends Service {
                     SignalPacket.Signal signal = SignalPacket.readData(is);
                     switch (signal) {
                         case LOGOFF:
-                            notifyStudentLeft(name);
+                            disconnectClient(item);
                             terminate = true;
                             break;
                         case ALL_DOC_ACCEPTED:
-                            model.getLivedata().setSelected(name, true);
+                            item.selected = true;
+                            model.getLivedata().notifyObserversMeta();
                             break;
                         case NOTIFICATIONDRAWER_PULLED:
+                            item.item.countNotificationDrawer++;
+                            model.getLivedata().notifyObserversMeta();
                             notifyStudentPulledDrawer(name);
+                            break;
+                        case CHECK_ACK:
+                            item.item.checkingConnection = false;
                             break;
                     }
                 }
             }
             return terminate;
+        }
+    }
+
+    private void disconnectClient(SelectableSortableItem<ClientItem> item){
+        if(locked) {
+            item.item.disconnected = true;
+            model.getLivedata().notifyObserversMeta();
+            notifyStudentLeft(item.getSortableKey());
+        } else {
+            model.getLivedata().remove(item.getSortableKey(), true);
         }
     }
 

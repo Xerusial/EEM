@@ -81,7 +81,7 @@ public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<
      * Notify Observers, but only the selection has changed, so the Arraylist does not need to be
      * rebuilt.
      */
-    void notifyObserversMeta() {
+    public void notifyObserversMeta() {
         postValue(getValue());
     }
 

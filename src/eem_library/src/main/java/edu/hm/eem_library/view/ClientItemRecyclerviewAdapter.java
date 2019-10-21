@@ -107,6 +107,7 @@ public class ClientItemRecyclerviewAdapter extends NameTabRecyclerViewAdapter {
             }
             if (device.disconnected) {
                 item.setCardBackgroundColor(disconnectedColor);
+                countNotificationDrawer.setBackgroundColor(disconnectedColor);
                 selectedCb.setText(R.string.client_disconnected);
             } else {
                 selectedCb.setText(R.string.documents_checked);
