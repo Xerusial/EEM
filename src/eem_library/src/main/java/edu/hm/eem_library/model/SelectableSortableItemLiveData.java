@@ -13,7 +13,7 @@ import java.util.Objects;
  * @param <T> Type of SelectableSortableItem
  */
 public class SelectableSortableItemLiveData<V, T extends SelectableSortableItem<V>> extends SortableItemLiveData<V, T> {
-    int selectionCounter;
+    public int selectionCounter;
 
     /**
      * Constructor

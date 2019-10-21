@@ -45,7 +45,7 @@
     <string name="edit">Edit</string>
     <string name="exam_name">Name of Exam:</string>
     <string name="exam_server">Exam Server: %s</string>
-    <string name="exam_server_text">Exam Server of exam %s is currently running!</string>
+    <string name="exam_server_text">Exam server of exam %s is currently running!</string>
     <string name="from_file">file</string>
     <string name="from_page_number">number of pages</string>
     <string name="global_header">E-Reader Exam Mode Platform</string>
@@ -58,7 +58,7 @@
     <string name="imagedescription_thumbnail">Thumbnail of the document</string>
     <string name="incorrect_document">Incorrect document!</string>
     <string name="label_condev">Connected Devices</string>
-    <string name="label_conmethod">Connection Method</string>
+    <string name="label_conmethod">Controls</string>
     <string name="library_name">EEM Library</string>
     <string name="lighthouse">Lighthouse</string>
     <string name="loading_documents">Loading large document…</string>

@@ -194,7 +194,7 @@ public class LockActivity extends AppCompatActivity
             switchSetEnabled(swLock, false);
             hostProtocolService.locked = false;
         }
-        hotspotCredentials.setVisibility(enable ? View.GONE : View.VISIBLE);
+        hotspotCredentials.setVisibility(!enable && swUseHotspot.isChecked() ? View.VISIBLE : View.GONE);
     }
 
     /**

@@ -26,7 +26,7 @@
         android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sw_use_hotspot_wrapper">
+        app:layout_constraintTop_toBottomOf="@id/header_con_method">
 
         <TextView
             android:id="@+id/header_net_name"
@@ -51,32 +51,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/blank" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/sw_use_hotspot_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_con_method">
-
-        <Switch
-            android:id="@+id/sw_use_hotspot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/wifi" />
-
-        <TextView
-            android:id="@+id/wifi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:lines="2"
-            android:text="@string/hotspot"
-            android:textColor="@color/black" />
-
     </LinearLayout>
 
     <Switch
@@ -136,7 +110,33 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
-        tools:title="ExamTitle" />
+        tools:title="ExamTitle">
+
+        <LinearLayout
+            android:id="@+id/sw_use_hotspot_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="right">
+
+            <Switch
+                android:id="@+id/sw_use_hotspot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/wifi" />
+
+            <TextView
+                android:id="@+id/wifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="2"
+                android:text="@string/hotspot"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+    </android.widget.Toolbar>
 
     <fragment
         android:id="@+id/student_list"

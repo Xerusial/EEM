@@ -313,6 +313,7 @@ public class HostProtocolService extends Service {
                             break;
                         case ALL_DOC_ACCEPTED:
                             item.selected = true;
+                            model.getLivedata().selectionCounter++;
                             model.getLivedata().notifyObserversMeta();
                             break;
                         case NOTIFICATIONDRAWER_PULLED:
