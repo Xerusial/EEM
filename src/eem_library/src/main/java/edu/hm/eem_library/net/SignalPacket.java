@@ -12,17 +12,17 @@ import java.nio.ByteBuffer;
  * Protocol specification: EEP - Signal packet
  *     [4 byte: signal code]
  * Signal Types:
- *     0: Invalid login: A student with the same name has already logged into the exam
- *     1: Invalid login: The students protocol version is too high
- *     2: Invalid login: The students protocol version is too low
+ *     0: Invalid login name: A student with the same name has already logged into the exam
+ *     1: Invalid login vers high: The students protocol version is too high
+ *     2: Invalid login vers low: The students protocol version is too low
  *     3: Logoff: Student terminated application
  *     4: Lighthouse on: Show lighthouse symbol on students device to identify it
  *     5: Lighthouse off: Turn lighthouse off
  *     6: All doc accepted: Signal returned by the students device if all documents are ok
  *     7: Lock: Remove all not accepted documents from students device and start monitoring them
  *     8: Notificationdrawer pulled: Student has opened his notification drawer (which he should not)
- *     9: Check connection from host to client
- *     10: Client answer to a connection check
+ *     9: Check connection: Check connection from host to client
+ *     10: Check ack: Client answer to a connection check
  */
 public class SignalPacket extends DataPacket {
     private final Signal signal;
